@@ -1,0 +1,69 @@
+{
+  "app": {
+    "name": "ERP tizimi",
+    "companyTagline": "Korxona boshqaruv tizimi"
+  },
+  "auth": {
+    "loginTitle": "Tizimga kirish",
+    "loginSubtitle": "Hisobingiz bilan kiring",
+    "email": "Email",
+    "emailPlaceholder": "email@kompaniya.uz",
+    "password": "Parol",
+    "loginButton": "Kirish",
+    "loggingIn": "Kirilmoqda...",
+    "logout": "Chiqish",
+    "invalidEmail": "Email formati noto'g'ri",
+    "passwordRequired": "Parol kiritilishi shart",
+    "loginFailed": "Email yoki parol noto'g'ri"
+  },
+  "menu": {
+    "dashboard": "Direktor paneli",
+    "sales": "Savdo",
+    "customers": "Mijozlar",
+    "deals": "Bitimlar",
+    "orders": "Buyurtmalar",
+    "salesReturns": "Sotuv qaytarishlari",
+    "warehouseSection": "Ombor",
+    "products": "Mahsulotlar",
+    "warehouses": "Omborlar",
+    "suppliers": "Yetkazib beruvchilar",
+    "purchases": "Xaridlar",
+    "purchaseReturns": "Xarid qaytarishlari",
+    "stockTransfers": "Ko'chirishlar",
+    "stockCounts": "Inventarizatsiya",
+    "financeSection": "Moliya",
+    "transactions": "Tranzaksiyalar",
+    "payments": "To'lovlar",
+    "debts": "Qarzdorlik",
+    "accounts": "Hisoblar",
+    "invoices": "Hisob-fakturalar",
+    "moneyTransfers": "O'tkazmalar",
+    "hrSection": "Xodimlar",
+    "employees": "Xodimlar",
+    "attendance": "Davomat",
+    "advances": "Avanslar",
+    "payroll": "Ish haqi",
+    "systemSection": "Tizim",
+    "reports": "Hisobotlar",
+    "imports": "Import (Excel)",
+    "users": "Foydalanuvchilar",
+    "settings": "Sozlamalar",
+    "audit": "Audit jurnali"
+  },
+  "common": {
+    "loading": "Yuklanmoqda...",
+    "noData": "Hozircha ma'lumot yo'q",
+    "error": "Xatolik yuz berdi",
+    "forbidden": "Bu sahifaga kirish huquqingiz yo'q",
+    "comingSoon": "Bu modul keyingi bosqichda quriladi",
+    "search": "Qidiruv...",
+    "notifications": "Bildirishnomalar"
+  },
+  "roles": {
+    "admin": "Direktor / Administrator",
+    "accountant": "Buxgalter",
+    "warehouse": "Omborchi",
+    "sales": "Savdo menejeri",
+    "hr": "HR menejeri"
+  }
+}

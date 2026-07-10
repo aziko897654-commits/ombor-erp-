@@ -1,0 +1,520 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  admin
+  accountant
+  warehouse
+  sales
+  hr
+}
+
+enum DealStage {
+  new
+  negotiation
+  won
+  lost
+}
+
+enum OrderStatus {
+  draft
+  confirmed
+  shipped
+  cancelled
+}
+
+enum MovementType {
+  purchase
+  sale
+  sale_return
+  purchase_return
+  writeoff
+  transfer
+  adjustment
+}
+
+enum TxType {
+  income
+  expense
+}
+
+enum TxSource {
+  manual
+  payment
+  salary
+  advance
+  transfer
+}
+
+enum PayDirection {
+  in
+  out
+}
+
+enum AccountType {
+  cash
+  bank
+}
+
+enum InvoiceStatus {
+  draft
+  sent
+  paid
+}
+
+enum CountStatus {
+  draft
+  completed
+}
+
+enum AttendanceStatus {
+  present
+  absent
+  vacation
+  sick
+}
+
+enum EmployeeStatus {
+  active
+  fired
+}
+
+model User {
+  id            Int            @id @default(autoincrement())
+  email         String         @unique
+  passwordHash  String
+  firstName     String
+  lastName      String
+  role          Role
+  isActive      Boolean        @default(true)
+  createdAt     DateTime       @default(now())
+  deals         Deal[]
+  auditLogs     AuditLog[]
+  notifications Notification[]
+}
+
+model Customer {
+  id        Int       @id @default(autoincrement())
+  name      String
+  phone     String?
+  email     String?
+  address   String?
+  note      String?
+  createdAt DateTime  @default(now())
+  deals     Deal[]
+  orders    Order[]
+  payments  Payment[]
+
+  @@index([name])
+}
+
+model Supplier {
+  id        Int        @id @default(autoincrement())
+  name      String
+  phone     String?
+  email     String?
+  address   String?
+  note      String?
+  createdAt DateTime   @default(now())
+  purchases Purchase[]
+  payments  Payment[]
+}
+
+model Deal {
+  id         Int       @id @default(autoincrement())
+  title      String
+  customerId Int
+  customer   Customer  @relation(fields: [customerId], references: [id])
+  amount     Decimal   @db.Decimal(16, 2)
+  stage      DealStage @default(new)
+  managerId  Int
+  manager    User      @relation(fields: [managerId], references: [id])
+  note       String?
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+}
+
+model Warehouse {
+  id              Int              @id @default(autoincrement())
+  name            String           @unique
+  address         String?
+  isActive        Boolean          @default(true)
+  movements       StockMovement[]
+  orders          Order[]
+  purchases       Purchase[]
+  stockCounts     StockCount[]
+  salesReturns    SalesReturn[]
+  purchaseReturns PurchaseReturn[]
+}
+
+model Order {
+  id          Int           @id @default(autoincrement())
+  number      String        @unique // ORD-2026-0001
+  customerId  Int
+  customer    Customer      @relation(fields: [customerId], references: [id])
+  warehouseId Int
+  warehouse   Warehouse     @relation(fields: [warehouseId], references: [id])
+  status      OrderStatus   @default(draft)
+  subtotal    Decimal       @db.Decimal(16, 2) // pozitsiyalar yig'indisi
+  discount    Decimal       @db.Decimal(16, 2) @default(0)
+  total       Decimal       @db.Decimal(16, 2) // subtotal - discount
+  createdAt   DateTime      @default(now())
+  items       OrderItem[]
+  invoice     Invoice?
+  payments    Payment[]
+  returns     SalesReturn[]
+}
+
+model OrderItem {
+  id        Int     @id @default(autoincrement())
+  orderId   Int
+  order     Order   @relation(fields: [orderId], references: [id])
+  productId Int
+  product   Product @relation(fields: [productId], references: [id])
+  quantity  Decimal @db.Decimal(12, 3)
+  price     Decimal @db.Decimal(16, 2) // sotuv paytidagi narx (fiksatsiya)
+  cost      Decimal @db.Decimal(16, 2) @default(0) // tasdiqlashdagi avgCost (FR-2.12)
+}
+
+model Purchase {
+  id          Int              @id @default(autoincrement())
+  number      String           @unique // PUR-2026-0001
+  supplierId  Int
+  supplier    Supplier         @relation(fields: [supplierId], references: [id])
+  warehouseId Int
+  warehouse   Warehouse        @relation(fields: [warehouseId], references: [id])
+  date        DateTime         @default(now())
+  total       Decimal          @db.Decimal(16, 2)
+  note        String?
+  userId      Int
+  createdAt   DateTime         @default(now())
+  items       PurchaseItem[]
+  payments    Payment[]
+  returns     PurchaseReturn[]
+}
+
+model PurchaseItem {
+  id         Int      @id @default(autoincrement())
+  purchaseId Int
+  purchase   Purchase @relation(fields: [purchaseId], references: [id])
+  productId  Int
+  product    Product  @relation(fields: [productId], references: [id])
+  quantity   Decimal  @db.Decimal(12, 3)
+  costPrice  Decimal  @db.Decimal(16, 2)
+}
+
+model Category {
+  id       Int       @id @default(autoincrement())
+  name     String    @unique
+  products Product[]
+}
+
+model Product {
+  id                  Int                  @id @default(autoincrement())
+  name                String
+  sku                 String               @unique
+  barcode             String?              @unique
+  categoryId          Int
+  category            Category             @relation(fields: [categoryId], references: [id])
+  unit                String // dona, kg, litr, metr
+  costPrice           Decimal              @db.Decimal(16, 2) // oxirgi xarid narxi
+  avgCost             Decimal              @db.Decimal(16, 2) @default(0) // AVCO (FR-2.12)
+  salePrice           Decimal              @db.Decimal(16, 2)
+  minStock            Decimal              @db.Decimal(12, 3) @default(0)
+  isActive            Boolean              @default(true)
+  movements           StockMovement[]
+  orderItems          OrderItem[]
+  purchaseItems       PurchaseItem[]
+  salesReturnItems    SalesReturnItem[]
+  purchaseReturnItems PurchaseReturnItem[]
+  stockCountItems     StockCountItem[]
+}
+
+model StockMovement {
+  id          Int          @id @default(autoincrement())
+  productId   Int
+  product     Product      @relation(fields: [productId], references: [id])
+  warehouseId Int
+  warehouse   Warehouse    @relation(fields: [warehouseId], references: [id])
+  type        MovementType
+  quantity    Decimal      @db.Decimal(12, 3) // kirim: +, chiqim: −
+  reason      String? // writeoff/adjustment uchun
+  refType     String? // "order" | "purchase" | "transfer"
+  refId       Int?
+  userId      Int
+  createdAt   DateTime     @default(now())
+
+  @@index([productId, warehouseId])
+}
+
+model StockTransfer {
+  id              Int      @id @default(autoincrement())
+  number          String   @unique // TRF-2026-0001
+  fromWarehouseId Int
+  toWarehouseId   Int
+  date            DateTime @default(now())
+  note            String?
+  userId          Int
+}
+
+model SalesReturn {
+  id          Int               @id @default(autoincrement())
+  number      String            @unique // SRT-2026-0001
+  orderId     Int
+  order       Order             @relation(fields: [orderId], references: [id])
+  warehouseId Int
+  warehouse   Warehouse         @relation(fields: [warehouseId], references: [id])
+  date        DateTime          @default(now())
+  total       Decimal           @db.Decimal(16, 2)
+  note        String?
+  userId      Int
+  createdAt   DateTime          @default(now())
+  items       SalesReturnItem[]
+}
+
+model SalesReturnItem {
+  id          Int         @id @default(autoincrement())
+  returnId    Int
+  salesReturn SalesReturn @relation(fields: [returnId], references: [id])
+  productId   Int
+  product     Product     @relation(fields: [productId], references: [id])
+  quantity    Decimal     @db.Decimal(12, 3)
+  price       Decimal     @db.Decimal(16, 2) // buyurtmadagi narx
+}
+
+model PurchaseReturn {
+  id          Int                  @id @default(autoincrement())
+  number      String               @unique // PRT-2026-0001
+  purchaseId  Int
+  purchase    Purchase             @relation(fields: [purchaseId], references: [id])
+  warehouseId Int
+  warehouse   Warehouse            @relation(fields: [warehouseId], references: [id])
+  date        DateTime             @default(now())
+  total       Decimal              @db.Decimal(16, 2)
+  note        String?
+  userId      Int
+  createdAt   DateTime             @default(now())
+  items       PurchaseReturnItem[]
+}
+
+model PurchaseReturnItem {
+  id             Int            @id @default(autoincrement())
+  returnId       Int
+  purchaseReturn PurchaseReturn @relation(fields: [returnId], references: [id])
+  productId      Int
+  product        Product        @relation(fields: [productId], references: [id])
+  quantity       Decimal        @db.Decimal(12, 3)
+  costPrice      Decimal        @db.Decimal(16, 2) // xariddagi narx
+}
+
+model StockCount {
+  id          Int              @id @default(autoincrement())
+  number      String           @unique // INVT-2026-0001
+  warehouseId Int
+  warehouse   Warehouse        @relation(fields: [warehouseId], references: [id])
+  date        DateTime         @default(now())
+  status      CountStatus      @default(draft)
+  note        String?
+  userId      Int
+  createdAt   DateTime         @default(now())
+  items       StockCountItem[]
+}
+
+model StockCountItem {
+  id        Int        @id @default(autoincrement())
+  countId   Int
+  count     StockCount @relation(fields: [countId], references: [id])
+  productId Int
+  product   Product    @relation(fields: [productId], references: [id])
+  systemQty Decimal    @db.Decimal(12, 3) // hujjat yaratilgandagi tizim qoldig'i
+  actualQty Decimal    @db.Decimal(12, 3) // sanoq natijasi
+  diff      Decimal    @db.Decimal(12, 3) // actual - system
+}
+
+model MoneyTransfer {
+  id            Int      @id @default(autoincrement())
+  date          DateTime @default(now())
+  fromAccountId Int
+  fromAccount   Account  @relation("TransferFrom", fields: [fromAccountId], references: [id])
+  toAccountId   Int
+  toAccount     Account  @relation("TransferTo", fields: [toAccountId], references: [id])
+  amount        Decimal  @db.Decimal(16, 2)
+  note          String?
+  userId        Int
+  createdAt     DateTime @default(now())
+}
+
+model Account {
+  id             Int             @id @default(autoincrement())
+  name           String
+  type           AccountType
+  openingBalance Decimal         @db.Decimal(16, 2) @default(0)
+  transactions   Transaction[]
+  payments       Payment[]
+  transfersFrom  MoneyTransfer[] @relation("TransferFrom")
+  transfersTo    MoneyTransfer[] @relation("TransferTo")
+}
+
+model TxCategory {
+  id           Int           @id @default(autoincrement())
+  name         String
+  type         TxType
+  transactions Transaction[]
+}
+
+model Transaction {
+  id         Int        @id @default(autoincrement())
+  date       DateTime   @default(now())
+  accountId  Int
+  account    Account    @relation(fields: [accountId], references: [id])
+  type       TxType
+  amount     Decimal    @db.Decimal(16, 2)
+  categoryId Int
+  category   TxCategory @relation(fields: [categoryId], references: [id])
+  source     TxSource   @default(manual)
+  refId      Int? // manba: payment.id / payroll.id / advance.id
+  note       String?
+  userId     Int
+}
+
+model Payment {
+  id         Int          @id @default(autoincrement())
+  date       DateTime     @default(now())
+  direction  PayDirection // FR-3.6: in/out — kontragent bilan birga o'qiladi
+  accountId  Int
+  account    Account      @relation(fields: [accountId], references: [id])
+  amount     Decimal      @db.Decimal(16, 2)
+  customerId Int?
+  customer   Customer?    @relation(fields: [customerId], references: [id])
+  supplierId Int?
+  supplier   Supplier?    @relation(fields: [supplierId], references: [id])
+  orderId    Int?
+  order      Order?       @relation(fields: [orderId], references: [id])
+  purchaseId Int?
+  purchase   Purchase?    @relation(fields: [purchaseId], references: [id])
+  note       String?
+  userId     Int
+  createdAt  DateTime     @default(now())
+}
+
+model Invoice {
+  id       Int           @id @default(autoincrement())
+  number   String        @unique // INV-2026-0001
+  orderId  Int           @unique
+  order    Order         @relation(fields: [orderId], references: [id])
+  status   InvoiceStatus @default(draft)
+  issuedAt DateTime      @default(now())
+  paidAt   DateTime?
+}
+
+model Department {
+  id        Int        @id @default(autoincrement())
+  name      String     @unique
+  employees Employee[]
+}
+
+model Position {
+  id        Int        @id @default(autoincrement())
+  name      String     @unique
+  employees Employee[]
+}
+
+model Employee {
+  id           Int            @id @default(autoincrement())
+  fullName     String
+  phone        String?
+  email        String?
+  departmentId Int
+  department   Department     @relation(fields: [departmentId], references: [id])
+  positionId   Int
+  position     Position       @relation(fields: [positionId], references: [id])
+  salary       Decimal        @db.Decimal(16, 2)
+  hiredAt      DateTime
+  firedAt      DateTime?
+  status       EmployeeStatus @default(active)
+  attendance   Attendance[]
+  payrollItems PayrollItem[]
+  advances     Advance[]
+}
+
+model Attendance {
+  id         Int              @id @default(autoincrement())
+  employeeId Int
+  employee   Employee         @relation(fields: [employeeId], references: [id])
+  date       DateTime         @db.Date
+  status     AttendanceStatus
+
+  @@unique([employeeId, date])
+}
+
+model Advance {
+  id         Int      @id @default(autoincrement())
+  employeeId Int
+  employee   Employee @relation(fields: [employeeId], references: [id])
+  date       DateTime @default(now())
+  amount     Decimal  @db.Decimal(16, 2)
+  accountId  Int
+  note       String?
+  userId     Int
+}
+
+model Payroll {
+  id        Int           @id @default(autoincrement())
+  month     String        @unique // "2026-07"
+  total     Decimal       @db.Decimal(16, 2) // net yig'indisi
+  createdAt DateTime      @default(now())
+  items     PayrollItem[]
+}
+
+model PayrollItem {
+  id         Int      @id @default(autoincrement())
+  payrollId  Int
+  payroll    Payroll  @relation(fields: [payrollId], references: [id])
+  employeeId Int
+  employee   Employee @relation(fields: [employeeId], references: [id])
+  baseSalary Decimal  @db.Decimal(16, 2)
+  bonus      Decimal  @db.Decimal(16, 2) @default(0)
+  penalty    Decimal  @db.Decimal(16, 2) @default(0)
+  advance    Decimal  @db.Decimal(16, 2) @default(0) // oy avanslari yig'indisi
+  amount     Decimal  @db.Decimal(16, 2) // net = base + bonus - penalty - advance
+}
+
+model AppSetting {
+  id            Int     @id @default(1) // singleton
+  companyName   String
+  address       String?
+  phone         String?
+  inn           String?
+  bankDetails   String?
+  invoiceFooter String?
+  logoPath      String?
+}
+
+model Notification {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id])
+  title     String
+  message   String
+  link      String?
+  isRead    Boolean  @default(false)
+  dedupeKey String? // FR-7.3 uchun (masalan "low-stock:productId")
+  createdAt DateTime @default(now())
+}
+
+model AuditLog {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id])
+  action    String // "order.confirm", "payment.delete" ...
+  entity    String
+  entityId  Int?
+  details   Json?
+  createdAt DateTime @default(now())
+}
