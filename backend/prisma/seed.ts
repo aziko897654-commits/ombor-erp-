@@ -29,6 +29,15 @@ async function main() {
     });
   }
 
+  // FR-2.0: at least "Asosiy ombor" must exist
+  for (const name of ['Asosiy ombor', 'Filial ombori']) {
+    await prisma.warehouse.upsert({
+      where: { name },
+      update: {},
+      create: { name },
+    });
+  }
+
   await prisma.appSetting.upsert({
     where: { id: 1 },
     update: {},
@@ -43,7 +52,9 @@ async function main() {
     },
   });
 
-  console.log('Seed OK: 5 users (password: Demo1234!), app settings');
+  console.log(
+    'Seed OK: 5 users (password: Demo1234!), 2 warehouses, app settings',
+  );
 }
 
 main()

@@ -36,4 +36,4 @@ Docker bo'lmasa: lokal PostgreSQL 16 (`C:\Users\user\erp-tools\pgsql`, data: `C:
 
 - `backend/` — NestJS + Prisma (modulli monolit; har modul: controller + service + dto)
 - `frontend/` — React 18 + Vite + Tailwind + shadcn/ui
-- Bosqichlar rejasi: TZ 10-bo'lim. Joriy holat: Bosqich 0 bajarilgan.
+- Bosqichlar rejasi: TZ 10-bo'lim. Joriy holat: Bosqich 1 bajarilgan (ombor konturi).
