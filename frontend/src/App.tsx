@@ -10,6 +10,13 @@ import { allMenuItems } from '@/lib/menu';
 import { DashboardPage } from '@/pages/DashboardPage';
 import { LoginPage } from '@/pages/LoginPage';
 import { PlaceholderPage } from '@/pages/PlaceholderPage';
+import { CustomerDetailPage } from '@/pages/sales/CustomerDetailPage';
+import { CustomersPage } from '@/pages/sales/CustomersPage';
+import { DealsPage } from '@/pages/sales/DealsPage';
+import { OrderCreatePage } from '@/pages/sales/OrderCreatePage';
+import { OrderDetailPage } from '@/pages/sales/OrderDetailPage';
+import { OrdersPage } from '@/pages/sales/OrdersPage';
+import { SalesReturnsPage } from '@/pages/sales/SalesReturnsPage';
 import { ImportsPage } from '@/pages/warehouse/ImportsPage';
 import { ProductDetailPage } from '@/pages/warehouse/ProductDetailPage';
 import { ProductsPage } from '@/pages/warehouse/ProductsPage';
@@ -26,6 +33,10 @@ import { WarehousesPage } from '@/pages/warehouse/WarehousesPage';
 
 // Stage-by-stage: implemented list pages replace their placeholders here.
 const IMPLEMENTED: Record<string, ComponentType> = {
+  '/customers': CustomersPage,
+  '/deals': DealsPage,
+  '/orders': OrdersPage,
+  '/returns/sales': SalesReturnsPage,
   '/products': ProductsPage,
   '/warehouses': WarehousesPage,
   '/suppliers': SuppliersPage,
@@ -46,6 +57,9 @@ const DETAIL_ROUTES: Array<{
   { path: '/purchases/new', roles: ['admin', 'warehouse'], Component: PurchaseCreatePage },
   { path: '/purchases/:id', roles: ['admin', 'warehouse', 'accountant'], Component: PurchaseDetailPage },
   { path: '/stock/counts/:id', roles: ['admin', 'warehouse'], Component: StockCountDetailPage },
+  { path: '/customers/:id', roles: ['admin', 'sales'], Component: CustomerDetailPage },
+  { path: '/orders/new', roles: ['admin', 'sales'], Component: OrderCreatePage },
+  { path: '/orders/:id', roles: ['admin', 'sales'], Component: OrderDetailPage },
 ];
 
 export function App() {

@@ -20,18 +20,74 @@ import { useAuth } from '@/lib/auth';
 import { apiErrorMessage } from '@/lib/format';
 import { t } from '@/lib/i18n';
 
+interface PreviewColumn {
+  key: string;
+  label: string;
+  align?: 'right';
+}
+
+const PRODUCT_COLUMNS: PreviewColumn[] = [
+  { key: 'name', label: t('common.name') },
+  { key: 'sku', label: 'SKU' },
+  { key: 'category', label: t('products.category') },
+  { key: 'unit', label: t('products.unit') },
+  { key: 'costPrice', label: t('products.costPrice'), align: 'right' },
+  { key: 'salePrice', label: t('products.salePrice'), align: 'right' },
+];
+
+const CUSTOMER_COLUMNS: PreviewColumn[] = [
+  { key: 'name', label: t('common.name') },
+  { key: 'phone', label: t('common.phone') },
+  { key: 'email', label: 'Email' },
+  { key: 'address', label: t('common.address') },
+  { key: 'note', label: t('common.note') },
+];
+
 export function ImportsPage() {
   const { user } = useAuth();
+  // FR-8.1: products — warehouse/admin; customers — sales/admin
+  const canImportProducts = user?.role === 'admin' || user?.role === 'warehouse';
+  const canImportCustomers = user?.role === 'admin' || user?.role === 'sales';
+
+  return (
+    <div className="max-w-4xl">
+      <h1 className="mb-4 text-2xl font-semibold">{t('imports.title')}</h1>
+      <div className="space-y-8">
+        {canImportProducts && (
+          <ImportSection
+            type="products"
+            title={t('imports.products')}
+            columns={PRODUCT_COLUMNS}
+          />
+        )}
+        {canImportCustomers && (
+          <ImportSection
+            type="customers"
+            title={t('imports.customers')}
+            columns={CUSTOMER_COLUMNS}
+          />
+        )}
+      </div>
+    </div>
+  );
+}
+
+function ImportSection({
+  type,
+  title,
+  columns,
+}: {
+  type: 'products' | 'customers';
+  title: string;
+  columns: PreviewColumn[];
+}) {
   const fileRef = useRef<HTMLInputElement>(null);
   const [preview, setPreview] = useState<ImportPreview | null>(null);
   const [result, setResult] = useState<{ imported: number } | null>(null);
   const [error, setError] = useState('');
 
-  // FR-8.1: products import — warehouse/admin (customers arrive in stage 2)
-  const canImportProducts = user?.role === 'admin' || user?.role === 'warehouse';
-
   const previewMutation = useMutation({
-    mutationFn: (file: File) => previewImport('products', file),
+    mutationFn: (file: File) => previewImport(type, file),
     onSuccess: (data) => {
       setPreview(data);
       setResult(null);
@@ -41,7 +97,7 @@ export function ImportsPage() {
   });
 
   const commitMutation = useMutation({
-    mutationFn: () => commitImport('products', preview?.valid ?? []),
+    mutationFn: () => commitImport(type, preview?.valid ?? []),
     onSuccess: (data) => {
       setResult(data);
       setPreview(null);
@@ -53,11 +109,11 @@ export function ImportsPage() {
 
   const handleTemplate = async () => {
     try {
-      const blob = await downloadTemplate('products');
+      const blob = await downloadTemplate(type);
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = 'products-template.xlsx';
+      a.download = `${type}-template.xlsx`;
       a.click();
       URL.revokeObjectURL(url);
     } catch (err) {
@@ -65,24 +121,11 @@ export function ImportsPage() {
     }
   };
 
-  if (!canImportProducts) {
-    return (
-      <div>
-        <h1 className="mb-4 text-2xl font-semibold">{t('imports.title')}</h1>
-        <p className="text-muted-foreground">
-          Mijozlar importi Bosqich 2 da quriladi (savdo menejeri uchun).
-        </p>
-      </div>
-    );
-  }
-
   return (
-    <div className="max-w-4xl">
-      <h1 className="mb-4 text-2xl font-semibold">{t('imports.title')}</h1>
-
+    <div>
       <Card className="mb-4">
         <CardHeader>
-          <CardTitle className="text-base">{t('imports.products')}</CardTitle>
+          <CardTitle className="text-base">{title}</CardTitle>
           <CardDescription>
             1) Shablonni yuklab oling → 2) to'ldiring → 3) faylni yuklang → 4)
             oldindan ko'rib tasdiqlang
@@ -203,24 +246,30 @@ export function ImportsPage() {
                     <thead>
                       <tr className="border-b text-left text-xs font-semibold uppercase text-muted-foreground">
                         <th className="px-2 py-1.5">{t('imports.row')}</th>
-                        <th className="px-2 py-1.5">{t('common.name')}</th>
-                        <th className="px-2 py-1.5">SKU</th>
-                        <th className="px-2 py-1.5">{t('products.category')}</th>
-                        <th className="px-2 py-1.5">{t('products.unit')}</th>
-                        <th className="px-2 py-1.5 text-right">{t('products.costPrice')}</th>
-                        <th className="px-2 py-1.5 text-right">{t('products.salePrice')}</th>
+                        {columns.map((c) => (
+                          <th
+                            key={c.key}
+                            className={`px-2 py-1.5 ${c.align === 'right' ? 'text-right' : ''}`}
+                          >
+                            {c.label}
+                          </th>
+                        ))}
                       </tr>
                     </thead>
                     <tbody>
                       {preview.valid.map((r: any) => (
                         <tr key={r.row} className="border-b last:border-0">
                           <td className="px-2 py-1.5 text-muted-foreground">{r.row}</td>
-                          <td className="px-2 py-1.5 font-medium">{r.name}</td>
-                          <td className="px-2 py-1.5">{r.sku}</td>
-                          <td className="px-2 py-1.5">{r.category}</td>
-                          <td className="px-2 py-1.5">{r.unit}</td>
-                          <td className="px-2 py-1.5 text-right">{r.costPrice}</td>
-                          <td className="px-2 py-1.5 text-right">{r.salePrice}</td>
+                          {columns.map((c) => (
+                            <td
+                              key={c.key}
+                              className={`px-2 py-1.5 ${
+                                c.key === 'name' ? 'font-medium' : ''
+                              } ${c.align === 'right' ? 'text-right' : ''}`}
+                            >
+                              {r[c.key] ?? '—'}
+                            </td>
+                          ))}
                         </tr>
                       ))}
                     </tbody>

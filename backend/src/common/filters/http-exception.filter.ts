@@ -1,4 +1,4 @@
-import {
+﻿import {
   ArgumentsHost,
   Catch,
   ExceptionFilter,
@@ -6,7 +6,7 @@ import {
   HttpStatus,
   Logger,
 } from '@nestjs/common';
-import { Response } from 'express';
+import type { Response } from 'express';
 
 /** Normalizes all error responses to { statusCode, message, error } (section 6.4). */
 @Catch()

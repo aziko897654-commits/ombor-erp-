@@ -4,7 +4,6 @@ import {
   Controller,
   ForbiddenException,
   Get,
-  Header,
   Post,
   Query,
   StreamableFile,
@@ -13,23 +12,29 @@ import {
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { Role } from '@prisma/client';
-import { Type } from 'class-transformer';
+import { plainToInstance } from 'class-transformer';
 import {
-  ArrayMinSize,
-  IsArray,
-  IsIn,
   IsInt,
   IsNumber,
   IsOptional,
   IsString,
-  ValidateNested,
+  validateSync,
 } from 'class-validator';
 import {
   AuthUser,
   CurrentUser,
 } from '../../common/decorators/current-user.decorator';
 import { Roles } from '../../common/decorators/roles.decorator';
-import { ImportsService, ProductImportRow } from './imports.service';
+import {
+  CustomerImportRow,
+  ImportsService,
+  ProductImportRow,
+} from './imports.service';
+
+const XLSX_MIME =
+  'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
+
+type ImportType = 'products' | 'customers';
 
 class ProductRowDto implements ProductImportRow {
   @IsInt()
@@ -62,22 +67,59 @@ class ProductRowDto implements ProductImportRow {
   minStock?: number;
 }
 
-class CommitDto {
-  @IsIn(['products'], { message: "Import turi noto'g'ri" })
-  type!: 'products';
+class CustomerRowDto implements CustomerImportRow {
+  @IsInt()
+  row!: number;
 
-  @IsArray()
-  @ArrayMinSize(1, { message: "Import qilinadigan satrlar yo'q" })
-  @ValidateNested({ each: true })
-  @Type(() => ProductRowDto)
-  rows!: ProductRowDto[];
+  @IsString()
+  name!: string;
+
+  @IsOptional()
+  @IsString()
+  phone?: string;
+
+  @IsOptional()
+  @IsString()
+  email?: string;
+
+  @IsOptional()
+  @IsString()
+  address?: string;
+
+  @IsOptional()
+  @IsString()
+  note?: string;
 }
 
-// FR-8.1: products — warehouse/admin; customers (stage 2) — sales/admin
+// FR-8.1: products — warehouse/admin; customers — sales/admin
 function assertTypeAllowed(type: string, role: Role) {
-  if (type === 'products' && role !== Role.admin && role !== Role.warehouse) {
+  const allowed: Record<ImportType, Role[]> = {
+    products: [Role.admin, Role.warehouse],
+    customers: [Role.admin, Role.sales],
+  };
+  const roles = allowed[type as ImportType];
+  if (!roles) {
+    throw new BadRequestException("Noma'lum import turi");
+  }
+  if (!roles.includes(role)) {
     throw new ForbiddenException("Bu import turi uchun ruxsatingiz yo'q");
   }
+}
+
+/** Row-level shape check per type (the service re-validates content). */
+function parseRows<T extends object>(cls: new () => T, rows: unknown[]): T[] {
+  const instances = plainToInstance(cls, rows);
+  for (const instance of instances) {
+    const errors = validateSync(instance);
+    if (errors.length > 0) {
+      throw new BadRequestException(
+        `Satrlar formati noto'g'ri: ${errors
+          .map((e) => Object.values(e.constraints ?? {}).join(', '))
+          .join('; ')}`,
+      );
+    }
+  }
+  return instances;
 }
 
 @Controller('imports')
@@ -86,20 +128,16 @@ export class ImportsController {
   constructor(private readonly service: ImportsService) {}
 
   @Get('template')
-  @Header(
-    'Content-Type',
-    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-  )
-  @Header('Content-Disposition', 'attachment; filename="products-template.xlsx"')
   async template(@Query('type') type: string, @CurrentUser() user: AuthUser) {
-    if (type !== 'products') {
-      throw new BadRequestException(
-        "Noma'lum import turi (hozircha faqat products)",
-      );
-    }
     assertTypeAllowed(type, user.role);
-    const buffer = await this.service.buildProductsTemplate();
-    return new StreamableFile(buffer);
+    const buffer =
+      type === 'products'
+        ? await this.service.buildProductsTemplate()
+        : await this.service.buildCustomersTemplate();
+    return new StreamableFile(buffer, {
+      type: XLSX_MIME,
+      disposition: `attachment; filename="${type}-template.xlsx"`,
+    });
   }
 
   @Post('preview')
@@ -109,19 +147,25 @@ export class ImportsController {
     @Body('type') type: string,
     @CurrentUser() user: AuthUser,
   ) {
-    if (type !== 'products') {
-      throw new BadRequestException(
-        "Noma'lum import turi (hozircha faqat products)",
-      );
-    }
     assertTypeAllowed(type, user.role);
     if (!file) throw new BadRequestException('Fayl yuklanmadi');
-    return this.service.previewProducts(file.buffer);
+    return type === 'products'
+      ? this.service.previewProducts(file.buffer)
+      : this.service.previewCustomers(file.buffer);
   }
 
+  // Untyped body on purpose: the global pipe's implicit conversion
+  // mangles untyped nested arrays; parseRows validates the row shape.
   @Post('commit')
-  commit(@Body() dto: CommitDto, @CurrentUser() user: AuthUser) {
-    assertTypeAllowed(dto.type, user.role);
-    return this.service.commitProducts(dto.rows, user.id);
+  commit(@Body() body: Record<string, unknown>, @CurrentUser() user: AuthUser) {
+    const type = String(body?.type ?? '');
+    assertTypeAllowed(type, user.role);
+    const rows = Array.isArray(body?.rows) ? (body.rows as unknown[]) : [];
+    if (rows.length === 0) {
+      throw new BadRequestException("Import qilinadigan satrlar yo'q");
+    }
+    return type === 'products'
+      ? this.service.commitProducts(parseRows(ProductRowDto, rows), user.id)
+      : this.service.commitCustomers(parseRows(CustomerRowDto, rows), user.id);
   }
 }

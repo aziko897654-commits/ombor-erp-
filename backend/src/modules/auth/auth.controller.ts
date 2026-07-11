@@ -1,4 +1,4 @@
-import {
+﻿import {
   Body,
   Controller,
   Get,
@@ -10,7 +10,7 @@ import {
   Res,
 } from '@nestjs/common';
 import { Throttle } from '@nestjs/throttler';
-import { Request, Response } from 'express';
+import type { Request, Response } from 'express';
 import {
   AuthUser,
   CurrentUser,
@@ -27,7 +27,7 @@ const REFRESH_COOKIE_MAX_AGE = 7 * 24 * 60 * 60 * 1000; // 7 days
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
-  // FR-0.5: rate limit — 5 attempts per minute per IP
+  // FR-0.5: rate limit вЂ” 5 attempts per minute per IP
   @Public()
   @Throttle({ default: { limit: 5, ttl: 60_000 } })
   @Post('login')
