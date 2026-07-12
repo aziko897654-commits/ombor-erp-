@@ -30,6 +30,10 @@ import { OrderCreatePage } from '@/pages/sales/OrderCreatePage';
 import { OrderDetailPage } from '@/pages/sales/OrderDetailPage';
 import { OrdersPage } from '@/pages/sales/OrdersPage';
 import { SalesReturnsPage } from '@/pages/sales/SalesReturnsPage';
+import { AuditPage } from '@/pages/system/AuditPage';
+import { ReportsPage } from '@/pages/system/ReportsPage';
+import { SettingsPage } from '@/pages/system/SettingsPage';
+import { UsersPage } from '@/pages/system/UsersPage';
 import { ImportsPage } from '@/pages/warehouse/ImportsPage';
 import { ProductDetailPage } from '@/pages/warehouse/ProductDetailPage';
 import { ProductsPage } from '@/pages/warehouse/ProductsPage';
@@ -60,6 +64,10 @@ const IMPLEMENTED: Record<string, ComponentType> = {
   '/attendance': AttendancePage,
   '/advances': AdvancesPage,
   '/payroll': PayrollPage,
+  '/reports': ReportsPage,
+  '/users': UsersPage,
+  '/settings': SettingsPage,
+  '/audit': AuditPage,
   '/products': ProductsPage,
   '/warehouses': WarehousesPage,
   '/suppliers': SuppliersPage,

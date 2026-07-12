@@ -15,6 +15,7 @@ import {
   pdfQty,
 } from '../../common/pdf/pdf.util';
 import { PrismaService } from '../../common/prisma/prisma.service';
+import { NotificationsService } from '../notifications/notifications.service';
 import { SettingsService } from '../settings/settings.service';
 import { StockService } from '../stock/stock.service';
 import { CreateOrderDto, OrderItemDto, UpdateOrderDto } from './dto/order.dto';
@@ -52,6 +53,7 @@ export class OrdersService {
     private readonly numbering: NumberingService,
     private readonly audit: AuditService,
     private readonly settings: SettingsService,
+    private readonly notifications: NotificationsService,
   ) {}
 
   async findAll(params: {
@@ -256,6 +258,17 @@ export class OrdersService {
           entity: 'Order',
           entityId: id,
           details: { number: order.number, total: order.total.toString() },
+        },
+        tx,
+      );
+
+      // FR-7.2: "Buyurtma tasdiqlandi" → admin
+      await this.notifications.notifyRoles(
+        ['admin'],
+        {
+          title: 'Buyurtma tasdiqlandi',
+          message: `${order.number} — ${order.customer.name}, jami ${order.total.toString()} so'm`,
+          link: `/orders/${id}`,
         },
         tx,
       );

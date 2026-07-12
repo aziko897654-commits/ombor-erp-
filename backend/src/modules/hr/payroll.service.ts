@@ -8,6 +8,7 @@ import { Prisma } from '@prisma/client';
 import { AuditService } from '../../common/audit/audit.service';
 import { PrismaService } from '../../common/prisma/prisma.service';
 import { resolveCategory } from '../finance/categories.util';
+import { NotificationsService } from '../notifications/notifications.service';
 import { CreatePayrollDto } from './dto/hr.dto';
 import { monthRange } from './month.util';
 
@@ -23,6 +24,7 @@ export class PayrollService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly audit: AuditService,
+    private readonly notifications: NotificationsService,
   ) {}
 
   async findAll(page: number, limit: number) {
@@ -147,6 +149,17 @@ export class PayrollService {
               total: total.toString(),
               employees: items.length,
             },
+          },
+          tx,
+        );
+
+        // FR-7.2: "Oylik vedomost yaratildi" → admin
+        await this.notifications.notifyRoles(
+          ['admin'],
+          {
+            title: 'Oylik vedomost yaratildi',
+            message: `${dto.month} — ${items.length} xodim, jami ${total.toString()} so'm`,
+            link: `/payroll/${created.id}`,
           },
           tx,
         );

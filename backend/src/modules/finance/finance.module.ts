@@ -21,6 +21,6 @@ import { TxCategoriesService } from './tx-categories.service';
     TxCategoriesService,
     TransactionsService,
   ],
-  exports: [AccountsService],
+  exports: [AccountsService, FinanceService],
 })
 export class FinanceModule {}

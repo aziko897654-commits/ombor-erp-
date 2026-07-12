@@ -5,6 +5,7 @@ import {
 } from '@nestjs/common';
 import { Prisma, TxSource, TxType } from '@prisma/client';
 import { AuditService } from '../../common/audit/audit.service';
+import { endOfDay } from '../../common/period.util';
 import { PrismaService } from '../../common/prisma/prisma.service';
 import { CreateTransactionDto } from './dto/finance.dto';
 
@@ -119,9 +120,5 @@ export class TransactionsService {
   }
 }
 
-/** Inclusive upper bound for a DD date filter. */
-export function endOfDay(date: string): Date {
-  const d = new Date(date);
-  d.setHours(23, 59, 59, 999);
-  return d;
-}
+// kept as a re-export for existing importers (payments, finance)
+export { endOfDay };

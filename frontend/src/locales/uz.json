@@ -365,6 +365,89 @@
     "net": "Qo'lga tegishi",
     "createConfirm": "Vedomost yaratilgach o'zgartirib bo'lmaydi va moliyada chiqim tranzaksiyasi hosil bo'ladi. Davom etasizmi?"
   },
+  "dashboard": {
+    "today": "Bugun",
+    "week": "Hafta",
+    "month": "Oy",
+    "quarter": "Chorak",
+    "year": "Yil",
+    "income": "Tushum",
+    "expense": "Xarajat",
+    "profit": "Foyda",
+    "cash": "Pul qoldig'i",
+    "receivables": "Mijozlar qarzi",
+    "payables": "Yetkazib beruvchilarga qarz",
+    "grossProfit": "Yalpi foyda",
+    "stockValue": "Ombor qiymati",
+    "openDeals": "Ochiq bitimlar",
+    "activeEmployees": "Faol xodimlar",
+    "lowStock": "Kam zaxira",
+    "monthlyChart": "Oxirgi 12 oy: tushum va xarajat",
+    "funnelChart": "Bitimlar voronkasi",
+    "topChart": "Top-5 sotilgan mahsulot",
+    "dealsCount": "Bitimlar soni",
+    "dealsSum": "Summa",
+    "revenue": "Tushum",
+    "vsPrev": "o'tgan davrga nisbatan",
+    "noPrev": "O'tgan davrda ma'lumot yo'q"
+  },
+  "reports": {
+    "title": "Hisobotlar",
+    "period": "Davr",
+    "month": "Oy",
+    "build": "Ko'rish",
+    "names": {
+      "finance": "Moliyaviy hisobot",
+      "sales": "Sotuvlar hisoboti",
+      "stock": "Ombor hisoboti",
+      "debts": "Qarzdorlik hisoboti",
+      "payments": "To'lovlar hisoboti",
+      "attendance": "Davomat hisoboti",
+      "profit": "Foyda hisoboti"
+    }
+  },
+  "auditPage": {
+    "title": "Audit jurnali",
+    "user": "Foydalanuvchi",
+    "action": "Amal",
+    "entity": "Obyekt",
+    "details": "Tafsilotlar",
+    "actionFilter": "Amal bo'yicha filtr..."
+  },
+  "users": {
+    "title": "Foydalanuvchilar",
+    "new": "Yangi foydalanuvchi",
+    "editTitle": "Foydalanuvchini tahrirlash",
+    "firstName": "Ism",
+    "lastName": "Familiya",
+    "role": "Rol",
+    "password": "Parol",
+    "passwordHint": "Tahrirda bo'sh qoldirilsa parol o'zgarmaydi"
+  },
+  "settings": {
+    "title": "Sozlamalar",
+    "companyName": "Kompaniya nomi",
+    "inn": "STIR (INN)",
+    "bankDetails": "Bank rekvizitlari",
+    "invoiceFooter": "Hisob-faktura pastki matni",
+    "logo": "Logotip",
+    "uploadLogo": "Logotip yuklash (PNG/JPG, 1 MB gacha)",
+    "saved": "Saqlandi"
+  },
+  "notifications": {
+    "title": "Bildirishnomalar",
+    "empty": "Bildirishnomalar yo'q",
+    "markAll": "Barchasini o'qildi deb belgilash"
+  },
+  "search": {
+    "placeholder": "Qidiruv: mijoz, mahsulot, buyurtma...",
+    "customers": "Mijozlar",
+    "products": "Mahsulotlar",
+    "orders": "Buyurtmalar",
+    "suppliers": "Yetkazib beruvchilar",
+    "empty": "Hech narsa topilmadi",
+    "hint": "Kamida 2 ta belgi kiriting"
+  },
   "imports": {
     "title": "Import (Excel)",
     "products": "Mahsulotlar importi",
