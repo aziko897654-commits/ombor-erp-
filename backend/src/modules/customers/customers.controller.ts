@@ -23,8 +23,9 @@ import { CreateCustomerDto, UpdateCustomerDto } from './dto/customer.dto';
 export class CustomersController {
   constructor(private readonly service: CustomersService) {}
 
+  // accountant reads the list to pick a counterparty for payments (FR-3.6)
   @Get()
-  @Roles(Role.admin, Role.sales)
+  @Roles(Role.admin, Role.sales, Role.accountant)
   findAll(
     @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number,
     @Query('limit', new DefaultValuePipe(20), ParseIntPipe) limit: number,

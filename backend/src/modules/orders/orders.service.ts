@@ -6,9 +6,20 @@ import {
 import { OrderStatus, Prisma } from '@prisma/client';
 import { AuditService } from '../../common/audit/audit.service';
 import { NumberingService } from '../../common/numbering/numbering.service';
+import {
+  buildPdf,
+  drawCompanyHeader,
+  drawTable,
+  pdfDate,
+  pdfMoney,
+  pdfQty,
+} from '../../common/pdf/pdf.util';
 import { PrismaService } from '../../common/prisma/prisma.service';
+import { SettingsService } from '../settings/settings.service';
 import { StockService } from '../stock/stock.service';
 import { CreateOrderDto, OrderItemDto, UpdateOrderDto } from './dto/order.dto';
+
+const ZERO = new Prisma.Decimal(0);
 
 const ORDER_INCLUDE = {
   customer: { select: { id: true, name: true } },
@@ -20,6 +31,17 @@ const ORDER_INCLUDE = {
   },
   invoice: { select: { id: true, number: true, status: true } },
   returns: { select: { id: true, number: true, total: true, date: true } },
+  payments: {
+    select: {
+      id: true,
+      date: true,
+      direction: true,
+      amount: true,
+      note: true,
+      account: { select: { id: true, name: true } },
+    },
+    orderBy: { id: 'desc' as const },
+  },
 } satisfies Prisma.OrderInclude;
 
 @Injectable()
@@ -29,6 +51,7 @@ export class OrdersService {
     private readonly stock: StockService,
     private readonly numbering: NumberingService,
     private readonly audit: AuditService,
+    private readonly settings: SettingsService,
   ) {}
 
   async findAll(params: {
@@ -64,7 +87,13 @@ export class OrdersService {
       include: ORDER_INCLUDE,
     });
     if (!order) throw new NotFoundException('Buyurtma topilmadi');
-    return order;
+    // payment status (stage 3): paid = in-payments − refunds (computed)
+    const paidTotal = order.payments.reduce(
+      (acc, p) =>
+        p.direction === 'in' ? acc.plus(p.amount) : acc.minus(p.amount),
+      ZERO,
+    );
+    return { ...order, paidTotal: paidTotal.toString() };
   }
 
   /** FR-1.4: draft order; total = subtotal − discount (invariant 5). */
@@ -236,9 +265,9 @@ export class OrdersService {
   }
 
   /**
-   * FR-1.6: cancel — only from `confirmed`. Creates return (+)
-   * movements so the order's net stock effect is zero. The payment
-   * check is enabled in stage 3.
+   * FR-1.6: cancel — only from `confirmed`, and only when the order
+   * has no payments (they must be deleted first). Creates return (+)
+   * movements so the order's net stock effect is zero.
    */
   async cancel(id: number, userId: number) {
     const order = await this.findOne(id);
@@ -247,8 +276,24 @@ export class OrdersService {
         'Faqat tasdiqlangan (confirmed) buyurtma bekor qilinadi (FR-1.6)',
       );
     }
+    if (order.payments.length > 0) {
+      throw new BadRequestException(
+        "Buyurtma bo'yicha to'lovlar mavjud — avval to'lovlarni o'chiring (FR-1.6)",
+      );
+    }
 
     await this.prisma.$transaction(async (tx) => {
+      // same advisory lock as PaymentsService: serializes cancel vs
+      // a concurrent payment, then re-checks under the lock
+      const lockKey = `pay-order-${id}`;
+      await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtext(${lockKey}))`;
+      const paymentsCount = await tx.payment.count({ where: { orderId: id } });
+      if (paymentsCount > 0) {
+        throw new BadRequestException(
+          "Buyurtma bo'yicha to'lovlar mavjud — avval to'lovlarni o'chiring (FR-1.6)",
+        );
+      }
+
       for (const item of order.items) {
         await this.stock.createInflow(tx, {
           productId: item.productId,
@@ -297,6 +342,77 @@ export class OrdersService {
       details: { number: order.number },
     });
     return this.findOne(id);
+  }
+
+  /** FR-1.9: delivery note PDF for a confirmed/shipped order. */
+  async deliveryNote(id: number): Promise<{ number: string; buffer: Buffer }> {
+    const order = await this.findOne(id);
+    if (order.status !== 'confirmed' && order.status !== 'shipped') {
+      throw new BadRequestException(
+        'Yuk xati faqat tasdiqlangan buyurtma uchun chop etiladi (FR-1.9)',
+      );
+    }
+    const settings = await this.settings.get();
+
+    const buffer = await buildPdf((doc) => {
+      drawCompanyHeader(doc, settings);
+
+      doc
+        .font('Helvetica-Bold')
+        .fontSize(16)
+        .text(`YUK XATI № ${order.number}`, { align: 'center' });
+      doc
+        .font('Helvetica')
+        .fontSize(10)
+        .text(`Sana: ${pdfDate(order.createdAt)}`, { align: 'center' });
+      doc.moveDown(1);
+
+      doc.font('Helvetica-Bold').fontSize(10).text('Mijoz:', { continued: true });
+      doc.font('Helvetica').text(` ${order.customer.name}`);
+      doc.font('Helvetica-Bold').text('Ombor:', { continued: true });
+      doc.font('Helvetica').text(` ${order.warehouse.name}`);
+      doc.moveDown(1);
+
+      drawTable(
+        doc,
+        [
+          { header: '№', width: 25 },
+          { header: 'Mahsulot', width: 190 },
+          { header: 'Birlik', width: 45 },
+          { header: 'Miqdor', width: 65, align: 'right' },
+          { header: 'Narx', width: 90, align: 'right' },
+          { header: 'Summa', width: 100, align: 'right' },
+        ],
+        order.items.map((item, i) => [
+          String(i + 1),
+          `${item.product.name} (${item.product.sku})`,
+          item.product.unit,
+          pdfQty(item.quantity),
+          pdfMoney(item.price),
+          pdfMoney(item.quantity.times(item.price)),
+        ]),
+      );
+
+      const right = { align: 'right' as const };
+      doc.font('Helvetica').fontSize(10);
+      doc.text(`Oraliq jami: ${pdfMoney(order.subtotal)}`, right);
+      doc.text(`Chegirma: ${pdfMoney(order.discount)}`, right);
+      doc
+        .font('Helvetica-Bold')
+        .fontSize(12)
+        .text(`JAMI: ${pdfMoney(order.total)}`, right);
+
+      doc.moveDown(3);
+      doc.font('Helvetica').fontSize(10);
+      doc.text('Topshirdi: _________________________', {
+        continued: true,
+      });
+      doc.text('Qabul qildi: _________________________', {
+        align: 'right',
+      });
+    });
+
+    return { number: order.number, buffer };
   }
 
   private computeTotals(items: OrderItemDto[], discountValue: number) {

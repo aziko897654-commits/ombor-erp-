@@ -217,6 +217,12 @@
     "selectWarehouse": "Omborni tanlang",
     "selectProduct": "Mahsulotni tanlang",
     "stock": "Qoldiq",
+    "paymentStatus": "To'lov holati",
+    "paid": "To'langan",
+    "remaining": "Qoldiq summa",
+    "invoice": "Hisob-faktura",
+    "deliveryNote": "Yuk xati (PDF)",
+    "paymentsHistory": "To'lovlar",
     "status": {
       "draft": "Qoralama",
       "confirmed": "Tasdiqlangan",
@@ -232,6 +238,81 @@
     "maxQty": "Mumkin",
     "sold": "Sotilgan",
     "returned": "Qaytarilgan"
+  },
+  "accounts": {
+    "title": "Hisoblar",
+    "new": "Yangi hisob",
+    "type": "Turi",
+    "cash": "Kassa",
+    "bank": "Bank",
+    "openingBalance": "Boshlang'ich qoldiq",
+    "balance": "Joriy balans",
+    "total": "Jami mablag'",
+    "flowIncome": "Davr tushumi",
+    "flowExpense": "Davr xarajati",
+    "flowNet": "Farq"
+  },
+  "txs": {
+    "title": "Tranzaksiyalar",
+    "new": "Qo'lda tranzaksiya",
+    "income": "Kirim",
+    "expense": "Chiqim",
+    "account": "Hisob",
+    "category": "Kategoriya",
+    "categories": "Kategoriyalar",
+    "newCategory": "Yangi kategoriya",
+    "selectAccount": "Hisobni tanlang",
+    "selectCategory": "Kategoriyani tanlang",
+    "deleteConfirm": "Tranzaksiya o'chirilsinmi?",
+    "sourceLabel": "Manba",
+    "source": {
+      "manual": "Qo'lda",
+      "payment": "To'lov",
+      "salary": "Ish haqi",
+      "advance": "Avans",
+      "transfer": "O'tkazma"
+    }
+  },
+  "payments": {
+    "title": "To'lovlar",
+    "new": "Yangi to'lov",
+    "direction": "Yo'nalish",
+    "in": "Kirim",
+    "out": "Chiqim",
+    "counterparty": "Kontragent",
+    "customer": "Mijoz",
+    "supplier": "Yetkazib beruvchi",
+    "linkedDoc": "Bog'langan hujjat",
+    "noDoc": "Umumiy balansga",
+    "selectCustomer": "Mijozni tanlang",
+    "selectSupplier": "Yetkazib beruvchini tanlang",
+    "deleteConfirm": "To'lov o'chirilsinmi? Bog'liq tranzaksiya ham o'chadi va qarz qayta hisoblanadi."
+  },
+  "debts": {
+    "title": "Qarzdorlik",
+    "debtors": "Qarzdor mijozlar (debitor)",
+    "creditors": "Yetkazib beruvchilarga qarz (kreditor)",
+    "debt": "Qarz"
+  },
+  "invoices": {
+    "title": "Hisob-fakturalar",
+    "new": "Yangi hisob-faktura",
+    "order": "Buyurtma",
+    "selectOrder": "Buyurtmani tanlang",
+    "paid": "To'langan",
+    "send": "Yuborilgan deb belgilash",
+    "pdf": "PDF",
+    "status": {
+      "draft": "Qoralama",
+      "sent": "Yuborilgan",
+      "paid": "To'langan"
+    }
+  },
+  "moneyTransfers": {
+    "title": "Hisoblar orasida o'tkazmalar",
+    "new": "Yangi o'tkazma",
+    "from": "Qayerdan",
+    "to": "Qayerga"
   },
   "imports": {
     "title": "Import (Excel)",

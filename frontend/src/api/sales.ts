@@ -72,6 +72,9 @@ export interface Order {
   items?: OrderItem[];
   invoice?: { id: number; number: string; status: string } | null;
   returns?: Array<{ id: number; number: string; total: string; date: string }>;
+  /** Stage 3: payment status (in − out, computed server-side). */
+  paidTotal?: string;
+  payments?: PaymentRow[];
 }
 
 export interface CustomerDetail extends Customer {
@@ -148,6 +151,14 @@ export const cancelOrder = async (id: number) =>
   (await api.post<{ data: Order }>(`/orders/${id}/cancel`)).data.data;
 export const shipOrder = async (id: number) =>
   (await api.post<{ data: Order }>(`/orders/${id}/ship`)).data.data;
+
+// FR-1.9: delivery note PDF
+export const downloadDeliveryNote = async (orderId: number) => {
+  const res = await api.get(`/orders/${orderId}/delivery-note`, {
+    responseType: 'blob',
+  });
+  return res.data as Blob;
+};
 
 // --- Sales returns ---
 export const getSalesReturns = async (params: { page?: number }) =>

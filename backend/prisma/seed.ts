@@ -1,9 +1,10 @@
-import { PrismaClient, Role } from '@prisma/client';
+import { PrismaClient, Role, TxType } from '@prisma/client';
 import * as bcrypt from 'bcryptjs';
 
 const prisma = new PrismaClient();
 
 // Stage 0: demo users + company settings.
+// Stage 3: accounts + transaction categories (FR-3.1, FR-3.3).
 // The full demo dataset (Appendix A) is added in stage 5.
 async function main() {
   const passwordHash = await bcrypt.hash('Demo1234!', 10);
@@ -38,6 +39,36 @@ async function main() {
     });
   }
 
+  // FR-3.1: cash + bank accounts
+  const accounts: Array<{ name: string; type: 'cash' | 'bank' }> = [
+    { name: 'Kassa', type: 'cash' },
+    { name: 'Bank hisobi', type: 'bank' },
+  ];
+  for (const a of accounts) {
+    const existing = await prisma.account.findFirst({
+      where: { name: a.name },
+    });
+    if (!existing) await prisma.account.create({ data: a });
+  }
+
+  // FR-3.3: seed transaction categories
+  const categories: Array<{ name: string; type: TxType }> = [
+    { name: 'Savdo tushumi', type: TxType.income },
+    { name: 'Boshqa', type: TxType.income },
+    { name: 'Mahsulot xaridi', type: TxType.expense },
+    { name: 'Ish haqi', type: TxType.expense },
+    { name: 'Ish haqi avansi', type: TxType.expense },
+    { name: 'Ijara', type: TxType.expense },
+    { name: 'Kommunal', type: TxType.expense },
+    { name: 'Boshqa', type: TxType.expense },
+  ];
+  for (const c of categories) {
+    const existing = await prisma.txCategory.findFirst({
+      where: { name: c.name, type: c.type },
+    });
+    if (!existing) await prisma.txCategory.create({ data: c });
+  }
+
   await prisma.appSetting.upsert({
     where: { id: 1 },
     update: {},
@@ -53,7 +84,7 @@ async function main() {
   });
 
   console.log(
-    'Seed OK: 5 users (password: Demo1234!), 2 warehouses, app settings',
+    'Seed OK: 5 users (password: Demo1234!), 2 warehouses, 2 accounts, tx categories, app settings',
   );
 }
 

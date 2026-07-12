@@ -13,11 +13,14 @@ import { CustomersModule } from './modules/customers/customers.module';
 import { DealsModule } from './modules/deals/deals.module';
 import { FinanceModule } from './modules/finance/finance.module';
 import { ImportsModule } from './modules/imports/imports.module';
+import { InvoicesModule } from './modules/invoices/invoices.module';
 import { OrdersModule } from './modules/orders/orders.module';
+import { PaymentsModule } from './modules/payments/payments.module';
 import { ProductsModule } from './modules/products/products.module';
 import { PurchaseReturnsModule } from './modules/purchase-returns/purchase-returns.module';
 import { PurchasesModule } from './modules/purchases/purchases.module';
 import { SalesReturnsModule } from './modules/sales-returns/sales-returns.module';
+import { SettingsModule } from './modules/settings/settings.module';
 import { StockModule } from './modules/stock/stock.module';
 import { SuppliersModule } from './modules/suppliers/suppliers.module';
 import { UsersModule } from './modules/users/users.module';
@@ -45,6 +48,9 @@ import { WarehousesModule } from './modules/warehouses/warehouses.module';
     DealsModule,
     OrdersModule,
     SalesReturnsModule,
+    SettingsModule,
+    PaymentsModule,
+    InvoicesModule,
   ],
   providers: [
     { provide: APP_GUARD, useClass: ThrottlerGuard },

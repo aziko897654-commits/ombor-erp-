@@ -1,14 +1,16 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { ArrowLeft, Check, Send, Trash2, Undo2, X } from 'lucide-react';
+import { ArrowLeft, Check, FileDown, Send, Trash2, Undo2, X } from 'lucide-react';
 import { useState, type ReactNode } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import {
   cancelOrder,
   confirmOrder,
   deleteOrder,
+  downloadDeliveryNote,
   getOrder,
   shipOrder,
 } from '@/api/sales';
+import { Badge } from '@/components/ui/badge';
 import { OrderStatusBadge } from '@/components/OrderStatusBadge';
 import { Button } from '@/components/ui/button';
 import {
@@ -81,6 +83,23 @@ export function OrderDetailPage() {
     shipMutation.isPending ||
     deleteMutation.isPending;
 
+  const paid = Number(order.paidTotal ?? 0);
+  const remaining = Number(order.total) - paid;
+
+  const handleDeliveryNote = async () => {
+    try {
+      const blob = await downloadDeliveryNote(orderId);
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `delivery-note-${order.number}.pdf`;
+      a.click();
+      URL.revokeObjectURL(url);
+    } catch (err) {
+      setError(apiErrorMessage(err));
+    }
+  };
+
   return (
     <div className="max-w-4xl">
       <div className="mb-4 flex items-center gap-3">
@@ -116,6 +135,11 @@ export function OrderDetailPage() {
                 <Trash2 className="h-4 w-4" /> {t('common.delete')}
               </Button>
             </>
+          )}
+          {(order.status === 'confirmed' || order.status === 'shipped') && (
+            <Button variant="outline" onClick={handleDeliveryNote}>
+              <FileDown className="h-4 w-4" /> {t('orders.deliveryNote')}
+            </Button>
           )}
           {order.status === 'confirmed' && (
             <>
@@ -171,6 +195,43 @@ export function OrderDetailPage() {
               <span className="font-medium">{t('common.total')}</span>
               <span className="font-semibold">{formatMoney(order.total)}</span>
             </div>
+            {order.status !== 'draft' && (
+              <>
+                <div className="flex justify-between border-t pt-1.5">
+                  <span className="text-muted-foreground">{t('orders.paid')}</span>
+                  <span className="font-medium text-green-700">
+                    {formatMoney(paid)}
+                  </span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">
+                    {t('orders.remaining')}
+                  </span>
+                  <span
+                    className={`font-semibold ${remaining > 0 ? 'text-destructive' : 'text-green-700'}`}
+                  >
+                    {formatMoney(remaining)}
+                  </span>
+                </div>
+                {order.invoice && (
+                  <div className="flex items-center justify-between">
+                    <span className="text-muted-foreground">
+                      {t('orders.invoice')}
+                    </span>
+                    <span className="flex items-center gap-2 font-medium">
+                      {order.invoice.number}
+                      <Badge
+                        variant={
+                          order.invoice.status === 'paid' ? 'success' : 'secondary'
+                        }
+                      >
+                        {t(`invoices.status.${order.invoice.status}`)}
+                      </Badge>
+                    </span>
+                  </div>
+                )}
+              </>
+            )}
           </CardContent>
         </Card>
       </div>
@@ -211,6 +272,49 @@ export function OrderDetailPage() {
           ))}
         </TableBody>
       </Table>
+
+      {(order.payments?.length ?? 0) > 0 && (
+        <>
+          <h2 className="mb-3 mt-6 text-lg font-semibold">
+            {t('orders.paymentsHistory')}
+          </h2>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>{t('common.date')}</TableHead>
+                <TableHead>{t('payments.direction')}</TableHead>
+                <TableHead>{t('txs.account')}</TableHead>
+                <TableHead>{t('common.note')}</TableHead>
+                <TableHead className="text-right">{t('common.total')}</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {order.payments?.map((p) => (
+                <TableRow key={p.id}>
+                  <TableCell>{formatDate(p.date)}</TableCell>
+                  <TableCell>
+                    <Badge variant={p.direction === 'in' ? 'success' : 'destructive'}>
+                      {t(`payments.${p.direction}`)}
+                    </Badge>
+                  </TableCell>
+                  <TableCell>{p.account?.name}</TableCell>
+                  <TableCell className="text-muted-foreground">
+                    {p.note ?? '—'}
+                  </TableCell>
+                  <TableCell
+                    className={`text-right font-medium ${
+                      p.direction === 'in' ? 'text-green-700' : 'text-destructive'
+                    }`}
+                  >
+                    {p.direction === 'in' ? '+' : '−'}
+                    {formatMoney(p.amount)}
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </>
+      )}
 
       {(order.returns?.length ?? 0) > 0 && (
         <>

@@ -9,6 +9,7 @@ import {
   Patch,
   Post,
   Query,
+  StreamableFile,
 } from '@nestjs/common';
 import { OrderStatus, Role } from '@prisma/client';
 import {
@@ -24,7 +25,9 @@ import { OrdersService } from './orders.service';
 export class OrdersController {
   constructor(private readonly service: OrdersService) {}
 
+  // accountant reads the list to link payments/invoices to orders (FR-3.6)
   @Get()
+  @Roles(Role.admin, Role.sales, Role.accountant)
   findAll(
     @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number,
     @Query('limit', new DefaultValuePipe(20), ParseIntPipe) limit: number,
@@ -72,5 +75,15 @@ export class OrdersController {
   @Post(':id/ship')
   ship(@Param('id', ParseIntPipe) id: number, @CurrentUser() user: AuthUser) {
     return this.service.ship(id, user.id);
+  }
+
+  // FR-1.9: delivery note PDF
+  @Get(':id/delivery-note')
+  async deliveryNote(@Param('id', ParseIntPipe) id: number) {
+    const { number, buffer } = await this.service.deliveryNote(id);
+    return new StreamableFile(buffer, {
+      type: 'application/pdf',
+      disposition: `attachment; filename="delivery-note-${number}.pdf"`,
+    });
   }
 }

@@ -204,7 +204,11 @@ export const updateSupplier = async (id: number, body: Partial<Supplier>) =>
   (await api.patch(`/suppliers/${id}`, body)).data.data;
 
 // --- Purchases ---
-export const getPurchases = async (params: { page?: number; limit?: number }) =>
+export const getPurchases = async (params: {
+  page?: number;
+  limit?: number;
+  supplierId?: number;
+}) =>
   (
     await api.get<{ data: Purchase[]; meta: Meta }>('/purchases', { params })
   ).data;

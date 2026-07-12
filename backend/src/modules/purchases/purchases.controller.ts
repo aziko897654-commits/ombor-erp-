@@ -21,8 +21,9 @@ import { PurchasesService } from './purchases.service';
 export class PurchasesController {
   constructor(private readonly service: PurchasesService) {}
 
+  // accountant reads purchases to link supplier payments (matrix 2.1: R)
   @Get()
-  @Roles(Role.admin, Role.warehouse)
+  @Roles(Role.admin, Role.warehouse, Role.accountant)
   findAll(
     @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number,
     @Query('limit', new DefaultValuePipe(20), ParseIntPipe) limit: number,

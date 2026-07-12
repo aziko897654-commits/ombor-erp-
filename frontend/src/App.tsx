@@ -8,6 +8,12 @@ import {
 } from '@/components/ProtectedRoute';
 import { allMenuItems } from '@/lib/menu';
 import { DashboardPage } from '@/pages/DashboardPage';
+import { AccountsPage } from '@/pages/finance/AccountsPage';
+import { DebtsPage } from '@/pages/finance/DebtsPage';
+import { InvoicesPage } from '@/pages/finance/InvoicesPage';
+import { PaymentsPage } from '@/pages/finance/PaymentsPage';
+import { TransactionsPage } from '@/pages/finance/TransactionsPage';
+import { TransfersPage as MoneyTransfersPage } from '@/pages/finance/TransfersPage';
 import { LoginPage } from '@/pages/LoginPage';
 import { PlaceholderPage } from '@/pages/PlaceholderPage';
 import { CustomerDetailPage } from '@/pages/sales/CustomerDetailPage';
@@ -37,6 +43,12 @@ const IMPLEMENTED: Record<string, ComponentType> = {
   '/deals': DealsPage,
   '/orders': OrdersPage,
   '/returns/sales': SalesReturnsPage,
+  '/finance/transactions': TransactionsPage,
+  '/finance/payments': PaymentsPage,
+  '/finance/debts': DebtsPage,
+  '/finance/accounts': AccountsPage,
+  '/finance/invoices': InvoicesPage,
+  '/finance/transfers': MoneyTransfersPage,
   '/products': ProductsPage,
   '/warehouses': WarehousesPage,
   '/suppliers': SuppliersPage,
