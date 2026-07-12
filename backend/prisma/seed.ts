@@ -654,6 +654,19 @@ async function seedDemoData(prisma: Prisma.TransactionClient) {
 
   // --- manual transactions over the last 6 months (charts) ---
   for (let m = 5; m >= 0; m--) {
+    // retail income keeps the demo cash flow realistic vs payroll
+    await prisma.transaction.create({
+      data: {
+        date: monthsAgo(m, 3),
+        accountId: kassa.id,
+        type: 'income',
+        amount: D(7_500_000 + m * 300_000),
+        categoryId: catSale,
+        source: 'manual',
+        note: 'Chakana savdo tushumi',
+        userId: admin.id,
+      },
+    });
     await prisma.transaction.create({
       data: {
         date: monthsAgo(m, 5),
@@ -869,7 +882,7 @@ async function seedDemoData(prisma: Prisma.TransactionClient) {
       data: {
         month: prevMonth,
         total: payrollTotal,
-        createdAt: monthsAgo(0, 1),
+        createdAt: monthsAgo(1, 28),
         items: { create: payrollItems },
       },
     }));

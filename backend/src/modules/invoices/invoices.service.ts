@@ -203,7 +203,7 @@ export class InvoicesService {
       doc
         .font('Helvetica-Bold')
         .fontSize(16)
-        .text(`HISOB-FAKTURA № ${invoice.number}`, { align: 'center' });
+        .text(`HISOB-FAKTURA ${invoice.number}`, { align: 'center' });
       doc
         .font('Helvetica')
         .fontSize(10)
@@ -226,7 +226,7 @@ export class InvoicesService {
       drawTable(
         doc,
         [
-          { header: '№', width: 25 },
+          { header: '#', width: 25 },
           { header: 'Mahsulot', width: 190 },
           { header: 'Birlik', width: 45 },
           { header: 'Miqdor', width: 65, align: 'right' },

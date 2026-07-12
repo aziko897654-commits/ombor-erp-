@@ -18,5 +18,8 @@
     "strictBindCallApply": true,
     "forceConsistentCasingInFileNames": true,
     "noFallthroughCasesInSwitch": true
-  }
+  },
+  // vitest loads its config itself; two vite type instances in the pnpm
+  // store make tsc choke on it (unplugin-swc peer types)
+  "exclude": ["node_modules", "dist", "vitest.config.ts"]
 }

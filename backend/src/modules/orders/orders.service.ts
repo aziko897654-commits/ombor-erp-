@@ -373,7 +373,7 @@ export class OrdersService {
       doc
         .font('Helvetica-Bold')
         .fontSize(16)
-        .text(`YUK XATI № ${order.number}`, { align: 'center' });
+        .text(`YUK XATI ${order.number}`, { align: 'center' });
       doc
         .font('Helvetica')
         .fontSize(10)
@@ -389,7 +389,7 @@ export class OrdersService {
       drawTable(
         doc,
         [
-          { header: '№', width: 25 },
+          { header: '#', width: 25 },
           { header: 'Mahsulot', width: 190 },
           { header: 'Birlik', width: 45 },
           { header: 'Miqdor', width: 65, align: 'right' },
