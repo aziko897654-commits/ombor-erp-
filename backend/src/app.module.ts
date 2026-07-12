@@ -12,6 +12,7 @@ import { CategoriesModule } from './modules/categories/categories.module';
 import { CustomersModule } from './modules/customers/customers.module';
 import { DealsModule } from './modules/deals/deals.module';
 import { FinanceModule } from './modules/finance/finance.module';
+import { HrModule } from './modules/hr/hr.module';
 import { ImportsModule } from './modules/imports/imports.module';
 import { InvoicesModule } from './modules/invoices/invoices.module';
 import { OrdersModule } from './modules/orders/orders.module';
@@ -51,6 +52,7 @@ import { WarehousesModule } from './modules/warehouses/warehouses.module';
     SettingsModule,
     PaymentsModule,
     InvoicesModule,
+    HrModule,
   ],
   providers: [
     { provide: APP_GUARD, useClass: ThrottlerGuard },

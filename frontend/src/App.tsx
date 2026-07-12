@@ -14,6 +14,13 @@ import { InvoicesPage } from '@/pages/finance/InvoicesPage';
 import { PaymentsPage } from '@/pages/finance/PaymentsPage';
 import { TransactionsPage } from '@/pages/finance/TransactionsPage';
 import { TransfersPage as MoneyTransfersPage } from '@/pages/finance/TransfersPage';
+import { AdvancesPage } from '@/pages/hr/AdvancesPage';
+import { AttendancePage } from '@/pages/hr/AttendancePage';
+import { EmployeeDetailPage } from '@/pages/hr/EmployeeDetailPage';
+import { EmployeesPage } from '@/pages/hr/EmployeesPage';
+import { PayrollCreatePage } from '@/pages/hr/PayrollCreatePage';
+import { PayrollDetailPage } from '@/pages/hr/PayrollDetailPage';
+import { PayrollPage } from '@/pages/hr/PayrollPage';
 import { LoginPage } from '@/pages/LoginPage';
 import { PlaceholderPage } from '@/pages/PlaceholderPage';
 import { CustomerDetailPage } from '@/pages/sales/CustomerDetailPage';
@@ -49,6 +56,10 @@ const IMPLEMENTED: Record<string, ComponentType> = {
   '/finance/accounts': AccountsPage,
   '/finance/invoices': InvoicesPage,
   '/finance/transfers': MoneyTransfersPage,
+  '/employees': EmployeesPage,
+  '/attendance': AttendancePage,
+  '/advances': AdvancesPage,
+  '/payroll': PayrollPage,
   '/products': ProductsPage,
   '/warehouses': WarehousesPage,
   '/suppliers': SuppliersPage,
@@ -72,6 +83,9 @@ const DETAIL_ROUTES: Array<{
   { path: '/customers/:id', roles: ['admin', 'sales'], Component: CustomerDetailPage },
   { path: '/orders/new', roles: ['admin', 'sales'], Component: OrderCreatePage },
   { path: '/orders/:id', roles: ['admin', 'sales'], Component: OrderDetailPage },
+  { path: '/employees/:id', roles: ['admin', 'hr'], Component: EmployeeDetailPage },
+  { path: '/payroll/new', roles: ['admin', 'hr'], Component: PayrollCreatePage },
+  { path: '/payroll/:id', roles: ['admin', 'hr', 'accountant'], Component: PayrollDetailPage },
 ];
 
 export function App() {

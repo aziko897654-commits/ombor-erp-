@@ -314,6 +314,57 @@
     "from": "Qayerdan",
     "to": "Qayerga"
   },
+  "employees": {
+    "title": "Xodimlar",
+    "new": "Yangi xodim",
+    "editTitle": "Xodimni tahrirlash",
+    "fullName": "F.I.Sh.",
+    "department": "Bo'lim",
+    "position": "Lavozim",
+    "salary": "Maosh",
+    "hiredAt": "Ishga kirgan",
+    "firedAt": "Bo'shatilgan sana",
+    "catalogs": "Bo'lim va lavozimlar",
+    "newDepartment": "Yangi bo'lim",
+    "newPosition": "Yangi lavozim",
+    "selectDepartment": "Bo'limni tanlang",
+    "selectPosition": "Lavozimni tanlang",
+    "attendanceSummary": "Davomat (joriy oy)",
+    "payrollHistory": "Ish haqi tarixi",
+    "advancesHistory": "Avanslar",
+    "status": {
+      "active": "Faol",
+      "fired": "Bo'shatilgan"
+    }
+  },
+  "attendance": {
+    "title": "Davomat",
+    "hint": "Katakni bosib holatni almashtiring",
+    "statuses": {
+      "present": "Keldi",
+      "absent": "Kelmadi",
+      "vacation": "Ta'til",
+      "sick": "Kasal"
+    }
+  },
+  "advances": {
+    "title": "Avanslar",
+    "new": "Yangi avans",
+    "employee": "Xodim",
+    "selectEmployee": "Xodimni tanlang"
+  },
+  "payroll": {
+    "title": "Ish haqi vedomostlari",
+    "new": "Yangi vedomost",
+    "month": "Oy",
+    "employeesCount": "Xodimlar",
+    "baseSalary": "Bazaviy maosh",
+    "bonus": "Bonus",
+    "penalty": "Jarima",
+    "advanceDeduction": "Avans",
+    "net": "Qo'lga tegishi",
+    "createConfirm": "Vedomost yaratilgach o'zgartirib bo'lmaydi va moliyada chiqim tranzaksiyasi hosil bo'ladi. Davom etasizmi?"
+  },
   "imports": {
     "title": "Import (Excel)",
     "products": "Mahsulotlar importi",
