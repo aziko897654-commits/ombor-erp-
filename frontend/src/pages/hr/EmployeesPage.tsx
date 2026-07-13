@@ -27,8 +27,11 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+import { useAuth } from '@/lib/auth';
 import { apiErrorMessage, formatDate, formatMoney } from '@/lib/format';
 import { t } from '@/lib/i18n';
+
+const ROLES = ['admin', 'accountant', 'warehouse', 'sales', 'hr'] as const;
 
 const emptyForm = {
   fullName: '',
@@ -40,9 +43,13 @@ const emptyForm = {
   hiredAt: '',
   status: 'active',
   firedAt: '',
+  systemRole: '',
+  password: '',
 };
 
 export function EmployeesPage() {
+  const { user } = useAuth();
+  const isAdmin = user?.role === 'admin';
   const queryClient = useQueryClient();
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState('');
@@ -115,6 +122,8 @@ export function EmployeesPage() {
       hiredAt: employee.hiredAt.slice(0, 10),
       status: employee.status,
       firedAt: employee.firedAt ? employee.firedAt.slice(0, 10) : '',
+      systemRole: employee.user?.role ?? '',
+      password: '',
     });
     setError('');
     setDialogOpen(true);
@@ -123,6 +132,13 @@ export function EmployeesPage() {
   const submit = (e: FormEvent) => {
     e.preventDefault();
     setError('');
+    // login provisioning is admin-only; email above is the username
+    const login = isAdmin
+      ? {
+          role: form.systemRole || undefined,
+          password: form.password || undefined,
+        }
+      : {};
     saveMutation.mutate({
       fullName: form.fullName,
       phone: form.phone || undefined,
@@ -131,6 +147,7 @@ export function EmployeesPage() {
       positionId: Number(form.positionId),
       salary: Number(form.salary),
       hiredAt: form.hiredAt,
+      ...login,
       ...(editing
         ? {
             status: form.status,
@@ -342,6 +359,63 @@ export function EmployeesPage() {
               )}
             </div>
           )}
+
+          {/* Login provisioning — admin only (rights matrix 2.1) */}
+          {isAdmin && (
+            <div className="space-y-3 rounded-md border bg-muted/30 p-3">
+              <div className="flex items-center justify-between">
+                <p className="text-sm font-semibold">{t('employees.login')}</p>
+                {editing?.user && (
+                  <span
+                    className={`text-xs ${editing.user.isActive ? 'text-green-700' : 'text-destructive'}`}
+                  >
+                    {editing.user.email} —{' '}
+                    {editing.user.isActive
+                      ? t('employees.loginActive')
+                      : t('employees.loginBlocked')}
+                  </span>
+                )}
+              </div>
+              <p className="text-xs text-muted-foreground">
+                {t('employees.loginHint')}
+              </p>
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-1.5">
+                  <Label>{t('users.role')}</Label>
+                  <Select
+                    value={form.systemRole}
+                    onChange={(e) =>
+                      setForm({ ...form, systemRole: e.target.value })
+                    }
+                  >
+                    <option value="">{t('employees.noLogin')}</option>
+                    {ROLES.map((r) => (
+                      <option key={r} value={r}>
+                        {t(`roles.${r}`)}
+                      </option>
+                    ))}
+                  </Select>
+                </div>
+                <div className="space-y-1.5">
+                  <Label>{t('users.password')}</Label>
+                  <Input
+                    type="password"
+                    minLength={8}
+                    placeholder={
+                      editing?.user
+                        ? t('users.passwordHint')
+                        : t('employees.passwordNew')
+                    }
+                    value={form.password}
+                    onChange={(e) =>
+                      setForm({ ...form, password: e.target.value })
+                    }
+                  />
+                </div>
+              </div>
+            </div>
+          )}
+
           {error && <p className="text-sm text-destructive">{error}</p>}
           <div className="flex justify-end gap-2 pt-2">
             <Button type="button" variant="outline" onClick={() => setDialogOpen(false)}>

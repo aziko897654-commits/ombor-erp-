@@ -1,4 +1,4 @@
-import { AttendanceStatus, EmployeeStatus } from '@prisma/client';
+import { AttendanceStatus, EmployeeStatus, Role } from '@prisma/client';
 import { Type } from 'class-transformer';
 import {
   IsArray,
@@ -13,6 +13,7 @@ import {
   IsString,
   Matches,
   Min,
+  MinLength,
   ValidateNested,
 } from 'class-validator';
 
@@ -47,6 +48,16 @@ export class CreateEmployeeDto {
 
   @IsDateString({}, { message: "Ishga kirgan sana noto'g'ri" })
   hiredAt!: string;
+
+  // optional login (admin only): email above is the username
+  @IsOptional()
+  @IsEnum(Role, { message: "Tizim roli noto'g'ri" })
+  role?: Role;
+
+  @IsOptional()
+  @IsString()
+  @MinLength(8, { message: "Parol kamida 8 belgidan iborat bo'lishi kerak" })
+  password?: string;
 }
 
 export class UpdateEmployeeDto {
@@ -88,6 +99,16 @@ export class UpdateEmployeeDto {
   @IsOptional()
   @IsDateString({}, { message: "Bo'shatilgan sana noto'g'ri" })
   firedAt?: string;
+
+  // optional login (admin only): email above is the username
+  @IsOptional()
+  @IsEnum(Role, { message: "Tizim roli noto'g'ri" })
+  role?: Role;
+
+  @IsOptional()
+  @IsString()
+  @MinLength(8, { message: "Parol kamida 8 belgidan iborat bo'lishi kerak" })
+  password?: string;
 }
 
 /** 'clear' removes the mark (the grid cell cycles back to empty). */

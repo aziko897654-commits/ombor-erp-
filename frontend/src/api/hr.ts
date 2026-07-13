@@ -10,6 +10,13 @@ export interface CatalogItem {
   _count?: { employees: number };
 }
 
+export interface EmployeeLogin {
+  id: number;
+  email: string;
+  role: 'admin' | 'accountant' | 'warehouse' | 'sales' | 'hr';
+  isActive: boolean;
+}
+
 export interface Employee {
   id: number;
   fullName: string;
@@ -23,6 +30,8 @@ export interface Employee {
   hiredAt: string;
   firedAt?: string | null;
   status: EmployeeStatus;
+  /** linked login account (null if the employee cannot sign in) */
+  user?: EmployeeLogin | null;
 }
 
 export interface PayrollItemRow {

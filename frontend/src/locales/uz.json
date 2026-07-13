@@ -332,6 +332,12 @@
     "attendanceSummary": "Davomat (joriy oy)",
     "payrollHistory": "Ish haqi tarixi",
     "advancesHistory": "Avanslar",
+    "login": "Tizimga kirish",
+    "loginHint": "Yuqoridagi email — login. Rol va parol berilsa, xodim shu email va parol bilan tizimga kiradi.",
+    "noLogin": "Loginsiz",
+    "passwordNew": "Kirish uchun parol (kamida 8 belgi)",
+    "loginActive": "login faol",
+    "loginBlocked": "login bloklangan",
     "status": {
       "active": "Faol",
       "fired": "Bo'shatilgan"

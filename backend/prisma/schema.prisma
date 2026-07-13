@@ -97,6 +97,7 @@ model User {
   deals         Deal[]
   auditLogs     AuditLog[]
   notifications Notification[]
+  employee      Employee?
 }
 
 model Customer {
@@ -438,6 +439,8 @@ model Employee {
   hiredAt      DateTime
   firedAt      DateTime?
   status       EmployeeStatus @default(active)
+  userId       Int?           @unique // optional login account (email = username)
+  user         User?          @relation(fields: [userId], references: [id])
   attendance   Attendance[]
   payrollItems PayrollItem[]
   advances     Advance[]

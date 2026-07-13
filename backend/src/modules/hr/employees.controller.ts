@@ -39,8 +39,8 @@ export class EmployeesController {
   }
 
   @Post()
-  create(@Body() dto: CreateEmployeeDto) {
-    return this.service.create(dto);
+  create(@Body() dto: CreateEmployeeDto, @CurrentUser() user: AuthUser) {
+    return this.service.create(dto, user.role, user.id);
   }
 
   @Patch(':id')
@@ -49,6 +49,6 @@ export class EmployeesController {
     @Body() dto: UpdateEmployeeDto,
     @CurrentUser() user: AuthUser,
   ) {
-    return this.service.update(id, dto, user.id);
+    return this.service.update(id, dto, user.role, user.id);
   }
 }
