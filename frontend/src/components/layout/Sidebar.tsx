@@ -5,14 +5,16 @@ import { t } from '@/lib/i18n';
 import { visibleSections } from '@/lib/menu';
 import { cn } from '@/lib/utils';
 
-export function Sidebar() {
+/** Brand + role-filtered navigation; shared by the desktop rail and the
+ *  mobile drawer. `onNavigate` lets the drawer close on selection. */
+export function SidebarNav({ onNavigate }: { onNavigate?: () => void }) {
   const { user } = useAuth();
   if (!user) return null;
 
   const sections = visibleSections(user.role);
 
   return (
-    <aside className="flex h-screen w-60 shrink-0 flex-col bg-sidebar text-sidebar-foreground">
+    <>
       <div className="flex h-14 items-center gap-2 border-b border-sidebar-accent px-4">
         <Building2 className="h-6 w-6 text-sidebar-accent-foreground" />
         <span className="text-base font-semibold text-sidebar-accent-foreground">
@@ -33,6 +35,7 @@ export function Sidebar() {
                   <NavLink
                     to={item.path}
                     end={item.path === '/'}
+                    onClick={onNavigate}
                     className={({ isActive }) =>
                       cn(
                         'flex items-center gap-2.5 rounded-md px-3 py-2 text-sm transition-colors',
@@ -51,6 +54,15 @@ export function Sidebar() {
           </div>
         ))}
       </nav>
+    </>
+  );
+}
+
+/** Desktop rail — hidden below the md breakpoint (NFR-14). */
+export function Sidebar() {
+  return (
+    <aside className="hidden h-screen w-60 shrink-0 flex-col bg-sidebar text-sidebar-foreground md:flex">
+      <SidebarNav />
     </aside>
   );
 }

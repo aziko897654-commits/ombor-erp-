@@ -32,3 +32,11 @@ export async function meRequest() {
 export async function logoutRequest() {
   await api.post('/auth/logout');
 }
+
+/** FR-0.4: the current user changes their own password. */
+export async function changePasswordRequest(
+  oldPassword: string,
+  newPassword: string,
+) {
+  await api.patch('/auth/password', { oldPassword, newPassword });
+}

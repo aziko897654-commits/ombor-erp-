@@ -233,7 +233,7 @@ export function DashboardPage() {
           tone={
             (summary?.cards.lowStockCount ?? 0) > 0 ? 'text-destructive' : undefined
           }
-          to="/products"
+          to="/products?lowStock=1"
         />
       </div>
 

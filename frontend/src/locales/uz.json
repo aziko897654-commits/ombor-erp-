@@ -57,6 +57,7 @@
     "forbidden": "Bu sahifaga kirish huquqingiz yo'q",
     "comingSoon": "Bu modul keyingi bosqichda quriladi",
     "search": "Qidiruv...",
+    "menu": "Menyu",
     "notifications": "Bildirishnomalar",
     "add": "Qo'shish",
     "save": "Saqlash",
@@ -469,6 +470,15 @@
     "duplicateRows": "Dublikatlar",
     "result": "Import natijasi",
     "imported": "Import qilindi"
+  },
+  "profile": {
+    "changePassword": "Parolni o'zgartirish",
+    "oldPassword": "Joriy parol",
+    "newPassword": "Yangi parol",
+    "confirmPassword": "Yangi parolni takrorlang",
+    "passwordChanged": "Parol o'zgartirildi",
+    "passwordTooShort": "Yangi parol kamida 8 belgidan iborat bo'lishi kerak",
+    "passwordMismatch": "Parollar mos kelmadi"
   },
   "roles": {
     "admin": "Direktor / Administrator",

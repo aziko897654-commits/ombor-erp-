@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { AlertTriangle, Pencil, Plus, Tags, TrendingDown } from 'lucide-react';
 import { useState, type FormEvent } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import {
   createProduct,
   getCategories,
@@ -42,10 +42,24 @@ export function ProductsPage() {
   const canEdit = user?.role === 'admin' || user?.role === 'warehouse';
   const queryClient = useQueryClient();
 
+  // deep-linked from the low-stock notification / dashboard card
+  const [searchParams, setSearchParams] = useSearchParams();
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState('');
   const [warehouseId, setWarehouseId] = useState('');
-  const [lowStockOnly, setLowStockOnly] = useState(false);
+  const [lowStockOnly, setLowStockOnly] = useState(
+    searchParams.get('lowStock') === '1',
+  );
+
+  const toggleLowStock = (value: boolean) => {
+    setLowStockOnly(value);
+    setPage(1);
+    // keep the URL in sync so the filter survives refresh/share
+    const next = new URLSearchParams(searchParams);
+    if (value) next.set('lowStock', '1');
+    else next.delete('lowStock');
+    setSearchParams(next, { replace: true });
+  };
   const [dialogOpen, setDialogOpen] = useState(false);
   const [categoriesOpen, setCategoriesOpen] = useState(false);
   const [writeoffFor, setWriteoffFor] = useState<Product | null>(null);
@@ -180,7 +194,7 @@ export function ProductsPage() {
             </Select>
             <Button
               variant={lowStockOnly ? 'default' : 'outline'}
-              onClick={() => setLowStockOnly((v) => !v)}
+              onClick={() => toggleLowStock(!lowStockOnly)}
             >
               <AlertTriangle className="h-4 w-4" /> {t('products.lowStockOnly')}
             </Button>

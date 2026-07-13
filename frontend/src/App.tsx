@@ -1,4 +1,4 @@
-import type { ComponentType } from 'react';
+import { lazy, type ComponentType } from 'react';
 import { Navigate, Route, Routes } from 'react-router-dom';
 import { AppLayout } from '@/components/layout/AppLayout';
 import {
@@ -7,46 +7,59 @@ import {
   RequireRoles,
 } from '@/components/ProtectedRoute';
 import { allMenuItems } from '@/lib/menu';
-import { DashboardPage } from '@/pages/DashboardPage';
-import { AccountsPage } from '@/pages/finance/AccountsPage';
-import { DebtsPage } from '@/pages/finance/DebtsPage';
-import { InvoicesPage } from '@/pages/finance/InvoicesPage';
-import { PaymentsPage } from '@/pages/finance/PaymentsPage';
-import { TransactionsPage } from '@/pages/finance/TransactionsPage';
-import { TransfersPage as MoneyTransfersPage } from '@/pages/finance/TransfersPage';
-import { AdvancesPage } from '@/pages/hr/AdvancesPage';
-import { AttendancePage } from '@/pages/hr/AttendancePage';
-import { EmployeeDetailPage } from '@/pages/hr/EmployeeDetailPage';
-import { EmployeesPage } from '@/pages/hr/EmployeesPage';
-import { PayrollCreatePage } from '@/pages/hr/PayrollCreatePage';
-import { PayrollDetailPage } from '@/pages/hr/PayrollDetailPage';
-import { PayrollPage } from '@/pages/hr/PayrollPage';
 import { LoginPage } from '@/pages/LoginPage';
 import { PlaceholderPage } from '@/pages/PlaceholderPage';
-import { CustomerDetailPage } from '@/pages/sales/CustomerDetailPage';
-import { CustomersPage } from '@/pages/sales/CustomersPage';
-import { DealsPage } from '@/pages/sales/DealsPage';
-import { OrderCreatePage } from '@/pages/sales/OrderCreatePage';
-import { OrderDetailPage } from '@/pages/sales/OrderDetailPage';
-import { OrdersPage } from '@/pages/sales/OrdersPage';
-import { SalesReturnsPage } from '@/pages/sales/SalesReturnsPage';
-import { AuditPage } from '@/pages/system/AuditPage';
-import { ReportsPage } from '@/pages/system/ReportsPage';
-import { SettingsPage } from '@/pages/system/SettingsPage';
-import { UsersPage } from '@/pages/system/UsersPage';
-import { ImportsPage } from '@/pages/warehouse/ImportsPage';
-import { ProductDetailPage } from '@/pages/warehouse/ProductDetailPage';
-import { ProductsPage } from '@/pages/warehouse/ProductsPage';
-import { PurchaseCreatePage } from '@/pages/warehouse/PurchaseCreatePage';
-import { PurchaseDetailPage } from '@/pages/warehouse/PurchaseDetailPage';
-import { PurchaseReturnsPage } from '@/pages/warehouse/PurchaseReturnsPage';
-import { PurchasesPage } from '@/pages/warehouse/PurchasesPage';
-import { StockCountDetailPage } from '@/pages/warehouse/StockCountDetailPage';
-import { StockCountsPage } from '@/pages/warehouse/StockCountsPage';
-import { SupplierDetailPage } from '@/pages/warehouse/SupplierDetailPage';
-import { SuppliersPage } from '@/pages/warehouse/SuppliersPage';
-import { TransfersPage } from '@/pages/warehouse/TransfersPage';
-import { WarehousesPage } from '@/pages/warehouse/WarehousesPage';
+
+// Route-level code splitting: each page (and its heavy deps, e.g. Recharts
+// on the dashboard) is fetched only when first navigated to. Named exports
+// are adapted to the default export React.lazy expects.
+function named(
+  loader: () => Promise<Record<string, unknown>>,
+  key: string,
+): ComponentType {
+  return lazy(() =>
+    loader().then((m) => ({ default: m[key] as ComponentType })),
+  ) as unknown as ComponentType;
+}
+
+const DashboardPage = named(() => import('@/pages/DashboardPage'), 'DashboardPage');
+const AccountsPage = named(() => import('@/pages/finance/AccountsPage'), 'AccountsPage');
+const DebtsPage = named(() => import('@/pages/finance/DebtsPage'), 'DebtsPage');
+const InvoicesPage = named(() => import('@/pages/finance/InvoicesPage'), 'InvoicesPage');
+const PaymentsPage = named(() => import('@/pages/finance/PaymentsPage'), 'PaymentsPage');
+const TransactionsPage = named(() => import('@/pages/finance/TransactionsPage'), 'TransactionsPage');
+const MoneyTransfersPage = named(() => import('@/pages/finance/TransfersPage'), 'TransfersPage');
+const AdvancesPage = named(() => import('@/pages/hr/AdvancesPage'), 'AdvancesPage');
+const AttendancePage = named(() => import('@/pages/hr/AttendancePage'), 'AttendancePage');
+const EmployeeDetailPage = named(() => import('@/pages/hr/EmployeeDetailPage'), 'EmployeeDetailPage');
+const EmployeesPage = named(() => import('@/pages/hr/EmployeesPage'), 'EmployeesPage');
+const PayrollCreatePage = named(() => import('@/pages/hr/PayrollCreatePage'), 'PayrollCreatePage');
+const PayrollDetailPage = named(() => import('@/pages/hr/PayrollDetailPage'), 'PayrollDetailPage');
+const PayrollPage = named(() => import('@/pages/hr/PayrollPage'), 'PayrollPage');
+const CustomerDetailPage = named(() => import('@/pages/sales/CustomerDetailPage'), 'CustomerDetailPage');
+const CustomersPage = named(() => import('@/pages/sales/CustomersPage'), 'CustomersPage');
+const DealsPage = named(() => import('@/pages/sales/DealsPage'), 'DealsPage');
+const OrderCreatePage = named(() => import('@/pages/sales/OrderCreatePage'), 'OrderCreatePage');
+const OrderDetailPage = named(() => import('@/pages/sales/OrderDetailPage'), 'OrderDetailPage');
+const OrdersPage = named(() => import('@/pages/sales/OrdersPage'), 'OrdersPage');
+const SalesReturnsPage = named(() => import('@/pages/sales/SalesReturnsPage'), 'SalesReturnsPage');
+const AuditPage = named(() => import('@/pages/system/AuditPage'), 'AuditPage');
+const ReportsPage = named(() => import('@/pages/system/ReportsPage'), 'ReportsPage');
+const SettingsPage = named(() => import('@/pages/system/SettingsPage'), 'SettingsPage');
+const UsersPage = named(() => import('@/pages/system/UsersPage'), 'UsersPage');
+const ImportsPage = named(() => import('@/pages/warehouse/ImportsPage'), 'ImportsPage');
+const ProductDetailPage = named(() => import('@/pages/warehouse/ProductDetailPage'), 'ProductDetailPage');
+const ProductsPage = named(() => import('@/pages/warehouse/ProductsPage'), 'ProductsPage');
+const PurchaseCreatePage = named(() => import('@/pages/warehouse/PurchaseCreatePage'), 'PurchaseCreatePage');
+const PurchaseDetailPage = named(() => import('@/pages/warehouse/PurchaseDetailPage'), 'PurchaseDetailPage');
+const PurchaseReturnsPage = named(() => import('@/pages/warehouse/PurchaseReturnsPage'), 'PurchaseReturnsPage');
+const PurchasesPage = named(() => import('@/pages/warehouse/PurchasesPage'), 'PurchasesPage');
+const StockCountDetailPage = named(() => import('@/pages/warehouse/StockCountDetailPage'), 'StockCountDetailPage');
+const StockCountsPage = named(() => import('@/pages/warehouse/StockCountsPage'), 'StockCountsPage');
+const SupplierDetailPage = named(() => import('@/pages/warehouse/SupplierDetailPage'), 'SupplierDetailPage');
+const SuppliersPage = named(() => import('@/pages/warehouse/SuppliersPage'), 'SuppliersPage');
+const TransfersPage = named(() => import('@/pages/warehouse/TransfersPage'), 'TransfersPage');
+const WarehousesPage = named(() => import('@/pages/warehouse/WarehousesPage'), 'WarehousesPage');
 
 // Stage-by-stage: implemented list pages replace their placeholders here.
 const IMPLEMENTED: Record<string, ComponentType> = {
