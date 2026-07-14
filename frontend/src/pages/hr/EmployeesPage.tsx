@@ -17,6 +17,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Dialog } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
+import { PasswordInput } from '@/components/ui/password-input';
 import { Label } from '@/components/ui/label';
 import { Select } from '@/components/ui/select';
 import {
@@ -398,8 +399,7 @@ export function EmployeesPage() {
                 </div>
                 <div className="space-y-1.5">
                   <Label>{t('users.password')}</Label>
-                  <Input
-                    type="password"
+                  <PasswordInput
                     minLength={8}
                     placeholder={
                       editing?.user

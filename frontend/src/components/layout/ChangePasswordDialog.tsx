@@ -3,7 +3,7 @@ import { useState, type FormEvent } from 'react';
 import { changePasswordRequest } from '@/api/auth';
 import { Button } from '@/components/ui/button';
 import { Dialog } from '@/components/ui/dialog';
-import { Input } from '@/components/ui/input';
+import { PasswordInput } from '@/components/ui/password-input';
 import { Label } from '@/components/ui/label';
 import { apiErrorMessage } from '@/lib/format';
 import { t } from '@/lib/i18n';
@@ -52,18 +52,16 @@ export function ChangePasswordDialog({
       <form onSubmit={submit} className="space-y-3">
         <div className="space-y-1.5">
           <Label>{t('profile.oldPassword')} *</Label>
-          <Input
+          <PasswordInput
             required
-            type="password"
             value={form.oldPassword}
             onChange={(e) => setForm({ ...form, oldPassword: e.target.value })}
           />
         </div>
         <div className="space-y-1.5">
           <Label>{t('profile.newPassword')} *</Label>
-          <Input
+          <PasswordInput
             required
-            type="password"
             minLength={8}
             value={form.newPassword}
             onChange={(e) => setForm({ ...form, newPassword: e.target.value })}
@@ -71,9 +69,8 @@ export function ChangePasswordDialog({
         </div>
         <div className="space-y-1.5">
           <Label>{t('profile.confirmPassword')} *</Label>
-          <Input
+          <PasswordInput
             required
-            type="password"
             value={form.confirm}
             onChange={(e) => setForm({ ...form, confirm: e.target.value })}
           />

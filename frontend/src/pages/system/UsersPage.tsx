@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Dialog } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { PasswordInput } from '@/components/ui/password-input';
 import { Select } from '@/components/ui/select';
 import {
   Table,
@@ -198,8 +199,7 @@ export function UsersPage() {
             </div>
             <div className="space-y-1.5">
               <Label>{t('users.password')} {editing ? '' : '*'}</Label>
-              <Input
-                type="password"
+              <PasswordInput
                 required={!editing}
                 minLength={8}
                 value={form.password}
