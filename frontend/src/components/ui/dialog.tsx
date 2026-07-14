@@ -19,6 +19,14 @@ const FOCUSABLE =
 export function Dialog({ open, onClose, title, children, className }: DialogProps) {
   const panelRef = React.useRef<HTMLDivElement>(null);
   const titleId = React.useId();
+  // Callers typically pass an inline `onClose` (new identity every
+  // render). Keep the latest one in a ref so typing in a form field
+  // inside the dialog (which re-renders the parent on every keystroke)
+  // doesn't re-run the open/close effect below and steal focus.
+  const onCloseRef = React.useRef(onClose);
+  React.useEffect(() => {
+    onCloseRef.current = onClose;
+  });
 
   React.useEffect(() => {
     if (!open) return;
@@ -32,7 +40,7 @@ export function Dialog({ open, onClose, title, children, className }: DialogProp
 
     const onKey = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
-        onClose();
+        onCloseRef.current();
         return;
       }
       if (e.key !== 'Tab') return;
@@ -62,7 +70,9 @@ export function Dialog({ open, onClose, title, children, className }: DialogProp
       document.body.style.overflow = overflow;
       previouslyFocused?.focus?.();
     };
-  }, [open, onClose]);
+    // intentionally NOT depending on `onClose` — see onCloseRef above
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open]);
 
   if (!open) return null;
 
@@ -70,7 +80,7 @@ export function Dialog({ open, onClose, title, children, className }: DialogProp
     <div
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
       onMouseDown={(e) => {
-        if (e.target === e.currentTarget) onClose();
+        if (e.target === e.currentTarget) onCloseRef.current();
       }}
     >
       <div
@@ -91,7 +101,7 @@ export function Dialog({ open, onClose, title, children, className }: DialogProp
           <button
             type="button"
             aria-label="Yopish"
-            onClick={onClose}
+            onClick={() => onCloseRef.current()}
             className="rounded-md p-1 text-muted-foreground hover:bg-accent hover:text-foreground"
           >
             <X className="h-4 w-4" />
