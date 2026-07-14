@@ -47,7 +47,7 @@ describe('stage 5 e2e', () => {
 
     const admin = await request(server())
       .post('/api/v1/auth/login')
-      .send({ email: 'admin@demo.uz', password: 'Demo1234!' })
+      .send({ email: 'jamshid@gmail.com', password: 'salimov2109' })
       .expect(200);
     adminToken = admin.body.data.accessToken;
     const sales = await request(server())

@@ -55,7 +55,7 @@ describe('employee login provisioning e2e', () => {
     adminToken = (
       await request(server())
         .post('/api/v1/auth/login')
-        .send({ email: 'admin@demo.uz', password: 'Demo1234!' })
+        .send({ email: 'jamshid@gmail.com', password: 'salimov2109' })
         .expect(200)
     ).body.data.accessToken;
     hrToken = (
@@ -178,7 +178,7 @@ describe('employee login provisioning e2e', () => {
     await request(server())
       .patch(`/api/v1/employees/${otherEmployeeId}`)
       .set(asAdmin())
-      .send({ email: 'admin@demo.uz', role: 'sales', password: 'EmpPass123!' })
+      .send({ email: 'jamshid@gmail.com', role: 'sales', password: 'EmpPass123!' })
       .expect(409);
   });
 });

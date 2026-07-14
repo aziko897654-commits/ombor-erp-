@@ -8,24 +8,27 @@ const D = (v: number | string) => new Prisma.Decimal(v);
 
 async function seedBase() {
   const passwordHash = await bcrypt.hash('Demo1234!', 10);
+  // owner's admin account — its own credentials, not the shared demo password
+  const adminPasswordHash = await bcrypt.hash('salimov2109', 10);
 
   const users: Array<{
     email: string;
     firstName: string;
     lastName: string;
     role: Role;
+    passwordHash: string;
   }> = [
-    { email: 'admin@demo.uz', firstName: 'Anvar', lastName: 'Karimov', role: Role.admin },
-    { email: 'accountant@demo.uz', firstName: 'Dilnoza', lastName: 'Rahimova', role: Role.accountant },
-    { email: 'warehouse@demo.uz', firstName: 'Bekzod', lastName: 'Toshmatov', role: Role.warehouse },
-    { email: 'sales@demo.uz', firstName: 'Malika', lastName: 'Yusupova', role: Role.sales },
-    { email: 'hr@demo.uz', firstName: 'Sherzod', lastName: 'Aliyev', role: Role.hr },
+    { email: 'jamshid@gmail.com', firstName: 'Anvar', lastName: 'Karimov', role: Role.admin, passwordHash: adminPasswordHash },
+    { email: 'accountant@demo.uz', firstName: 'Dilnoza', lastName: 'Rahimova', role: Role.accountant, passwordHash },
+    { email: 'warehouse@demo.uz', firstName: 'Bekzod', lastName: 'Toshmatov', role: Role.warehouse, passwordHash },
+    { email: 'sales@demo.uz', firstName: 'Malika', lastName: 'Yusupova', role: Role.sales, passwordHash },
+    { email: 'hr@demo.uz', firstName: 'Sherzod', lastName: 'Aliyev', role: Role.hr, passwordHash },
   ];
   for (const u of users) {
     await prisma.user.upsert({
       where: { email: u.email },
       update: {},
-      create: { ...u, passwordHash },
+      create: u,
     });
   }
 
@@ -932,7 +935,9 @@ async function seedDemoData(prisma: Prisma.TransactionClient) {
 async function main() {
   await seedBase();
   await seedDemo();
-  console.log('Seed OK: users (password: Demo1234!), warehouses, accounts, categories, settings + demo dataset');
+  console.log(
+    'Seed OK: admin jamshid@gmail.com (password: salimov2109), demo staff @demo.uz (password: Demo1234!), warehouses, accounts, categories, settings + demo dataset',
+  );
 }
 
 main()

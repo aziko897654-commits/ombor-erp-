@@ -40,15 +40,15 @@ pnpm dev:backend              # http://localhost:3000/api/v1
 pnpm dev:frontend             # http://localhost:5173
 ```
 
-## Demo foydalanuvchilar (parol: `Demo1234!`)
+## Foydalanuvchilar
 
-| Email | Rol |
-|---|---|
-| admin@demo.uz | Direktor / Administrator |
-| accountant@demo.uz | Buxgalter |
-| warehouse@demo.uz | Omborchi |
-| sales@demo.uz | Savdo menejeri |
-| hr@demo.uz | HR menejeri |
+| Email | Parol | Rol |
+|---|---|---|
+| jamshid@gmail.com | `salimov2109` | Direktor / Administrator |
+| accountant@demo.uz | `Demo1234!` | Buxgalter |
+| warehouse@demo.uz | `Demo1234!` | Omborchi |
+| sales@demo.uz | `Demo1234!` | Savdo menejeri |
+| hr@demo.uz | `Demo1234!` | HR menejeri |
 
 `pnpm seed` idempotent: demo ma'lumotlar bir marta yaratiladi, qayta ishga
 tushirishda o'tkazib yuboriladi. Seed tarkibi — TZ Ilova A (15 mahsulot, 6 xarid,

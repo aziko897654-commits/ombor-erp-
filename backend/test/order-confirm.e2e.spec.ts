@@ -57,7 +57,7 @@ describe('order lifecycle e2e', () => {
 
     const login = await request(server())
       .post('/api/v1/auth/login')
-      .send({ email: 'admin@demo.uz', password: 'Demo1234!' })
+      .send({ email: 'jamshid@gmail.com', password: 'salimov2109' })
       .expect(200);
     token = login.body.data.accessToken;
 
