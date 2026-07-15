@@ -132,7 +132,12 @@ export function UsersPage() {
                 </TableCell>
                 <TableCell>{formatDate(user.createdAt)}</TableCell>
                 <TableCell>
-                  <Button variant="ghost" size="icon" onClick={() => openEdit(user)}>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    aria-label={t('common.edit')}
+                    onClick={() => openEdit(user)}
+                  >
                     <Pencil className="h-4 w-4" />
                   </Button>
                 </TableCell>

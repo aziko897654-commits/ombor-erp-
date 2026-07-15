@@ -10,6 +10,7 @@ import {
   type DealStage,
 } from '@/api/sales';
 import { Button } from '@/components/ui/button';
+import { Combobox } from '@/components/ui/combobox';
 import { Dialog } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -202,18 +203,19 @@ export function DealsPage() {
           </div>
           <div className="space-y-1.5">
             <Label>{t('deals.customer')} *</Label>
-            <Select
+            <Combobox
               required
               value={form.customerId}
-              onChange={(e) => setForm({ ...form, customerId: e.target.value })}
-            >
-              <option value="">{t('deals.selectCustomer')}</option>
-              {customers?.data.map((c) => (
-                <option key={c.id} value={c.id}>
-                  {c.name}
-                </option>
-              ))}
-            </Select>
+              onChange={(customerId) => setForm({ ...form, customerId })}
+              placeholder={t('deals.selectCustomer')}
+              options={
+                customers?.data.map((c) => ({
+                  value: String(c.id),
+                  label: c.name,
+                  hint: c.phone ?? undefined,
+                })) ?? []
+              }
+            />
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1.5">

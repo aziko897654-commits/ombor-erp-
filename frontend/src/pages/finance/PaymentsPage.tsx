@@ -12,6 +12,7 @@ import { getPurchases, getSuppliers } from '@/api/warehouse';
 import { Pagination } from '@/components/Pagination';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Combobox } from '@/components/ui/combobox';
 import { Dialog } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -24,6 +25,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+import { confirmDialog } from '@/lib/confirm';
 import { apiErrorMessage, formatDate, formatMoney } from '@/lib/format';
 import { t } from '@/lib/i18n';
 
@@ -214,9 +216,15 @@ export function PaymentsPage() {
                   <Button
                     variant="ghost"
                     size="icon"
+                    aria-label={t('common.delete')}
                     disabled={deleteMutation.isPending}
-                    onClick={() => {
-                      if (window.confirm(t('payments.deleteConfirm'))) {
+                    onClick={async () => {
+                      if (
+                        await confirmDialog(t('payments.deleteConfirm'), {
+                          tone: 'danger',
+                          confirmLabel: t('common.delete'),
+                        })
+                      ) {
                         deleteMutation.mutate(p.id);
                       }
                     }}
@@ -280,20 +288,21 @@ export function PaymentsPage() {
             <>
               <div className="space-y-1.5">
                 <Label>{t('payments.customer')} *</Label>
-                <Select
+                <Combobox
                   required
                   value={form.customerId}
-                  onChange={(e) =>
-                    setForm({ ...form, customerId: e.target.value, orderId: '' })
+                  onChange={(customerId) =>
+                    setForm({ ...form, customerId, orderId: '' })
                   }
-                >
-                  <option value="">{t('payments.selectCustomer')}</option>
-                  {customers?.data.map((c) => (
-                    <option key={c.id} value={c.id}>
-                      {c.name}
-                    </option>
-                  ))}
-                </Select>
+                  placeholder={t('payments.selectCustomer')}
+                  options={
+                    customers?.data.map((c) => ({
+                      value: String(c.id),
+                      label: c.name,
+                      hint: c.phone ?? undefined,
+                    })) ?? []
+                  }
+                />
               </div>
               <div className="space-y-1.5">
                 <Label>{t('payments.linkedDoc')}</Label>
@@ -314,20 +323,21 @@ export function PaymentsPage() {
             <>
               <div className="space-y-1.5">
                 <Label>{t('payments.supplier')} *</Label>
-                <Select
+                <Combobox
                   required
                   value={form.supplierId}
-                  onChange={(e) =>
-                    setForm({ ...form, supplierId: e.target.value, purchaseId: '' })
+                  onChange={(supplierId) =>
+                    setForm({ ...form, supplierId, purchaseId: '' })
                   }
-                >
-                  <option value="">{t('payments.selectSupplier')}</option>
-                  {suppliers?.data.map((s) => (
-                    <option key={s.id} value={s.id}>
-                      {s.name}
-                    </option>
-                  ))}
-                </Select>
+                  placeholder={t('payments.selectSupplier')}
+                  options={
+                    suppliers?.data.map((s) => ({
+                      value: String(s.id),
+                      label: s.name,
+                      hint: s.phone ?? undefined,
+                    })) ?? []
+                  }
+                />
               </div>
               <div className="space-y-1.5">
                 <Label>{t('payments.linkedDoc')}</Label>

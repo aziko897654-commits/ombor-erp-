@@ -5,7 +5,7 @@ import { Link, useParams } from 'react-router-dom';
 import { getProduct, getProductMovements } from '@/api/warehouse';
 import { Pagination } from '@/components/Pagination';
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
+import { buttonVariants } from '@/components/ui/button';
 import {
   Card,
   CardContent,
@@ -22,6 +22,7 @@ import {
 } from '@/components/ui/table';
 import { formatDateTime, formatMoney, formatQty } from '@/lib/format';
 import { t } from '@/lib/i18n';
+import { cn } from '@/lib/utils';
 
 const REF_LINKS: Record<string, (id: number) => string> = {
   purchase: (id) => `/purchases/${id}`,
@@ -52,11 +53,13 @@ export function ProductDetailPage() {
   return (
     <div>
       <div className="mb-4 flex items-center gap-3">
-        <Button variant="ghost" size="icon">
-          <Link to="/products">
-            <ArrowLeft className="h-4 w-4" />
-          </Link>
-        </Button>
+        <Link
+          to="/products"
+          aria-label={t('common.back')}
+          className={cn(buttonVariants({ variant: 'ghost', size: 'icon' }))}
+        >
+          <ArrowLeft className="h-4 w-4" />
+        </Link>
         <h1 className="text-2xl font-semibold">{product.name}</h1>
         {!product.isActive && <Badge variant="outline">{t('common.inactive')}</Badge>}
       </div>

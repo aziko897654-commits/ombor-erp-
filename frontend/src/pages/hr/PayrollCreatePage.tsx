@@ -4,7 +4,7 @@ import { useState, type FormEvent } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { getAccounts } from '@/api/finance';
 import { createPayroll, getPayrollPreview } from '@/api/hr';
-import { Button } from '@/components/ui/button';
+import { Button, buttonVariants } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -17,8 +17,10 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+import { confirmDialog } from '@/lib/confirm';
 import { apiErrorMessage, formatMoney } from '@/lib/format';
 import { t } from '@/lib/i18n';
+import { cn } from '@/lib/utils';
 
 function currentMonth(): string {
   const now = new Date();
@@ -83,10 +85,10 @@ export function PayrollCreatePage() {
 
   const total = preview?.rows.reduce((acc, row) => acc + netOf(row), 0) ?? 0;
 
-  const submit = (e: FormEvent) => {
+  const submit = async (e: FormEvent) => {
     e.preventDefault();
     setError('');
-    if (!window.confirm(t('payroll.createConfirm'))) return;
+    if (!(await confirmDialog(t('payroll.createConfirm')))) return;
     mutation.mutate({
       month,
       accountId: Number(accountId),
@@ -101,11 +103,13 @@ export function PayrollCreatePage() {
   return (
     <div className="max-w-5xl">
       <div className="mb-4 flex items-center gap-3">
-        <Button variant="ghost" size="icon">
-          <Link to="/payroll">
-            <ArrowLeft className="h-4 w-4" />
-          </Link>
-        </Button>
+        <Link
+          to="/payroll"
+          aria-label={t('common.back')}
+          className={cn(buttonVariants({ variant: 'ghost', size: 'icon' }))}
+        >
+          <ArrowLeft className="h-4 w-4" />
+        </Link>
         <h1 className="text-2xl font-semibold">{t('payroll.new')}</h1>
       </div>
 

@@ -22,6 +22,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+import { confirmDialog } from '@/lib/confirm';
 import { apiErrorMessage } from '@/lib/format';
 import { t } from '@/lib/i18n';
 
@@ -149,15 +150,26 @@ export function CustomersPage() {
                 <TableCell className="text-muted-foreground">{c.address ?? '—'}</TableCell>
                 <TableCell>
                   <div className="flex">
-                    <Button variant="ghost" size="icon" onClick={() => openEdit(c)}>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      aria-label={t('common.edit')}
+                      onClick={() => openEdit(c)}
+                    >
                       <Pencil className="h-4 w-4" />
                     </Button>
                     <Button
                       variant="ghost"
                       size="icon"
+                      aria-label={t('common.delete')}
                       disabled={removeMutation.isPending}
-                      onClick={() => {
-                        if (window.confirm(t('customers.deleteConfirm'))) {
+                      onClick={async () => {
+                        if (
+                          await confirmDialog(t('customers.deleteConfirm'), {
+                            tone: 'danger',
+                            confirmLabel: t('common.delete'),
+                          })
+                        ) {
                           removeMutation.mutate(c.id);
                         }
                       }}

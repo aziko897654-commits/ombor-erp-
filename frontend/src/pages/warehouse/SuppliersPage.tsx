@@ -142,7 +142,12 @@ export function SuppliersPage() {
                 <TableCell className="text-muted-foreground">{s.address ?? '—'}</TableCell>
                 {canEdit && (
                   <TableCell>
-                    <Button variant="ghost" size="icon" onClick={() => openEdit(s)}>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      aria-label={t('common.edit')}
+                      onClick={() => openEdit(s)}
+                    >
                       <Pencil className="h-4 w-4" />
                     </Button>
                   </TableCell>

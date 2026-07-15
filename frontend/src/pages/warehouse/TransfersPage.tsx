@@ -9,6 +9,7 @@ import {
 } from '@/api/warehouse';
 import { Pagination } from '@/components/Pagination';
 import { Button } from '@/components/ui/button';
+import { Combobox } from '@/components/ui/combobox';
 import { Dialog } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -193,19 +194,20 @@ export function TransfersPage() {
             <div className="space-y-2">
               {items.map((row, i) => (
                 <div key={i} className="flex items-center gap-2">
-                  <Select
+                  <Combobox
                     required
                     className="flex-1"
                     value={row.productId}
-                    onChange={(e) => setItem(i, { productId: e.target.value })}
-                  >
-                    <option value="">{t('purchases.selectProduct')}</option>
-                    {products?.data.map((p) => (
-                      <option key={p.id} value={p.id}>
-                        {p.name} ({p.sku})
-                      </option>
-                    ))}
-                  </Select>
+                    onChange={(productId) => setItem(i, { productId })}
+                    placeholder={t('purchases.selectProduct')}
+                    options={
+                      products?.data.map((p) => ({
+                        value: String(p.id),
+                        label: `${p.name} (${p.sku})`,
+                        hint: p.sku,
+                      })) ?? []
+                    }
+                  />
                   <Input
                     required
                     className="w-28"
@@ -220,6 +222,7 @@ export function TransfersPage() {
                     type="button"
                     variant="ghost"
                     size="icon"
+                    aria-label={t('common.removeRow')}
                     disabled={items.length === 1}
                     onClick={() => setItems(items.filter((_, idx) => idx !== i))}
                   >

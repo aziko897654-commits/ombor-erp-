@@ -4,13 +4,15 @@ import { useState, type FormEvent } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { createOrder, getCustomers } from '@/api/sales';
 import { getProducts, getWarehouses } from '@/api/warehouse';
-import { Button } from '@/components/ui/button';
+import { Button, buttonVariants } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
+import { Combobox } from '@/components/ui/combobox';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select } from '@/components/ui/select';
 import { apiErrorMessage, formatMoney, formatQty } from '@/lib/format';
 import { t } from '@/lib/i18n';
+import { cn } from '@/lib/utils';
 
 interface ItemRow {
   productId: string;
@@ -99,11 +101,13 @@ export function OrderCreatePage() {
   return (
     <div className="max-w-4xl">
       <div className="mb-4 flex items-center gap-3">
-        <Button variant="ghost" size="icon">
-          <Link to="/orders">
-            <ArrowLeft className="h-4 w-4" />
-          </Link>
-        </Button>
+        <Link
+          to="/orders"
+          aria-label={t('common.back')}
+          className={cn(buttonVariants({ variant: 'ghost', size: 'icon' }))}
+        >
+          <ArrowLeft className="h-4 w-4" />
+        </Link>
         <h1 className="text-2xl font-semibold">{t('orders.new')}</h1>
       </div>
 
@@ -113,18 +117,19 @@ export function OrderCreatePage() {
             <div className="grid gap-3 md:grid-cols-2">
               <div className="space-y-1.5">
                 <Label>{t('orders.customer')} *</Label>
-                <Select
+                <Combobox
                   required
                   value={customerId}
-                  onChange={(e) => setCustomerId(e.target.value)}
-                >
-                  <option value="">{t('orders.selectCustomer')}</option>
-                  {customers?.data.map((c) => (
-                    <option key={c.id} value={c.id}>
-                      {c.name}
-                    </option>
-                  ))}
-                </Select>
+                  onChange={setCustomerId}
+                  placeholder={t('orders.selectCustomer')}
+                  options={
+                    customers?.data.map((c) => ({
+                      value: String(c.id),
+                      label: c.name,
+                      hint: c.phone ?? undefined,
+                    })) ?? []
+                  }
+                />
               </div>
               <div className="space-y-1.5">
                 <Label>{t('orders.warehouse')} *</Label>
@@ -160,22 +165,24 @@ export function OrderCreatePage() {
               <div className="space-y-2">
                 {items.map((row, i) => (
                   <div key={i} className="flex items-center gap-2">
-                    <Select
+                    <Combobox
                       required
                       className="flex-1"
                       value={row.productId}
-                      onChange={(e) => pickProduct(i, e.target.value)}
-                    >
-                      <option value="">{t('orders.selectProduct')}</option>
-                      {products?.data.map((p) => (
-                        <option key={p.id} value={p.id}>
-                          {p.name} ({p.sku})
-                          {warehouseId
-                            ? ` — ${t('orders.stock').toLowerCase()}: ${formatQty(p.stock ?? p.totalStock)}`
-                            : ''}
-                        </option>
-                      ))}
-                    </Select>
+                      onChange={(productId) => pickProduct(i, productId)}
+                      placeholder={t('orders.selectProduct')}
+                      options={
+                        products?.data.map((p) => ({
+                          value: String(p.id),
+                          label: `${p.name} (${p.sku})${
+                            warehouseId
+                              ? ` — ${t('orders.stock').toLowerCase()}: ${formatQty(p.stock ?? p.totalStock)}`
+                              : ''
+                          }`,
+                          hint: p.sku,
+                        })) ?? []
+                      }
+                    />
                     <Input
                       required
                       className="w-28"
@@ -200,6 +207,7 @@ export function OrderCreatePage() {
                       type="button"
                       variant="ghost"
                       size="icon"
+                      aria-label={t('common.removeRow')}
                       disabled={items.length === 1}
                       onClick={() => setItems(items.filter((_, idx) => idx !== i))}
                     >

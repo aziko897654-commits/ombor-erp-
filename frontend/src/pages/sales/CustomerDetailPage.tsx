@@ -3,7 +3,7 @@ import { ArrowLeft } from 'lucide-react';
 import { Link, useParams } from 'react-router-dom';
 import { getCustomer } from '@/api/sales';
 import { OrderStatusBadge } from '@/components/OrderStatusBadge';
-import { Button } from '@/components/ui/button';
+import { buttonVariants } from '@/components/ui/button';
 import {
   Card,
   CardContent,
@@ -20,6 +20,7 @@ import {
 } from '@/components/ui/table';
 import { formatDate, formatMoney } from '@/lib/format';
 import { t } from '@/lib/i18n';
+import { cn } from '@/lib/utils';
 
 /** FR-1.2: customer card — info, balance block (FR-3.7), histories. */
 export function CustomerDetailPage() {
@@ -38,11 +39,13 @@ export function CustomerDetailPage() {
   return (
     <div>
       <div className="mb-4 flex items-center gap-3">
-        <Button variant="ghost" size="icon">
-          <Link to="/customers">
-            <ArrowLeft className="h-4 w-4" />
-          </Link>
-        </Button>
+        <Link
+          to="/customers"
+          aria-label={t('common.back')}
+          className={cn(buttonVariants({ variant: 'ghost', size: 'icon' }))}
+        >
+          <ArrowLeft className="h-4 w-4" />
+        </Link>
         <h1 className="text-2xl font-semibold">{customer.name}</h1>
       </div>
 

@@ -91,11 +91,17 @@ export function CategoriesDialog({
                 <Button
                   size="icon"
                   variant="ghost"
+                  aria-label={t('common.save')}
                   onClick={() => updateMut.mutate({ id: c.id, name: editName })}
                 >
                   <Check className="h-4 w-4" />
                 </Button>
-                <Button size="icon" variant="ghost" onClick={() => setEditingId(null)}>
+                <Button
+                  size="icon"
+                  variant="ghost"
+                  aria-label={t('common.cancel')}
+                  onClick={() => setEditingId(null)}
+                >
                   <X className="h-4 w-4" />
                 </Button>
               </>
@@ -110,6 +116,7 @@ export function CategoriesDialog({
                 <Button
                   size="icon"
                   variant="ghost"
+                  aria-label={t('common.edit')}
                   onClick={() => {
                     setEditingId(c.id);
                     setEditName(c.name);
@@ -120,6 +127,7 @@ export function CategoriesDialog({
                 <Button
                   size="icon"
                   variant="ghost"
+                  aria-label={t('common.delete')}
                   disabled={(c._count?.products ?? 0) > 0}
                   onClick={() => deleteMut.mutate(c.id)}
                 >

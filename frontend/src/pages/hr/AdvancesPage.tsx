@@ -5,6 +5,7 @@ import { getAccounts } from '@/api/finance';
 import { createAdvance, getAdvances, getEmployees } from '@/api/hr';
 import { Pagination } from '@/components/Pagination';
 import { Button } from '@/components/ui/button';
+import { Combobox } from '@/components/ui/combobox';
 import { Dialog } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -142,18 +143,18 @@ export function AdvancesPage() {
         <form onSubmit={submit} className="space-y-3">
           <div className="space-y-1.5">
             <Label>{t('advances.employee')} *</Label>
-            <Select
+            <Combobox
               required
               value={form.employeeId}
-              onChange={(e) => setForm({ ...form, employeeId: e.target.value })}
-            >
-              <option value="">{t('advances.selectEmployee')}</option>
-              {employees?.data.map((employee) => (
-                <option key={employee.id} value={employee.id}>
-                  {employee.fullName}
-                </option>
-              ))}
-            </Select>
+              onChange={(employeeId) => setForm({ ...form, employeeId })}
+              placeholder={t('advances.selectEmployee')}
+              options={
+                employees?.data.map((employee) => ({
+                  value: String(employee.id),
+                  label: employee.fullName,
+                })) ?? []
+              }
+            />
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1.5">

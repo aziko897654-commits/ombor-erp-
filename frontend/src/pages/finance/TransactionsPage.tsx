@@ -26,6 +26,7 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { getTransactions } from '@/api/finance';
+import { confirmDialog } from '@/lib/confirm';
 import { apiErrorMessage, formatDate, formatMoney } from '@/lib/format';
 import { t } from '@/lib/i18n';
 
@@ -217,9 +218,15 @@ export function TransactionsPage() {
                     <Button
                       variant="ghost"
                       size="icon"
+                      aria-label={t('common.delete')}
                       disabled={deleteMutation.isPending}
-                      onClick={() => {
-                        if (window.confirm(t('txs.deleteConfirm'))) {
+                      onClick={async () => {
+                        if (
+                          await confirmDialog(t('txs.deleteConfirm'), {
+                            tone: 'danger',
+                            confirmLabel: t('common.delete'),
+                          })
+                        ) {
                           deleteMutation.mutate(tx.id);
                         }
                       }}

@@ -2,7 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 import { ArrowLeft } from 'lucide-react';
 import { Link, useParams } from 'react-router-dom';
 import { getPayroll } from '@/api/hr';
-import { Button } from '@/components/ui/button';
+import { buttonVariants } from '@/components/ui/button';
 import {
   Table,
   TableBody,
@@ -13,6 +13,7 @@ import {
 } from '@/components/ui/table';
 import { formatDate, formatMoney } from '@/lib/format';
 import { t } from '@/lib/i18n';
+import { cn } from '@/lib/utils';
 
 export function PayrollDetailPage() {
   const { id } = useParams();
@@ -28,11 +29,13 @@ export function PayrollDetailPage() {
   return (
     <div className="max-w-5xl">
       <div className="mb-4 flex items-center gap-3">
-        <Button variant="ghost" size="icon">
-          <Link to="/payroll">
-            <ArrowLeft className="h-4 w-4" />
-          </Link>
-        </Button>
+        <Link
+          to="/payroll"
+          aria-label={t('common.back')}
+          className={cn(buttonVariants({ variant: 'ghost', size: 'icon' }))}
+        >
+          <ArrowLeft className="h-4 w-4" />
+        </Link>
         <h1 className="text-2xl font-semibold">
           {t('payroll.title')}: {payroll.month}
         </h1>

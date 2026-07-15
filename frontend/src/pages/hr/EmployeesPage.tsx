@@ -233,7 +233,12 @@ export function EmployeesPage() {
                   </Badge>
                 </TableCell>
                 <TableCell>
-                  <Button variant="ghost" size="icon" onClick={() => openEdit(employee)}>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    aria-label={t('common.edit')}
+                    onClick={() => openEdit(employee)}
+                  >
                     <Pencil className="h-4 w-4" />
                   </Button>
                 </TableCell>
@@ -450,7 +455,12 @@ export function EmployeesPage() {
                   onChange={(e) => setNewDepartment(e.target.value)}
                 />
               </div>
-              <Button type="submit" size="icon" disabled={departmentMutation.isPending}>
+              <Button
+                type="submit"
+                size="icon"
+                aria-label={t('employees.newDepartment')}
+                disabled={departmentMutation.isPending}
+              >
                 <Plus className="h-4 w-4" />
               </Button>
             </form>
@@ -481,7 +491,12 @@ export function EmployeesPage() {
                   onChange={(e) => setNewPosition(e.target.value)}
                 />
               </div>
-              <Button type="submit" size="icon" disabled={positionMutation.isPending}>
+              <Button
+                type="submit"
+                size="icon"
+                aria-label={t('employees.newPosition')}
+                disabled={positionMutation.isPending}
+              >
                 <Plus className="h-4 w-4" />
               </Button>
             </form>

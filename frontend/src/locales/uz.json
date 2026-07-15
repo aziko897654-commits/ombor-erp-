@@ -79,7 +79,13 @@
     "all": "Barchasi",
     "number": "Raqam",
     "quantity": "Miqdor",
-    "yes": "Ha"
+    "yes": "Ha",
+    "confirmTitle": "Tasdiqlash",
+    "confirmAction": "Tasdiqlash",
+    "removeRow": "Qatorni o'chirish",
+    "selectPlaceholder": "Tanlang...",
+    "searchPlaceholder": "Qidirish...",
+    "noOptions": "Hech narsa topilmadi"
   },
   "products": {
     "title": "Mahsulotlar",

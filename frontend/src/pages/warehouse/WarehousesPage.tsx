@@ -113,7 +113,12 @@ export function WarehousesPage() {
                   )}
                 </TableCell>
                 <TableCell>
-                  <Button variant="ghost" size="icon" onClick={() => openEdit(w)}>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    aria-label={t('common.edit')}
+                    onClick={() => openEdit(w)}
+                  >
                     <Pencil className="h-4 w-4" />
                   </Button>
                 </TableCell>

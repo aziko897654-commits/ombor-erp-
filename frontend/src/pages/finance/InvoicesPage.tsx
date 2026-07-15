@@ -183,6 +183,7 @@ export function InvoicesPage() {
                         variant="ghost"
                         size="icon"
                         title={t('invoices.send')}
+                        aria-label={t('invoices.send')}
                         disabled={sendMutation.isPending}
                         onClick={() => sendMutation.mutate(invoice.id)}
                       >
@@ -193,6 +194,7 @@ export function InvoicesPage() {
                       variant="ghost"
                       size="icon"
                       title={t('invoices.pdf')}
+                      aria-label={t('invoices.pdf')}
                       onClick={() => handlePdf(invoice.id, invoice.number)}
                     >
                       <FileDown className="h-4 w-4" />

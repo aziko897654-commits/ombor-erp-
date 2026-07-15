@@ -267,13 +267,20 @@ export function ProductsPage() {
                     {canEdit && (
                       <td className="px-3 py-2.5">
                         <div className="flex gap-1">
-                          <Button variant="ghost" size="icon" title={t('common.edit')} onClick={() => openEdit(p)}>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            title={t('common.edit')}
+                            aria-label={t('common.edit')}
+                            onClick={() => openEdit(p)}
+                          >
                             <Pencil className="h-4 w-4" />
                           </Button>
                           <Button
                             variant="ghost"
                             size="icon"
                             title={t('products.writeoff')}
+                            aria-label={t('products.writeoff')}
                             onClick={() => setWriteoffFor(p)}
                           >
                             <TrendingDown className="h-4 w-4" />

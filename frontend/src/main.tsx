@@ -4,6 +4,7 @@ import { createRoot } from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
 import { App } from './App';
 import { ErrorBoundary } from './components/ErrorBoundary';
+import { ConfirmDialogHost } from './components/ui/confirm-dialog-host';
 import { Toaster } from './components/ui/toaster';
 import { AuthProvider } from './lib/auth';
 import { apiErrorMessage } from './lib/format';
@@ -39,6 +40,7 @@ createRoot(document.getElementById('root')!).render(
           </BrowserRouter>
         </AuthProvider>
         <Toaster />
+        <ConfirmDialogHost />
       </QueryClientProvider>
     </ErrorBoundary>
   </StrictMode>,

@@ -9,7 +9,7 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
+import { buttonVariants } from '@/components/ui/button';
 import {
   Table,
   TableBody,
@@ -20,6 +20,7 @@ import {
 } from '@/components/ui/table';
 import { formatDate, formatMoney } from '@/lib/format';
 import { t } from '@/lib/i18n';
+import { cn } from '@/lib/utils';
 
 const ATTENDANCE_KEYS = ['present', 'absent', 'vacation', 'sick'] as const;
 
@@ -38,11 +39,13 @@ export function EmployeeDetailPage() {
   return (
     <div>
       <div className="mb-4 flex items-center gap-3">
-        <Button variant="ghost" size="icon">
-          <Link to="/employees">
-            <ArrowLeft className="h-4 w-4" />
-          </Link>
-        </Button>
+        <Link
+          to="/employees"
+          aria-label={t('common.back')}
+          className={cn(buttonVariants({ variant: 'ghost', size: 'icon' }))}
+        >
+          <ArrowLeft className="h-4 w-4" />
+        </Link>
         <h1 className="text-2xl font-semibold">{employee.fullName}</h1>
         <Badge variant={employee.status === 'active' ? 'success' : 'destructive'}>
           {t(`employees.status.${employee.status}`)}

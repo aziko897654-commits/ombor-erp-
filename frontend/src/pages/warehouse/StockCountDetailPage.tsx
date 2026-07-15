@@ -8,7 +8,7 @@ import {
   updateStockCount,
 } from '@/api/warehouse';
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
+import { Button, buttonVariants } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {
   Table,
@@ -18,8 +18,10 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+import { confirmDialog } from '@/lib/confirm';
 import { apiErrorMessage, formatDate, formatQty } from '@/lib/format';
 import { t } from '@/lib/i18n';
+import { cn } from '@/lib/utils';
 
 export function StockCountDetailPage() {
   const { id } = useParams();
@@ -89,11 +91,13 @@ export function StockCountDetailPage() {
   return (
     <div className="max-w-4xl">
       <div className="mb-4 flex flex-wrap items-center gap-3">
-        <Button variant="ghost" size="icon">
-          <Link to="/stock/counts">
-            <ArrowLeft className="h-4 w-4" />
-          </Link>
-        </Button>
+        <Link
+          to="/stock/counts"
+          aria-label={t('common.back')}
+          className={cn(buttonVariants({ variant: 'ghost', size: 'icon' }))}
+        >
+          <ArrowLeft className="h-4 w-4" />
+        </Link>
         <h1 className="text-2xl font-semibold">{count.number}</h1>
         {isDraft ? (
           <Badge variant="warning">{t('stockCounts.draft')}</Badge>
@@ -113,8 +117,8 @@ export function StockCountDetailPage() {
               <Save className="h-4 w-4" /> {t('common.save')}
             </Button>
             <Button
-              onClick={() => {
-                if (window.confirm(t('stockCounts.completeConfirm'))) {
+              onClick={async () => {
+                if (await confirmDialog(t('stockCounts.completeConfirm'))) {
                   completeMutation.mutate();
                 }
               }}

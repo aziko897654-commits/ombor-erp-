@@ -12,7 +12,7 @@ import {
 } from '@/api/sales';
 import { Badge } from '@/components/ui/badge';
 import { OrderStatusBadge } from '@/components/OrderStatusBadge';
-import { Button } from '@/components/ui/button';
+import { Button, buttonVariants } from '@/components/ui/button';
 import {
   Card,
   CardContent,
@@ -27,8 +27,10 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+import { confirmDialog } from '@/lib/confirm';
 import { apiErrorMessage, formatDate, formatMoney, formatQty } from '@/lib/format';
 import { t } from '@/lib/i18n';
+import { cn } from '@/lib/utils';
 
 export function OrderDetailPage() {
   const { id } = useParams();
@@ -103,11 +105,13 @@ export function OrderDetailPage() {
   return (
     <div className="max-w-4xl">
       <div className="mb-4 flex items-center gap-3">
-        <Button variant="ghost" size="icon">
-          <Link to="/orders">
-            <ArrowLeft className="h-4 w-4" />
-          </Link>
-        </Button>
+        <Link
+          to="/orders"
+          aria-label={t('common.back')}
+          className={cn(buttonVariants({ variant: 'ghost', size: 'icon' }))}
+        >
+          <ArrowLeft className="h-4 w-4" />
+        </Link>
         <h1 className="text-2xl font-semibold">{order.number}</h1>
         <OrderStatusBadge status={order.status} />
         <div className="ml-auto flex gap-2">
@@ -115,8 +119,8 @@ export function OrderDetailPage() {
             <>
               <Button
                 disabled={busy}
-                onClick={() => {
-                  if (window.confirm(t('orders.confirmHint'))) {
+                onClick={async () => {
+                  if (await confirmDialog(t('orders.confirmHint'))) {
                     confirmMutation.mutate();
                   }
                 }}
@@ -126,8 +130,13 @@ export function OrderDetailPage() {
               <Button
                 variant="outline"
                 disabled={busy}
-                onClick={() => {
-                  if (window.confirm(t('orders.deleteConfirm'))) {
+                onClick={async () => {
+                  if (
+                    await confirmDialog(t('orders.deleteConfirm'), {
+                      tone: 'danger',
+                      confirmLabel: t('common.delete'),
+                    })
+                  ) {
                     deleteMutation.mutate();
                   }
                 }}
@@ -149,8 +158,13 @@ export function OrderDetailPage() {
               <Button
                 variant="destructive"
                 disabled={busy}
-                onClick={() => {
-                  if (window.confirm(t('orders.cancelHint'))) {
+                onClick={async () => {
+                  if (
+                    await confirmDialog(t('orders.cancelHint'), {
+                      tone: 'danger',
+                      confirmLabel: t('orders.cancelOrder'),
+                    })
+                  ) {
                     cancelMutation.mutate();
                   }
                 }}
