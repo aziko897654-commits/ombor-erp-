@@ -41,6 +41,12 @@ export function formatDateTime(value: string | Date | null | undefined): string 
   return `${formatDate(d)} ${hh}:${mi}`;
 }
 
+/** TASK-028: signed percent — 14.4 → "+14.4%", −3 → "−3%". */
+export function formatPercent(value: number | null | undefined): string {
+  if (value === null || value === undefined) return '—';
+  return `${value > 0 ? '+' : ''}${value}%`;
+}
+
 /**
  * TASK-003: centralized delta color semantics. Growth is good for
  * income/profit; for expenses (invert=true) a decrease is the good

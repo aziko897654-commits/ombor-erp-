@@ -18,7 +18,7 @@ import { getDashboardCharts, getDashboardSummary } from '@/api/system';
 import { CardSkeleton, ChartSkeleton } from '@/components/ui/skeleton';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { DatePicker } from '@/components/ui/date-picker';
-import { changeTone, formatMoney } from '@/lib/format';
+import { changeTone, formatMoney, formatPercent } from '@/lib/format';
 import { t } from '@/lib/i18n';
 import { cn } from '@/lib/utils';
 
@@ -513,8 +513,7 @@ function KpiCard({
               ) : (
                 <TrendingDown className="h-3.5 w-3.5" />
               )}
-              {change > 0 ? '+' : ''}
-              {change}%{' '}
+              {formatPercent(change)}{' '}
               {vsLabel
                 ? `(${vsLabel} ${t('dashboard.vsPeriod')})`
                 : t('dashboard.vsPrev')}
