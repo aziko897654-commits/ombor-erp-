@@ -70,6 +70,8 @@
     "continueAnyway": "Baribir davom etish",
     "balanceWarningTitle": "Balans ogohlantirishi",
     "columns": "Ustunlar",
+    "nothingFound": "Hech narsa topilmadi",
+    "clearFilters": "Filtrlarni tozalash",
     "pickDate": "Sanani tanlang",
     "clear": "Tozalash",
     "prevMonth": "Oldingi oy",
@@ -260,6 +262,7 @@
   "salesReturns": {
     "title": "Sotuv qaytarishlari",
     "new": "Yangi qaytarish",
+    "empty": "Hozircha sotuv qaytarishlari yo'q",
     "order": "Buyurtma",
     "selectOrder": "Buyurtmani tanlang",
     "maxQty": "Mumkin",

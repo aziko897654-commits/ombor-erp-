@@ -16,6 +16,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { ColumnsToggle } from '@/components/ui/columns-toggle';
 import { Dialog } from '@/components/ui/dialog';
+import { EmptyState } from '@/components/ui/empty-state';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { SortToggle, type SortDir } from '@/components/ui/sort-toggle';
@@ -191,8 +192,23 @@ export function SuppliersPage() {
             </TableRow>
           ) : (list?.data.length ?? 0) === 0 ? (
             <TableRow>
-              <TableCell colSpan={colCount} className="py-8 text-center text-muted-foreground">
-                {t('common.noData')}
+              <TableCell colSpan={colCount} className="p-0">
+                <EmptyState
+                  filtered={!!search}
+                  onAction={
+                    search
+                      ? () => {
+                          setSearch('');
+                          setPage(1);
+                        }
+                      : canEdit
+                        ? openCreate
+                        : undefined
+                  }
+                  actionLabel={
+                    search || !canEdit ? undefined : `+ ${t('suppliers.new')}`
+                  }
+                />
               </TableCell>
             </TableRow>
           ) : (

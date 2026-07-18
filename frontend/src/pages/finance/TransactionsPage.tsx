@@ -14,6 +14,7 @@ import { Pagination } from '@/components/Pagination';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Dialog } from '@/components/ui/dialog';
+import { EmptyState } from '@/components/ui/empty-state';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select } from '@/components/ui/select';
@@ -207,8 +208,19 @@ export function TransactionsPage() {
             </TableRow>
           ) : (list?.data.length ?? 0) === 0 ? (
             <TableRow>
-              <TableCell colSpan={7} className="py-8 text-center text-muted-foreground">
-                {t('common.noData')}
+              <TableCell colSpan={7} className="p-0">
+                <EmptyState
+                  filtered={!!typeFilter || !!sourceFilter}
+                  onAction={
+                    typeFilter || sourceFilter
+                      ? () => {
+                          setTypeFilter('');
+                          setSourceFilter('');
+                          setPage(1);
+                        }
+                      : undefined
+                  }
+                />
               </TableCell>
             </TableRow>
           ) : (

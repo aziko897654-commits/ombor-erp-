@@ -11,6 +11,7 @@ import {
 import { Pagination } from '@/components/Pagination';
 import { Button } from '@/components/ui/button';
 import { Dialog } from '@/components/ui/dialog';
+import { EmptyState } from '@/components/ui/empty-state';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select } from '@/components/ui/select';
@@ -136,8 +137,12 @@ export function SalesReturnsPage() {
             </TableRow>
           ) : (list?.data.length ?? 0) === 0 ? (
             <TableRow>
-              <TableCell colSpan={5} className="py-8 text-center text-muted-foreground">
-                {t('common.noData')}
+              <TableCell colSpan={5} className="p-0">
+                <EmptyState
+                  message={t('salesReturns.empty')}
+                  onAction={() => setDialogOpen(true)}
+                  actionLabel={`+ ${t('salesReturns.new')}`}
+                />
               </TableCell>
             </TableRow>
           ) : (

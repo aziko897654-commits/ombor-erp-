@@ -14,6 +14,7 @@ import { StatusBadge } from '@/components/ui/status-badge';
 import { Button } from '@/components/ui/button';
 import { Combobox } from '@/components/ui/combobox';
 import { Dialog } from '@/components/ui/dialog';
+import { EmptyState } from '@/components/ui/empty-state';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select } from '@/components/ui/select';
@@ -206,8 +207,18 @@ export function PaymentsPage() {
             </TableRow>
           ) : (list?.data.length ?? 0) === 0 ? (
             <TableRow>
-              <TableCell colSpan={7} className="py-8 text-center text-muted-foreground">
-                {t('common.noData')}
+              <TableCell colSpan={7} className="p-0">
+                <EmptyState
+                  filtered={!!directionFilter}
+                  onAction={
+                    directionFilter
+                      ? () => {
+                          setDirectionFilter('');
+                          setPage(1);
+                        }
+                      : undefined
+                  }
+                />
               </TableCell>
             </TableRow>
           ) : (

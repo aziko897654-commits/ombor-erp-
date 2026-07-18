@@ -17,6 +17,7 @@ import { StatusBadge } from '@/components/ui/status-badge';
 import { Button } from '@/components/ui/button';
 import { Dialog } from '@/components/ui/dialog';
 import { DatePicker } from '@/components/ui/date-picker';
+import { EmptyState } from '@/components/ui/empty-state';
 import { Input } from '@/components/ui/input';
 import { PasswordInput } from '@/components/ui/password-input';
 import { Label } from '@/components/ui/label';
@@ -216,8 +217,18 @@ export function EmployeesPage() {
             </TableRow>
           ) : (list?.data.length ?? 0) === 0 ? (
             <TableRow>
-              <TableCell colSpan={7} className="py-8 text-center text-muted-foreground">
-                {t('common.noData')}
+              <TableCell colSpan={7} className="p-0">
+                <EmptyState
+                  filtered={!!search}
+                  onAction={
+                    search
+                      ? () => {
+                          setSearch('');
+                          setPage(1);
+                        }
+                      : undefined
+                  }
+                />
               </TableCell>
             </TableRow>
           ) : (

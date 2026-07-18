@@ -6,6 +6,7 @@ import { getOrders, type OrderStatus } from '@/api/sales';
 import { OrderStatusBadge } from '@/components/OrderStatusBadge';
 import { Pagination } from '@/components/Pagination';
 import { Button } from '@/components/ui/button';
+import { EmptyState } from '@/components/ui/empty-state';
 import { Select } from '@/components/ui/select';
 import { SortToggle, type SortDir } from '@/components/ui/sort-toggle';
 import {
@@ -92,8 +93,18 @@ export function OrdersPage() {
             </TableRow>
           ) : (list?.data.length ?? 0) === 0 ? (
             <TableRow>
-              <TableCell colSpan={6} className="py-8 text-center text-muted-foreground">
-                {t('common.noData')}
+              <TableCell colSpan={6} className="p-0">
+                <EmptyState
+                  filtered={!!status}
+                  onAction={
+                    status
+                      ? () => {
+                          setStatus('');
+                          setPage(1);
+                        }
+                      : undefined
+                  }
+                />
               </TableCell>
             </TableRow>
           ) : (
