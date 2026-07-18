@@ -20,6 +20,7 @@ import { EmptyState } from '@/components/ui/empty-state';
 import { TableSkeleton } from '@/components/ui/skeleton';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { PhoneInput } from '@/components/ui/phone-input';
 import { SortToggle, type SortDir } from '@/components/ui/sort-toggle';
 import {
   Table,
@@ -280,9 +281,9 @@ export function SuppliersPage() {
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1.5">
               <Label>{t('common.phone')}</Label>
-              <Input
+              <PhoneInput
                 value={form.phone}
-                onChange={(e) => setForm({ ...form, phone: e.target.value })}
+                onChange={(phone) => setForm({ ...form, phone })}
               />
             </div>
             <div className="space-y-1.5">

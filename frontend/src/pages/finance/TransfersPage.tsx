@@ -11,6 +11,7 @@ import { Button } from '@/components/ui/button';
 import { Dialog } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { MoneyInput } from '@/components/ui/money-input';
 import { Select } from '@/components/ui/select';
 import { SortToggle, type SortDir } from '@/components/ui/sort-toggle';
 import {
@@ -195,13 +196,10 @@ export function TransfersPage() {
           </div>
           <div className="space-y-1.5">
             <Label>{t('common.total')} *</Label>
-            <Input
+            <MoneyInput
               required
-              type="number"
-              min="0.01"
-              step="0.01"
               value={form.amount}
-              onChange={(e) => setForm({ ...form, amount: e.target.value })}
+              onChange={(amount) => setForm({ ...form, amount })}
             />
           </div>
           <div className="space-y-1.5">

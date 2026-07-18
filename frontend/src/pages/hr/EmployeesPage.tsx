@@ -18,6 +18,8 @@ import { Button } from '@/components/ui/button';
 import { Dialog } from '@/components/ui/dialog';
 import { DatePicker } from '@/components/ui/date-picker';
 import { EmptyState } from '@/components/ui/empty-state';
+import { MoneyInput } from '@/components/ui/money-input';
+import { PhoneInput } from '@/components/ui/phone-input';
 import { TableSkeleton } from '@/components/ui/skeleton';
 import { Input } from '@/components/ui/input';
 import { PasswordInput } from '@/components/ui/password-input';
@@ -124,7 +126,8 @@ export function EmployeesPage() {
       email: employee.email ?? '',
       departmentId: String(employee.departmentId),
       positionId: String(employee.positionId),
-      salary: employee.salary,
+      // MoneyInput keeps raw digits; drop the decimal tail ("4000000.00")
+      salary: String(Math.round(Number(employee.salary))),
       hiredAt: employee.hiredAt.slice(0, 10),
       status: employee.status,
       firedAt: employee.firedAt ? employee.firedAt.slice(0, 10) : '',
@@ -292,9 +295,9 @@ export function EmployeesPage() {
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1.5">
               <Label>{t('common.phone')}</Label>
-              <Input
+              <PhoneInput
                 value={form.phone}
-                onChange={(e) => setForm({ ...form, phone: e.target.value })}
+                onChange={(phone) => setForm({ ...form, phone })}
               />
             </div>
             <div className="space-y-1.5">
@@ -341,13 +344,10 @@ export function EmployeesPage() {
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1.5">
               <Label>{t('employees.salary')} *</Label>
-              <Input
+              <MoneyInput
                 required
-                type="number"
-                min="1"
-                step="0.01"
                 value={form.salary}
-                onChange={(e) => setForm({ ...form, salary: e.target.value })}
+                onChange={(salary) => setForm({ ...form, salary })}
               />
             </div>
             <div className="space-y-1.5">

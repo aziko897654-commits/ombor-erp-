@@ -16,6 +16,7 @@ import { Combobox } from '@/components/ui/combobox';
 import { Dialog } from '@/components/ui/dialog';
 import { EmptyState } from '@/components/ui/empty-state';
 import { ExportMenu } from '@/components/ui/export-menu';
+import { MoneyInput } from '@/components/ui/money-input';
 import { TableSkeleton } from '@/components/ui/skeleton';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -416,13 +417,10 @@ export function PaymentsPage() {
             </div>
             <div className="space-y-1.5">
               <Label>{t('common.total')} *</Label>
-              <Input
+              <MoneyInput
                 required
-                type="number"
-                min="0.01"
-                step="0.01"
                 value={form.amount}
-                onChange={(e) => setForm({ ...form, amount: e.target.value })}
+                onChange={(amount) => setForm({ ...form, amount })}
               />
             </div>
           </div>
