@@ -14,6 +14,7 @@ import { Combobox } from '@/components/ui/combobox';
 import { Dialog } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { MoneyInput } from '@/components/ui/money-input';
 import { Select } from '@/components/ui/select';
 import { apiErrorMessage, formatMoney } from '@/lib/format';
 import { t } from '@/lib/i18n';
@@ -30,6 +31,9 @@ const STAGE_ACCENT: Record<DealStage, string> = {
 
 const emptyForm = { title: '', customerId: '', amount: '', stage: 'new', note: '' };
 
+// TASK-025: reasons offered when a card is dropped into "lost"
+const LOST_REASONS = ['price', 'competitor', 'other'] as const;
+
 /** FR-1.3: kanban funnel with drag-and-drop stage change. */
 export function DealsPage() {
   const queryClient = useQueryClient();
@@ -39,6 +43,9 @@ export function DealsPage() {
   const [error, setError] = useState('');
   const [boardError, setBoardError] = useState('');
   const [dragOver, setDragOver] = useState<DealStage | null>(null);
+  // TASK-025: pending "dropped into lost" prompt
+  const [lostPrompt, setLostPrompt] = useState<Deal | null>(null);
+  const [lostReason, setLostReason] = useState<string>('price');
 
   const { data: board, isLoading } = useQuery({
     queryKey: ['deals', 'board'],
@@ -82,7 +89,8 @@ export function DealsPage() {
     setForm({
       title: deal.title,
       customerId: String(deal.customerId),
-      amount: deal.amount,
+      // MoneyInput keeps raw digits; drop the decimal tail
+      amount: String(Math.round(Number(deal.amount))),
       stage: deal.stage,
       note: deal.note ?? '',
     });
@@ -108,8 +116,41 @@ export function DealsPage() {
     const id = Number(e.dataTransfer.getData('text/plain'));
     if (!id) return;
     const current = STAGES.find((s) => board?.[s].some((d) => d.id === id));
-    if (current !== stage) stageMutation.mutate({ id, stage });
+    if (current === stage) return;
+    if (stage === 'lost') {
+      // TASK-025: ask why before recording the loss
+      const deal = board?.[current!]?.find((d) => d.id === id);
+      if (deal) {
+        setLostReason('price');
+        setLostPrompt(deal);
+        return;
+      }
+    }
+    stageMutation.mutate({ id, stage });
   };
+
+  const confirmLost = () => {
+    if (!lostPrompt) return;
+    const reasonLabel = t(`deals.lostReasons.${lostReason}`);
+    const note = lostPrompt.note
+      ? `${lostPrompt.note} | ${t('deals.lostReasonLabel')}: ${reasonLabel}`
+      : `${t('deals.lostReasonLabel')}: ${reasonLabel}`;
+    saveLost.mutate({ id: lostPrompt.id, note });
+  };
+
+  const saveLost = useMutation({
+    mutationFn: ({ id, note }: { id: number; note: string }) =>
+      updateDeal(id, { stage: 'lost', note }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['deals'] });
+      setLostPrompt(null);
+      setBoardError('');
+    },
+    onError: (err) => {
+      setLostPrompt(null);
+      setBoardError(apiErrorMessage(err));
+    },
+  });
 
   return (
     <div>
@@ -223,13 +264,10 @@ export function DealsPage() {
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1.5">
               <Label>{t('deals.amount')} *</Label>
-              <Input
+              <MoneyInput
                 required
-                type="number"
-                min="0"
-                step="0.01"
                 value={form.amount}
-                onChange={(e) => setForm({ ...form, amount: e.target.value })}
+                onChange={(amount) => setForm({ ...form, amount })}
               />
             </div>
             <div className="space-y-1.5">
@@ -263,6 +301,49 @@ export function DealsPage() {
             </Button>
           </div>
         </form>
+      </Dialog>
+
+      {/* TASK-025: reason prompt when a deal lands in "lost" */}
+      <Dialog
+        open={!!lostPrompt}
+        onClose={() => setLostPrompt(null)}
+        title={t('deals.lostReasonTitle')}
+      >
+        <div className="space-y-3">
+          <p className="text-sm text-muted-foreground">
+            {lostPrompt?.title} — {formatMoney(lostPrompt?.amount)}
+          </p>
+          <div className="space-y-1.5">
+            <Label>{t('deals.lostReasonLabel')} *</Label>
+            <Select
+              value={lostReason}
+              onChange={(e) => setLostReason(e.target.value)}
+            >
+              {LOST_REASONS.map((r) => (
+                <option key={r} value={r}>
+                  {t(`deals.lostReasons.${r}`)}
+                </option>
+              ))}
+            </Select>
+          </div>
+          <div className="flex justify-end gap-2 pt-2">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setLostPrompt(null)}
+            >
+              {t('common.cancel')}
+            </Button>
+            <Button
+              type="button"
+              variant="destructive"
+              disabled={saveLost.isPending}
+              onClick={confirmLost}
+            >
+              {saveLost.isPending ? t('common.saving') : t('deals.markLost')}
+            </Button>
+          </div>
+        </div>
       </Dialog>
     </div>
   );

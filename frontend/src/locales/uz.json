@@ -221,6 +221,14 @@
     "editTitle": "Bitimni tahrirlash",
     "dealTitle": "Bitim nomi",
     "titleMinLength": "Kamida 3 ta belgi, faqat probel emas",
+    "lostReasonTitle": "Bitim yo'qotildi",
+    "lostReasonLabel": "Yo'qotish sababi",
+    "markLost": "Yo'qotildi deb belgilash",
+    "lostReasons": {
+      "price": "Narx",
+      "competitor": "Raqobatchi",
+      "other": "Boshqa"
+    },
     "customer": "Mijoz",
     "amount": "Summa",
     "manager": "Mas'ul menejer",
