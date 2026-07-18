@@ -36,6 +36,7 @@ export interface Transaction {
 export interface BalanceSummary {
   accounts: Account[];
   total: string;
+  period: { from: string; to: string; label: string };
   flow: { income: string; expense: string; net: string };
 }
 

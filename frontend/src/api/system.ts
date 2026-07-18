@@ -8,7 +8,8 @@ export interface KpiValue {
 }
 
 export interface DashboardSummary {
-  period: { from: string; to: string };
+  period: { from: string; to: string; label: string };
+  previousPeriod: { from: string; to: string; label: string };
   kpi: {
     income: KpiValue;
     expense: KpiValue;

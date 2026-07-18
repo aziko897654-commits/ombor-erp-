@@ -418,7 +418,8 @@
     "dealsSum": "Summa",
     "revenue": "Tushum",
     "vsPrev": "o'tgan davrga nisbatan",
-    "noPrev": "O'tgan davrda ma'lumot yo'q"
+    "vsPeriod": "ga nisbatan",
+    "noPrev": "Yangi — o'tgan davrda ma'lumot yo'q"
   },
   "reports": {
     "title": "Hisobotlar",

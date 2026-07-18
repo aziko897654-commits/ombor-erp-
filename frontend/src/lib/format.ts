@@ -41,6 +41,20 @@ export function formatDateTime(value: string | Date | null | undefined): string 
   return `${formatDate(d)} ${hh}:${mi}`;
 }
 
+/**
+ * TASK-003: centralized delta color semantics. Growth is good for
+ * income/profit; for expenses (invert=true) a decrease is the good
+ * direction. Returns the text color class for the percent badge.
+ */
+export function changeTone(
+  change: number | null | undefined,
+  invert = false,
+): string {
+  const up = (change ?? 0) >= 0;
+  const good = invert ? !up : up;
+  return good ? 'text-green-700' : 'text-destructive';
+}
+
 /** Extracts a display message from an axios error (API error format 6.4). */
 export function apiErrorMessage(err: unknown): string {
   const message = (err as any)?.response?.data?.message;

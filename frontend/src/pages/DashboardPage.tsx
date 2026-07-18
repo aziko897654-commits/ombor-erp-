@@ -17,7 +17,7 @@ import {
 import { getDashboardCharts, getDashboardSummary } from '@/api/system';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { formatMoney } from '@/lib/format';
+import { changeTone, formatMoney } from '@/lib/format';
 import { t } from '@/lib/i18n';
 import { cn } from '@/lib/utils';
 
@@ -166,35 +166,46 @@ export function DashboardPage() {
 
       {/* FR-5.2: KPI with previous-period comparison */}
       <div className="mb-4 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-        <KpiCard
-          label={t('dashboard.income')}
-          value={summary?.kpi.income.value}
-          change={summary?.kpi.income.change}
-          to="/finance/transactions"
-          hint={t('dashboard.incomeHint')}
-        />
-        <KpiCard
-          label={t('dashboard.expense')}
-          value={summary?.kpi.expense.value}
-          change={summary?.kpi.expense.change}
-          invert
-          to="/finance/transactions"
-          hint={t('dashboard.expenseHint')}
-        />
-        <KpiCard
-          label={t('dashboard.profit')}
-          value={summary?.kpi.profit.value}
-          change={summary?.kpi.profit.change}
-          to="/finance/transactions"
-          hint={t('dashboard.profitHint')}
-        />
-        <KpiCard
-          label={t('dashboard.cash')}
-          value={summary?.kpi.cash.value}
-          change={summary?.kpi.cash.change}
-          to="/finance/accounts"
-          hint={t('dashboard.cashHint')}
-        />
+        {(() => {
+          const vsLabel = summary?.previousPeriod?.label ?? '';
+          return (
+            <>
+              <KpiCard
+                label={t('dashboard.income')}
+                value={summary?.kpi.income.value}
+                change={summary?.kpi.income.change}
+                to="/finance/transactions"
+                hint={t('dashboard.incomeHint')}
+                vsLabel={vsLabel}
+              />
+              <KpiCard
+                label={t('dashboard.expense')}
+                value={summary?.kpi.expense.value}
+                change={summary?.kpi.expense.change}
+                invert
+                to="/finance/transactions"
+                hint={t('dashboard.expenseHint')}
+                vsLabel={vsLabel}
+              />
+              <KpiCard
+                label={t('dashboard.profit')}
+                value={summary?.kpi.profit.value}
+                change={summary?.kpi.profit.change}
+                to="/finance/transactions"
+                hint={t('dashboard.profitHint')}
+                vsLabel={vsLabel}
+              />
+              <KpiCard
+                label={t('dashboard.cash')}
+                value={summary?.kpi.cash.value}
+                change={summary?.kpi.cash.change}
+                to="/finance/accounts"
+                hint={t('dashboard.cashHint')}
+                vsLabel={vsLabel}
+              />
+            </>
+          );
+        })()}
       </div>
 
       {/* FR-5.3: extra cards; FR-5.5: each links to its module */}
@@ -386,6 +397,7 @@ function KpiCard({
   invert,
   to,
   hint,
+  vsLabel,
 }: {
   label: string;
   value?: string;
@@ -395,9 +407,10 @@ function KpiCard({
   to: string;
   /** TASK-002: formula tooltip shown on hover over the ℹ icon */
   hint?: string;
+  /** TASK-003: comparison period label, e.g. "01.06–18.06" */
+  vsLabel?: string;
 }) {
   const up = (change ?? 0) >= 0;
-  const good = invert ? !up : up;
   return (
     <Link to={to}>
       <Card className="transition hover:shadow-md">
@@ -425,7 +438,7 @@ function KpiCard({
             <p
               className={cn(
                 'mt-1 flex items-center gap-1 text-xs font-medium',
-                good ? 'text-green-700' : 'text-destructive',
+                changeTone(change, invert),
               )}
             >
               {up ? (
@@ -434,7 +447,10 @@ function KpiCard({
                 <TrendingDown className="h-3.5 w-3.5" />
               )}
               {change > 0 ? '+' : ''}
-              {change}% {t('dashboard.vsPrev')}
+              {change}%{' '}
+              {vsLabel
+                ? `(${vsLabel} ${t('dashboard.vsPeriod')})`
+                : t('dashboard.vsPrev')}
             </p>
           ) : (
             <p className="mt-1 text-xs text-muted-foreground">

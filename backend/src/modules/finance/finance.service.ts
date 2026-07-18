@@ -5,11 +5,11 @@ import {
 } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { AuditService } from '../../common/audit/audit.service';
+import { parsePeriod, periodLabel } from '../../common/period.util';
 import { PrismaService } from '../../common/prisma/prisma.service';
 import { AccountsService } from './accounts.service';
 import { resolveCategory } from './categories.util';
 import { CreateTransferDto } from './dto/finance.dto';
-import { endOfDay } from './transactions.service';
 
 const ZERO = new Prisma.Decimal(0);
 
@@ -37,23 +37,21 @@ export class FinanceService {
    * FR-3.4: per-account balances (all-time) + period cash flow.
    * Invariant 9: source=transfer stays OUT of the flow numbers —
    * it only affects account balances.
+   * TASK-003: without from/to the flow defaults to the current month —
+   * the same period logic the dashboard uses — and the period is
+   * returned so the UI can label the flow cards.
    */
   async balance(from?: string, to?: string) {
-    const dateFilter =
-      from || to
-        ? {
-            date: {
-              ...(from ? { gte: new Date(from) } : {}),
-              ...(to ? { lte: endOfDay(to) } : {}),
-            },
-          }
-        : {};
+    const period = parsePeriod(from, to);
 
     const [accounts, flows] = await Promise.all([
       this.accounts.findAll(),
       this.prisma.transaction.groupBy({
         by: ['type'],
-        where: { source: { not: 'transfer' }, ...dateFilter },
+        where: {
+          source: { not: 'transfer' },
+          date: { gte: period.start, lte: period.end },
+        },
         _sum: { amount: true },
       }),
     ]);
@@ -70,6 +68,11 @@ export class FinanceService {
     return {
       accounts,
       total: total.toString(),
+      period: {
+        from: period.start,
+        to: period.end,
+        label: periodLabel(period),
+      },
       flow: {
         income: income.toString(),
         expense: expense.toString(),

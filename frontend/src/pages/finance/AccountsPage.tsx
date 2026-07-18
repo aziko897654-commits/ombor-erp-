@@ -70,30 +70,41 @@ export function AccountsPage() {
       ) : (
         <>
           <div className="mb-6 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-            <SummaryCard
-              label={t('accounts.total')}
-              value={summary?.total}
-              emphasize
-            />
-            <SummaryCard
-              label={t('accounts.flowIncome')}
-              value={summary?.flow.income}
-              tone="text-green-700"
-            />
-            <SummaryCard
-              label={t('accounts.flowExpense')}
-              value={summary?.flow.expense}
-              tone="text-destructive"
-            />
-            <SummaryCard
-              label={t('accounts.flowNet')}
-              value={summary?.flow.net}
-              tone={
-                Number(summary?.flow.net ?? 0) < 0
-                  ? 'text-destructive'
-                  : 'text-green-700'
-              }
-            />
+            {(() => {
+              // TASK-003: same current-month default as the dashboard;
+              // the range label shows which window the flow covers
+              const periodLabel = summary?.period?.label ?? '';
+              const withPeriod = (label: string) =>
+                periodLabel ? `${label} (${periodLabel})` : label;
+              return (
+                <>
+                  <SummaryCard
+                    label={t('accounts.total')}
+                    value={summary?.total}
+                    emphasize
+                  />
+                  <SummaryCard
+                    label={withPeriod(t('accounts.flowIncome'))}
+                    value={summary?.flow.income}
+                    tone="text-green-700"
+                  />
+                  <SummaryCard
+                    label={withPeriod(t('accounts.flowExpense'))}
+                    value={summary?.flow.expense}
+                    tone="text-destructive"
+                  />
+                  <SummaryCard
+                    label={withPeriod(t('accounts.flowNet'))}
+                    value={summary?.flow.net}
+                    tone={
+                      Number(summary?.flow.net ?? 0) < 0
+                        ? 'text-destructive'
+                        : 'text-green-700'
+                    }
+                  />
+                </>
+              );
+            })()}
           </div>
 
           <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">

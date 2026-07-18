@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import {
   parsePeriod,
+  periodLabel,
   previousPeriod,
   type Period,
 } from '../../common/period.util';
@@ -72,7 +73,20 @@ export class DashboardService {
     const prevProfit = prevGrossProfit.minus(prevOpex);
 
     return {
-      period: { from: period.start, to: period.end },
+      period: {
+        from: period.start,
+        to: period.end,
+        label: periodLabel(period),
+      },
+      // TASK-003: the comparison period is the preceding window of exactly
+      // the same length (e.g. 01–18.07 vs 13–30.06); exposed with a
+      // server-side label so the UI can state what each percent is
+      // compared against without timezone drift.
+      previousPeriod: {
+        from: previous.start,
+        to: previous.end,
+        label: periodLabel(previous),
+      },
       kpi: {
         income: {
           value: flow.income.toString(),
