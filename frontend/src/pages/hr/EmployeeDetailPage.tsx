@@ -2,7 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 import { ArrowLeft } from 'lucide-react';
 import { Link, useParams } from 'react-router-dom';
 import { getEmployee } from '@/api/hr';
-import { Badge } from '@/components/ui/badge';
+import { StatusBadge } from '@/components/ui/status-badge';
 import {
   Card,
   CardContent,
@@ -47,9 +47,10 @@ export function EmployeeDetailPage() {
           <ArrowLeft className="h-4 w-4" />
         </Link>
         <h1 className="text-2xl font-semibold">{employee.fullName}</h1>
-        <Badge variant={employee.status === 'active' ? 'success' : 'destructive'}>
-          {t(`employees.status.${employee.status}`)}
-        </Badge>
+        <StatusBadge
+          status={employee.status}
+          label={t(`employees.status.${employee.status}`)}
+        />
       </div>
 
       <div className="mb-6 grid gap-4 md:grid-cols-2">

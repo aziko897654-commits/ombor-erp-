@@ -10,8 +10,8 @@ import {
   getOrder,
   shipOrder,
 } from '@/api/sales';
-import { Badge } from '@/components/ui/badge';
 import { OrderStatusBadge } from '@/components/OrderStatusBadge';
+import { StatusBadge } from '@/components/ui/status-badge';
 import { Button, buttonVariants } from '@/components/ui/button';
 import {
   Card,
@@ -234,13 +234,10 @@ export function OrderDetailPage() {
                     </span>
                     <span className="flex items-center gap-2 font-medium">
                       {order.invoice.number}
-                      <Badge
-                        variant={
-                          order.invoice.status === 'paid' ? 'success' : 'secondary'
-                        }
-                      >
-                        {t(`invoices.status.${order.invoice.status}`)}
-                      </Badge>
+                      <StatusBadge
+                        status={order.invoice.status}
+                        label={t(`invoices.status.${order.invoice.status}`)}
+                      />
                     </span>
                   </div>
                 )}
@@ -307,9 +304,10 @@ export function OrderDetailPage() {
                 <TableRow key={p.id}>
                   <TableCell>{formatDate(p.date)}</TableCell>
                   <TableCell>
-                    <Badge variant={p.direction === 'in' ? 'success' : 'destructive'}>
-                      {t(`payments.${p.direction}`)}
-                    </Badge>
+                    <StatusBadge
+                      status={p.direction}
+                      label={t(`payments.${p.direction}`)}
+                    />
                   </TableCell>
                   <TableCell>{p.account?.name}</TableCell>
                   <TableCell className="text-muted-foreground">

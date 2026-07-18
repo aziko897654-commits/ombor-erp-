@@ -3,7 +3,7 @@ import { Pencil, Plus } from 'lucide-react';
 import { useState, type FormEvent } from 'react';
 import { createUser, getUsers, updateUser, type AppUser } from '@/api/system';
 import { Pagination } from '@/components/Pagination';
-import { Badge } from '@/components/ui/badge';
+import { StatusBadge } from '@/components/ui/status-badge';
 import { Button } from '@/components/ui/button';
 import { Dialog } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
@@ -138,9 +138,10 @@ export function UsersPage() {
                 <TableCell>{user.email}</TableCell>
                 <TableCell>{t(`roles.${user.role}`)}</TableCell>
                 <TableCell>
-                  <Badge variant={user.isActive ? 'success' : 'destructive'}>
-                    {user.isActive ? t('common.active') : t('common.inactive')}
-                  </Badge>
+                  <StatusBadge
+                    status={user.isActive ? 'active' : 'blocked'}
+                    label={user.isActive ? t('common.active') : t('common.inactive')}
+                  />
                 </TableCell>
                 <TableCell>{formatDate(user.createdAt)}</TableCell>
                 <TableCell>

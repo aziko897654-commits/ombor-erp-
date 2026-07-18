@@ -10,7 +10,7 @@ import {
 } from '@/api/finance';
 import { getOrders } from '@/api/sales';
 import { Pagination } from '@/components/Pagination';
-import { Badge } from '@/components/ui/badge';
+import { StatusBadge } from '@/components/ui/status-badge';
 import { Button } from '@/components/ui/button';
 import { Dialog } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
@@ -27,15 +27,6 @@ import {
 import { apiErrorMessage, formatDate, formatMoney } from '@/lib/format';
 import { t } from '@/lib/i18n';
 
-const STATUS_VARIANT: Record<
-  InvoiceStatus | 'partial',
-  'secondary' | 'default' | 'success' | 'warning'
-> = {
-  draft: 'secondary',
-  sent: 'default',
-  partial: 'warning',
-  paid: 'success',
-};
 
 /** FR-3.5: invoices — create from order, sent, auto-paid, PDF print. */
 export function InvoicesPage() {
@@ -200,9 +191,10 @@ export function InvoicesPage() {
                   )}
                 </TableCell>
                 <TableCell>
-                  <Badge variant={STATUS_VARIANT[invoice.displayStatus]}>
-                    {t(`invoices.status.${invoice.displayStatus}`)}
-                  </Badge>
+                  <StatusBadge
+                    status={invoice.displayStatus}
+                    label={t(`invoices.status.${invoice.displayStatus}`)}
+                  />
                 </TableCell>
                 <TableCell>
                   <div className="flex">

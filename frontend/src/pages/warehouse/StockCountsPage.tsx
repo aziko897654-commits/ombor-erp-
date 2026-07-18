@@ -8,7 +8,7 @@ import {
   getWarehouses,
 } from '@/api/warehouse';
 import { Pagination } from '@/components/Pagination';
-import { Badge } from '@/components/ui/badge';
+import { StatusBadge } from '@/components/ui/status-badge';
 import { Button } from '@/components/ui/button';
 import { Dialog } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
@@ -112,9 +112,9 @@ export function StockCountsPage() {
                 <TableCell>{c.warehouse?.name}</TableCell>
                 <TableCell>
                   {c.status === 'completed' ? (
-                    <Badge variant="success">{t('stockCounts.completed')}</Badge>
+                    <StatusBadge status="completed" label={t('stockCounts.completed')} />
                   ) : (
-                    <Badge variant="warning">{t('stockCounts.draft')}</Badge>
+                    <StatusBadge status="draft" label={t('stockCounts.draft')} />
                   )}
                 </TableCell>
               </TableRow>

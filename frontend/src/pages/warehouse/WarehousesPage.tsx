@@ -7,7 +7,7 @@ import {
   updateWarehouse,
   type Warehouse,
 } from '@/api/warehouse';
-import { Badge } from '@/components/ui/badge';
+import { StatusBadge } from '@/components/ui/status-badge';
 import { Button } from '@/components/ui/button';
 import { Dialog } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
@@ -106,11 +106,10 @@ export function WarehousesPage() {
                 <TableCell className="font-medium">{w.name}</TableCell>
                 <TableCell className="text-muted-foreground">{w.address ?? '—'}</TableCell>
                 <TableCell>
-                  {w.isActive ? (
-                    <Badge variant="success">{t('common.active')}</Badge>
-                  ) : (
-                    <Badge variant="outline">{t('common.inactive')}</Badge>
-                  )}
+                  <StatusBadge
+                    status={w.isActive ? 'active' : 'inactive'}
+                    label={w.isActive ? t('common.active') : t('common.inactive')}
+                  />
                 </TableCell>
                 <TableCell>
                   <Button

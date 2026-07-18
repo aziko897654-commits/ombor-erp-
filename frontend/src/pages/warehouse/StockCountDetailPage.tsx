@@ -7,7 +7,7 @@ import {
   getStockCount,
   updateStockCount,
 } from '@/api/warehouse';
-import { Badge } from '@/components/ui/badge';
+import { StatusBadge } from '@/components/ui/status-badge';
 import { Button, buttonVariants } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {
@@ -100,9 +100,9 @@ export function StockCountDetailPage() {
         </Link>
         <h1 className="text-2xl font-semibold">{count.number}</h1>
         {isDraft ? (
-          <Badge variant="warning">{t('stockCounts.draft')}</Badge>
+          <StatusBadge status="draft" label={t('stockCounts.draft')} />
         ) : (
-          <Badge variant="success">{t('stockCounts.completed')}</Badge>
+          <StatusBadge status="completed" label={t('stockCounts.completed')} />
         )}
         <span className="text-sm text-muted-foreground">
           {count.warehouse?.name} · {formatDate(count.date)}

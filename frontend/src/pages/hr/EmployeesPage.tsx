@@ -13,7 +13,7 @@ import {
   type Employee,
 } from '@/api/hr';
 import { Pagination } from '@/components/Pagination';
-import { Badge } from '@/components/ui/badge';
+import { StatusBadge } from '@/components/ui/status-badge';
 import { Button } from '@/components/ui/button';
 import { Dialog } from '@/components/ui/dialog';
 import { DatePicker } from '@/components/ui/date-picker';
@@ -238,11 +238,10 @@ export function EmployeesPage() {
                 </TableCell>
                 <TableCell>{formatDate(employee.hiredAt)}</TableCell>
                 <TableCell>
-                  <Badge
-                    variant={employee.status === 'active' ? 'success' : 'destructive'}
-                  >
-                    {t(`employees.status.${employee.status}`)}
-                  </Badge>
+                  <StatusBadge
+                    status={employee.status}
+                    label={t(`employees.status.${employee.status}`)}
+                  />
                 </TableCell>
                 <TableCell>
                   <Button

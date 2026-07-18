@@ -10,7 +10,7 @@ import {
 import { getCustomers, getOrders } from '@/api/sales';
 import { getPurchases, getSuppliers } from '@/api/warehouse';
 import { Pagination } from '@/components/Pagination';
-import { Badge } from '@/components/ui/badge';
+import { StatusBadge } from '@/components/ui/status-badge';
 import { Button } from '@/components/ui/button';
 import { Combobox } from '@/components/ui/combobox';
 import { Dialog } from '@/components/ui/dialog';
@@ -215,9 +215,10 @@ export function PaymentsPage() {
               <TableRow key={p.id}>
                 <TableCell>{formatDate(p.date)}</TableCell>
                 <TableCell>
-                  <Badge variant={p.direction === 'in' ? 'success' : 'destructive'}>
-                    {t(`payments.${p.direction}`)}
-                  </Badge>
+                  <StatusBadge
+                    status={p.direction}
+                    label={t(`payments.${p.direction}`)}
+                  />
                 </TableCell>
                 <TableCell>{p.customer?.name ?? p.supplier?.name ?? '—'}</TableCell>
                 <TableCell className="text-muted-foreground">
