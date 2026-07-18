@@ -11,6 +11,7 @@ import {
 } from '@/api/sales';
 import { Pagination } from '@/components/Pagination';
 import { Button } from '@/components/ui/button';
+import { ColumnsToggle } from '@/components/ui/columns-toggle';
 import { Dialog } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -34,6 +35,8 @@ export function CustomersPage() {
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState('');
   const [sort, setSort] = useState<SortDir>('desc');
+  // TASK-008: null = auto (show only when data exists on this page)
+  const [emailCol, setEmailCol] = useState<boolean | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editing, setEditing] = useState<Customer | null>(null);
   const [form, setForm] = useState(emptyForm);
@@ -96,6 +99,9 @@ export function CustomersPage() {
     });
   };
 
+  const showEmail = emailCol ?? (list?.data.some((c) => c.email) ?? false);
+  const colCount = showEmail ? 5 : 4;
+
   return (
     <div>
       <div className="mb-4 flex items-center justify-between">
@@ -122,6 +128,16 @@ export function CustomersPage() {
             setPage(1);
           }}
         />
+        <ColumnsToggle
+          columns={[
+            {
+              key: 'email',
+              label: 'Email',
+              visible: showEmail,
+              onToggle: setEmailCol,
+            },
+          ]}
+        />
       </div>
       {listError && <p className="mb-2 text-sm text-destructive">{listError}</p>}
 
@@ -130,7 +146,7 @@ export function CustomersPage() {
           <TableRow>
             <TableHead>{t('common.name')}</TableHead>
             <TableHead>{t('common.phone')}</TableHead>
-            <TableHead>Email</TableHead>
+            {showEmail && <TableHead>Email</TableHead>}
             <TableHead>{t('common.address')}</TableHead>
             <TableHead className="w-24">{t('common.actions')}</TableHead>
           </TableRow>
@@ -138,13 +154,13 @@ export function CustomersPage() {
         <TableBody>
           {isLoading ? (
             <TableRow>
-              <TableCell colSpan={5} className="py-8 text-center text-muted-foreground">
+              <TableCell colSpan={colCount} className="py-8 text-center text-muted-foreground">
                 {t('common.loading')}
               </TableCell>
             </TableRow>
           ) : (list?.data.length ?? 0) === 0 ? (
             <TableRow>
-              <TableCell colSpan={5} className="py-8 text-center text-muted-foreground">
+              <TableCell colSpan={colCount} className="py-8 text-center text-muted-foreground">
                 {t('common.noData')}
               </TableCell>
             </TableRow>
@@ -157,7 +173,7 @@ export function CustomersPage() {
                   </Link>
                 </TableCell>
                 <TableCell>{c.phone ?? '—'}</TableCell>
-                <TableCell>{c.email ?? '—'}</TableCell>
+                {showEmail && <TableCell>{c.email ?? '—'}</TableCell>}
                 <TableCell className="text-muted-foreground">{c.address ?? '—'}</TableCell>
                 <TableCell>
                   <div className="flex">

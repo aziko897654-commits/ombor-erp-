@@ -69,6 +69,7 @@
     "sortOldestFirst": "Eski avval",
     "continueAnyway": "Baribir davom etish",
     "balanceWarningTitle": "Balans ogohlantirishi",
+    "columns": "Ustunlar",
     "add": "Qo'shish",
     "save": "Saqlash",
     "saving": "Saqlanmoqda...",
@@ -138,6 +139,10 @@
     "title": "Yetkazib beruvchilar",
     "new": "Yangi yetkazib beruvchi",
     "editTitle": "Yetkazib beruvchini tahrirlash",
+    "deleteConfirm": "Yetkazib beruvchini o'chirmoqchimisiz?",
+    "archiveTitle": "Arxivlash",
+    "archive": "Arxivlash",
+    "archived": "Arxivlangan",
     "debt": "Kreditor qarz",
     "purchasesTotal": "Jami xaridlar",
     "returnsTotal": "Jami qaytarishlar",
@@ -200,6 +205,7 @@
     "new": "Yangi bitim",
     "editTitle": "Bitimni tahrirlash",
     "dealTitle": "Bitim nomi",
+    "titleMinLength": "Kamida 3 ta belgi, faqat probel emas",
     "customer": "Mijoz",
     "amount": "Summa",
     "manager": "Mas'ul menejer",
@@ -323,6 +329,7 @@
     "status": {
       "draft": "Qoralama",
       "sent": "Yuborilgan",
+      "partial": "Qisman to'langan",
       "paid": "To'langan"
     }
   },
