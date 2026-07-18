@@ -27,11 +27,11 @@ export class PayrollService {
     private readonly notifications: NotificationsService,
   ) {}
 
-  async findAll(page: number, limit: number) {
+  async findAll(page: number, limit: number, sort?: 'asc' | 'desc') {
     const [payrolls, total] = await this.prisma.$transaction([
       this.prisma.payroll.findMany({
         include: { _count: { select: { items: true } } },
-        orderBy: { month: 'desc' },
+        orderBy: sort ? { createdAt: sort } : { month: 'desc' },
         skip: (page - 1) * limit,
         take: limit,
       }),

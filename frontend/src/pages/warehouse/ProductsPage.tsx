@@ -20,6 +20,7 @@ import { Dialog } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select } from '@/components/ui/select';
+import { SortToggle, type SortDir } from '@/components/ui/sort-toggle';
 import { useAuth } from '@/lib/auth';
 import { apiErrorMessage, formatMoney, formatQty } from '@/lib/format';
 import { t } from '@/lib/i18n';
@@ -47,6 +48,7 @@ export function ProductsPage() {
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState('');
   const [warehouseId, setWarehouseId] = useState('');
+  const [sort, setSort] = useState<SortDir>('desc');
   const [lowStockOnly, setLowStockOnly] = useState(
     searchParams.get('lowStock') === '1',
   );
@@ -78,12 +80,13 @@ export function ProductsPage() {
     enabled: canEdit,
   });
   const { data: list, isLoading } = useQuery({
-    queryKey: ['products', page, search, warehouseId],
+    queryKey: ['products', page, search, warehouseId, sort],
     queryFn: () =>
       getProducts({
         page,
         search: search || undefined,
         warehouseId: warehouseId ? Number(warehouseId) : undefined,
+        sort,
       }),
     enabled: !lowStockOnly,
   });
@@ -172,6 +175,13 @@ export function ProductsPage() {
           value={search}
           onChange={(e) => {
             setSearch(e.target.value);
+            setPage(1);
+          }}
+        />
+        <SortToggle
+          value={sort}
+          onChange={(v) => {
+            setSort(v);
             setPage(1);
           }}
         />

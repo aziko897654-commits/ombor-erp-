@@ -32,8 +32,15 @@ export function NotificationsBell() {
     const onClick = (e: MouseEvent) => {
       if (!rootRef.current?.contains(e.target as Node)) setOpen(false);
     };
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setOpen(false);
+    };
     document.addEventListener('mousedown', onClick);
-    return () => document.removeEventListener('mousedown', onClick);
+    document.addEventListener('keydown', onKey);
+    return () => {
+      document.removeEventListener('mousedown', onClick);
+      document.removeEventListener('keydown', onKey);
+    };
   }, [open]);
 
   const unread = data?.meta.unread ?? 0;
@@ -50,6 +57,9 @@ export function NotificationsBell() {
         variant="ghost"
         size="icon"
         title={t('common.notifications')}
+        aria-label={t('common.notifications')}
+        aria-haspopup="true"
+        aria-expanded={open}
         onClick={() => setOpen((o) => !o)}
       >
         <Bell className="h-4 w-4" />
@@ -61,7 +71,11 @@ export function NotificationsBell() {
       </Button>
 
       {open && (
-        <div className="absolute right-0 top-11 z-50 w-96 rounded-lg border bg-background shadow-lg">
+        <div
+          role="menu"
+          aria-label={t('common.notifications')}
+          className="absolute right-0 top-11 z-50 w-96 rounded-lg border bg-background shadow-lg"
+        >
           <div className="flex items-center justify-between border-b px-4 py-2.5">
             <span className="text-sm font-semibold">
               {t('notifications.title')}
@@ -86,6 +100,7 @@ export function NotificationsBell() {
                 <button
                   key={n.id}
                   type="button"
+                  role="menuitem"
                   onClick={() => openNotification(n.id, n.link)}
                   className={cn(
                     'block w-full border-b px-4 py-2.5 text-left last:border-0 hover:bg-accent',

@@ -27,11 +27,11 @@ export class UsersService {
     private readonly audit: AuditService,
   ) {}
 
-  async findAll(page = 1, limit = 20) {
+  async findAll(page = 1, limit = 20, sort?: 'asc' | 'desc') {
     const [users, total] = await this.prisma.$transaction([
       this.prisma.user.findMany({
         select: USER_SELECT,
-        orderBy: { createdAt: 'desc' },
+        orderBy: sort ? { createdAt: sort } : { createdAt: 'desc' },
         skip: (page - 1) * limit,
         take: limit,
       }),

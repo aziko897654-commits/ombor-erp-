@@ -37,8 +37,9 @@ export class StockController {
   findTransfers(
     @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number,
     @Query('limit', new DefaultValuePipe(20), ParseIntPipe) limit: number,
+    @Query('sort') sort?: 'asc' | 'desc',
   ) {
-    return this.service.findTransfers(page, limit);
+    return this.service.findTransfers(page, limit, sort);
   }
 
   @Get('transfers/:id')
@@ -55,8 +56,9 @@ export class StockController {
   findCounts(
     @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number,
     @Query('limit', new DefaultValuePipe(20), ParseIntPipe) limit: number,
+    @Query('sort') sort?: 'asc' | 'desc',
   ) {
-    return this.service.findCounts(page, limit);
+    return this.service.findCounts(page, limit, sort);
   }
 
   @Get('counts/:id')

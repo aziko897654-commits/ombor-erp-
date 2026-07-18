@@ -35,8 +35,9 @@ export class FinanceController {
   transfers(
     @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number,
     @Query('limit', new DefaultValuePipe(20), ParseIntPipe) limit: number,
+    @Query('sort') sort?: 'asc' | 'desc',
   ) {
-    return this.service.listTransfers(page, limit);
+    return this.service.listTransfers(page, limit, sort);
   }
 
   @Post('transfers')

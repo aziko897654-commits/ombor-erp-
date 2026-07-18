@@ -39,8 +39,9 @@ export class EmployeesService {
     limit: number;
     search?: string;
     status?: EmployeeStatus;
+    sort?: 'asc' | 'desc';
   }) {
-    const { page, limit, search, status } = params;
+    const { page, limit, search, status, sort } = params;
     const where: Prisma.EmployeeWhereInput = {
       ...(status ? { status } : {}),
       ...(search
@@ -51,7 +52,7 @@ export class EmployeesService {
       this.prisma.employee.findMany({
         where,
         include: EMPLOYEE_INCLUDE,
-        orderBy: { fullName: 'asc' },
+        orderBy: sort ? { hiredAt: sort } : { fullName: 'asc' },
         skip: (page - 1) * limit,
         take: limit,
       }),

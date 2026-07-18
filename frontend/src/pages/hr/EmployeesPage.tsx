@@ -20,6 +20,7 @@ import { Input } from '@/components/ui/input';
 import { PasswordInput } from '@/components/ui/password-input';
 import { Label } from '@/components/ui/label';
 import { Select } from '@/components/ui/select';
+import { SortToggle, type SortDir } from '@/components/ui/sort-toggle';
 import {
   Table,
   TableBody,
@@ -54,6 +55,7 @@ export function EmployeesPage() {
   const queryClient = useQueryClient();
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState('');
+  const [sort, setSort] = useState<SortDir>('desc');
   const [dialogOpen, setDialogOpen] = useState(false);
   const [catalogsOpen, setCatalogsOpen] = useState(false);
   const [editing, setEditing] = useState<Employee | null>(null);
@@ -63,8 +65,8 @@ export function EmployeesPage() {
   const [newPosition, setNewPosition] = useState('');
 
   const { data: list, isLoading } = useQuery({
-    queryKey: ['employees', page, search],
-    queryFn: () => getEmployees({ page, search: search || undefined }),
+    queryKey: ['employees', page, search, sort],
+    queryFn: () => getEmployees({ page, search: search || undefined, sort }),
   });
   const { data: departments } = useQuery({
     queryKey: ['departments'],
@@ -173,15 +175,24 @@ export function EmployeesPage() {
         </div>
       </div>
 
-      <Input
-        className="mb-3 w-64"
-        placeholder={t('common.search')}
-        value={search}
-        onChange={(e) => {
-          setSearch(e.target.value);
-          setPage(1);
-        }}
-      />
+      <div className="mb-3 flex items-center gap-2">
+        <Input
+          className="w-64"
+          placeholder={t('common.search')}
+          value={search}
+          onChange={(e) => {
+            setSearch(e.target.value);
+            setPage(1);
+          }}
+        />
+        <SortToggle
+          value={sort}
+          onChange={(v) => {
+            setSort(v);
+            setPage(1);
+          }}
+        />
+      </div>
 
       <Table>
         <TableHeader>

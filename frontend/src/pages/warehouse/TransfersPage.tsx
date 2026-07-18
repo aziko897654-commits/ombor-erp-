@@ -14,6 +14,7 @@ import { Dialog } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select } from '@/components/ui/select';
+import { SortToggle, type SortDir } from '@/components/ui/sort-toggle';
 import {
   Table,
   TableBody,
@@ -33,6 +34,7 @@ interface ItemRow {
 export function TransfersPage() {
   const queryClient = useQueryClient();
   const [page, setPage] = useState(1);
+  const [sort, setSort] = useState<SortDir>('desc');
   const [dialogOpen, setDialogOpen] = useState(false);
   const [fromId, setFromId] = useState('');
   const [toId, setToId] = useState('');
@@ -41,8 +43,8 @@ export function TransfersPage() {
   const [error, setError] = useState('');
 
   const { data: list, isLoading } = useQuery({
-    queryKey: ['transfers', page],
-    queryFn: () => getTransfers({ page }),
+    queryKey: ['transfers', page, sort],
+    queryFn: () => getTransfers({ page, sort }),
   });
   const { data: warehouses } = useQuery({
     queryKey: ['warehouses'],
@@ -98,6 +100,16 @@ export function TransfersPage() {
         <Button onClick={() => setDialogOpen(true)}>
           <Plus className="h-4 w-4" /> {t('transfers.new')}
         </Button>
+      </div>
+
+      <div className="mb-3 flex justify-end">
+        <SortToggle
+          value={sort}
+          onChange={(v) => {
+            setSort(v);
+            setPage(1);
+          }}
+        />
       </div>
 
       <Table>

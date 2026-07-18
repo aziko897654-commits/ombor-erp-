@@ -17,7 +17,12 @@ export class CustomersService {
     private readonly audit: AuditService,
   ) {}
 
-  async findAll(page: number, limit: number, search?: string) {
+  async findAll(
+    page: number,
+    limit: number,
+    search?: string,
+    sort?: 'asc' | 'desc',
+  ) {
     const where: Prisma.CustomerWhereInput = search
       ? {
           OR: [
@@ -30,7 +35,7 @@ export class CustomersService {
     const [customers, total] = await this.prisma.$transaction([
       this.prisma.customer.findMany({
         where,
-        orderBy: { name: 'asc' },
+        orderBy: sort ? { createdAt: sort } : { name: 'asc' },
         skip: (page - 1) * limit,
         take: limit,
       }),

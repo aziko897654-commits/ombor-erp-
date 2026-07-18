@@ -17,6 +17,7 @@ import { Dialog } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select } from '@/components/ui/select';
+import { SortToggle, type SortDir } from '@/components/ui/sort-toggle';
 import {
   Table,
   TableBody,
@@ -39,6 +40,7 @@ export function TransactionsPage() {
   const [page, setPage] = useState(1);
   const [typeFilter, setTypeFilter] = useState('');
   const [sourceFilter, setSourceFilter] = useState('');
+  const [sort, setSort] = useState<SortDir>('desc');
   const [dialogOpen, setDialogOpen] = useState(false);
   const [categoriesOpen, setCategoriesOpen] = useState(false);
   const [form, setForm] = useState(emptyForm);
@@ -47,12 +49,13 @@ export function TransactionsPage() {
   const [listError, setListError] = useState('');
 
   const { data: list, isLoading } = useQuery({
-    queryKey: ['transactions', page, typeFilter, sourceFilter],
+    queryKey: ['transactions', page, typeFilter, sourceFilter, sort],
     queryFn: () =>
       getTransactions({
         page,
         type: (typeFilter || undefined) as TxType | undefined,
         source: (sourceFilter || undefined) as TxSource | undefined,
+        sort,
       }),
   });
   const { data: accounts } = useQuery({
@@ -165,6 +168,13 @@ export function TransactionsPage() {
             ),
           )}
         </Select>
+        <SortToggle
+          value={sort}
+          onChange={(v) => {
+            setSort(v);
+            setPage(1);
+          }}
+        />
       </div>
       {listError && <p className="mb-2 text-sm text-destructive">{listError}</p>}
 

@@ -14,6 +14,7 @@ import { Dialog } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select } from '@/components/ui/select';
+import { SortToggle, type SortDir } from '@/components/ui/sort-toggle';
 import {
   Table,
   TableBody,
@@ -28,14 +29,15 @@ import { t } from '@/lib/i18n';
 export function PurchaseReturnsPage() {
   const queryClient = useQueryClient();
   const [page, setPage] = useState(1);
+  const [sort, setSort] = useState<SortDir>('desc');
   const [dialogOpen, setDialogOpen] = useState(false);
   const [purchaseId, setPurchaseId] = useState('');
   const [quantities, setQuantities] = useState<Record<number, string>>({});
   const [error, setError] = useState('');
 
   const { data: list, isLoading } = useQuery({
-    queryKey: ['purchase-returns', page],
-    queryFn: () => getPurchaseReturns({ page }),
+    queryKey: ['purchase-returns', page, sort],
+    queryFn: () => getPurchaseReturns({ page, sort }),
   });
   const { data: purchases } = useQuery({
     queryKey: ['purchases', 'all'],
@@ -88,6 +90,16 @@ export function PurchaseReturnsPage() {
         <Button onClick={() => setDialogOpen(true)}>
           <Plus className="h-4 w-4" /> {t('purchaseReturns.new')}
         </Button>
+      </div>
+
+      <div className="mb-3 flex justify-end">
+        <SortToggle
+          value={sort}
+          onChange={(v) => {
+            setSort(v);
+            setPage(1);
+          }}
+        />
       </div>
 
       <Table>

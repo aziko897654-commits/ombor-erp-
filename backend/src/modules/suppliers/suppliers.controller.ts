@@ -25,8 +25,9 @@ export class SuppliersController {
     @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number,
     @Query('limit', new DefaultValuePipe(20), ParseIntPipe) limit: number,
     @Query('search') search?: string,
+    @Query('sort') sort?: 'asc' | 'desc',
   ) {
-    return this.service.findAll(page, limit, search);
+    return this.service.findAll(page, limit, search, sort);
   }
 
   @Get(':id')

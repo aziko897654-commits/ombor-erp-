@@ -188,11 +188,11 @@ export class FinanceService {
 
   // --- FR-3.9: transfers between accounts ---
 
-  async listTransfers(page: number, limit: number) {
+  async listTransfers(page: number, limit: number, sort?: 'asc' | 'desc') {
     const [transfers, total] = await this.prisma.$transaction([
       this.prisma.moneyTransfer.findMany({
         include: TRANSFER_INCLUDE,
-        orderBy: [{ date: 'desc' }, { id: 'desc' }],
+        orderBy: sort ? { createdAt: sort } : [{ date: 'desc' }, { id: 'desc' }],
         skip: (page - 1) * limit,
         take: limit,
       }),

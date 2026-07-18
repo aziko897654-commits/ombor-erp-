@@ -25,11 +25,11 @@ export class AdvancesService {
     private readonly audit: AuditService,
   ) {}
 
-  async findAll(page: number, limit: number) {
+  async findAll(page: number, limit: number, sort?: 'asc' | 'desc') {
     const [advances, total] = await this.prisma.$transaction([
       this.prisma.advance.findMany({
         include: ADVANCE_INCLUDE,
-        orderBy: [{ date: 'desc' }, { id: 'desc' }],
+        orderBy: sort ? { date: sort } : [{ date: 'desc' }, { id: 'desc' }],
         skip: (page - 1) * limit,
         take: limit,
       }),

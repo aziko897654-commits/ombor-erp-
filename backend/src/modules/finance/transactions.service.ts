@@ -31,9 +31,19 @@ export class TransactionsService {
     source?: TxSource;
     from?: string;
     to?: string;
+    sort?: 'asc' | 'desc';
   }) {
-    const { page, limit, type, accountId, categoryId, source, from, to } =
-      params;
+    const {
+      page,
+      limit,
+      type,
+      accountId,
+      categoryId,
+      source,
+      from,
+      to,
+      sort,
+    } = params;
     const where: Prisma.TransactionWhereInput = {
       ...(type ? { type } : {}),
       ...(accountId ? { accountId } : {}),
@@ -52,7 +62,7 @@ export class TransactionsService {
       this.prisma.transaction.findMany({
         where,
         include: TX_INCLUDE,
-        orderBy: [{ date: 'desc' }, { id: 'desc' }],
+        orderBy: sort ? { date: sort } : [{ date: 'desc' }, { id: 'desc' }],
         skip: (page - 1) * limit,
         take: limit,
       }),

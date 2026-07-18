@@ -29,8 +29,9 @@ export class InvoicesController {
     @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number,
     @Query('limit', new DefaultValuePipe(20), ParseIntPipe) limit: number,
     @Query('status') status?: InvoiceStatus,
+    @Query('sort') sort?: 'asc' | 'desc',
   ) {
-    return this.service.findAll(page, limit, status);
+    return this.service.findAll(page, limit, status, sort);
   }
 
   @Post()

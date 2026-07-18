@@ -34,6 +34,7 @@ export class PaymentsController {
     @Query('purchaseId') purchaseId?: string,
     @Query('from') from?: string,
     @Query('to') to?: string,
+    @Query('sort') sort?: 'asc' | 'desc',
   ) {
     const toInt = (v?: string) => (v ? parseInt(v, 10) : undefined);
     return this.service.findAll({
@@ -46,6 +47,7 @@ export class PaymentsController {
       purchaseId: toInt(purchaseId),
       from,
       to,
+      sort,
     });
   }
 

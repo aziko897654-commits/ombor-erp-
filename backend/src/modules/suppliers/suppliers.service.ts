@@ -7,7 +7,12 @@ import { CreateSupplierDto, UpdateSupplierDto } from './dto/supplier.dto';
 export class SuppliersService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async findAll(page: number, limit: number, search?: string) {
+  async findAll(
+    page: number,
+    limit: number,
+    search?: string,
+    sort?: 'asc' | 'desc',
+  ) {
     const where: Prisma.SupplierWhereInput = search
       ? {
           OR: [
@@ -20,7 +25,7 @@ export class SuppliersService {
     const [suppliers, total] = await this.prisma.$transaction([
       this.prisma.supplier.findMany({
         where,
-        orderBy: { name: 'asc' },
+        orderBy: sort ? { createdAt: sort } : { name: 'asc' },
         skip: (page - 1) * limit,
         take: limit,
       }),

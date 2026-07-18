@@ -13,6 +13,7 @@ import { Button } from '@/components/ui/button';
 import { Dialog } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import { Select } from '@/components/ui/select';
+import { SortToggle, type SortDir } from '@/components/ui/sort-toggle';
 import {
   Table,
   TableBody,
@@ -28,13 +29,14 @@ export function StockCountsPage() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [page, setPage] = useState(1);
+  const [sort, setSort] = useState<SortDir>('desc');
   const [dialogOpen, setDialogOpen] = useState(false);
   const [warehouseId, setWarehouseId] = useState('');
   const [error, setError] = useState('');
 
   const { data: list, isLoading } = useQuery({
-    queryKey: ['stock-counts', page],
-    queryFn: () => getStockCounts({ page }),
+    queryKey: ['stock-counts', page, sort],
+    queryFn: () => getStockCounts({ page, sort }),
   });
   const { data: warehouses } = useQuery({
     queryKey: ['warehouses'],
@@ -64,6 +66,16 @@ export function StockCountsPage() {
         <Button onClick={() => setDialogOpen(true)}>
           <Plus className="h-4 w-4" /> {t('stockCounts.new')}
         </Button>
+      </div>
+
+      <div className="mb-3 flex justify-end">
+        <SortToggle
+          value={sort}
+          onChange={(v) => {
+            setSort(v);
+            setPage(1);
+          }}
+        />
       </div>
 
       <Table>

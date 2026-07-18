@@ -10,6 +10,7 @@ import { Dialog } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select } from '@/components/ui/select';
+import { SortToggle, type SortDir } from '@/components/ui/sort-toggle';
 import {
   Table,
   TableBody,
@@ -27,13 +28,14 @@ const emptyForm = { employeeId: '', accountId: '', amount: '', date: '', note: '
 export function AdvancesPage() {
   const queryClient = useQueryClient();
   const [page, setPage] = useState(1);
+  const [sort, setSort] = useState<SortDir>('desc');
   const [dialogOpen, setDialogOpen] = useState(false);
   const [form, setForm] = useState(emptyForm);
   const [error, setError] = useState('');
 
   const { data: list, isLoading } = useQuery({
-    queryKey: ['advances', page],
-    queryFn: () => getAdvances({ page }),
+    queryKey: ['advances', page, sort],
+    queryFn: () => getAdvances({ page, sort }),
   });
   const { data: employees } = useQuery({
     queryKey: ['employees', 'active-all'],
@@ -82,6 +84,16 @@ export function AdvancesPage() {
         >
           <Plus className="h-4 w-4" /> {t('advances.new')}
         </Button>
+      </div>
+
+      <div className="mb-3 flex justify-end">
+        <SortToggle
+          value={sort}
+          onChange={(v) => {
+            setSort(v);
+            setPage(1);
+          }}
+        />
       </div>
 
       <Table>

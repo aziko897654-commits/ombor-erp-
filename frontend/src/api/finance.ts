@@ -113,6 +113,7 @@ export const getTransactions = async (params: {
   type?: TxType;
   accountId?: number;
   source?: TxSource;
+  sort?: 'asc' | 'desc';
 }) =>
   (
     await api.get<{ data: Transaction[]; meta: Meta }>('/transactions', {
@@ -137,6 +138,7 @@ export const getPayments = async (params: {
   page?: number;
   limit?: number;
   direction?: 'in' | 'out';
+  sort?: 'asc' | 'desc';
 }) =>
   (await api.get<{ data: Payment[]; meta: Meta }>('/payments', { params })).data;
 export const createPayment = async (body: Record<string, unknown>) =>
@@ -145,7 +147,10 @@ export const deletePayment = async (id: number) =>
   (await api.delete(`/payments/${id}`)).data.data;
 
 // --- Transfers ---
-export const getMoneyTransfers = async (params: { page?: number }) =>
+export const getMoneyTransfers = async (params: {
+  page?: number;
+  sort?: 'asc' | 'desc';
+}) =>
   (
     await api.get<{ data: MoneyTransfer[]; meta: Meta }>('/finance/transfers', {
       params,
@@ -159,6 +164,7 @@ export const createMoneyTransfer = async (body: Record<string, unknown>) =>
 export const getInvoices = async (params: {
   page?: number;
   status?: InvoiceStatus;
+  sort?: 'asc' | 'desc';
 }) =>
   (await api.get<{ data: Invoice[]; meta: Meta }>('/invoices', { params })).data;
 export const createInvoice = async (orderId: number) =>

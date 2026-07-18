@@ -17,6 +17,7 @@ import { Dialog } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select } from '@/components/ui/select';
+import { SortToggle, type SortDir } from '@/components/ui/sort-toggle';
 import {
   Table,
   TableBody,
@@ -46,17 +47,19 @@ export function PaymentsPage() {
   const queryClient = useQueryClient();
   const [page, setPage] = useState(1);
   const [directionFilter, setDirectionFilter] = useState('');
+  const [sort, setSort] = useState<SortDir>('desc');
   const [dialogOpen, setDialogOpen] = useState(false);
   const [form, setForm] = useState(emptyForm);
   const [error, setError] = useState('');
   const [listError, setListError] = useState('');
 
   const { data: list, isLoading } = useQuery({
-    queryKey: ['payments', page, directionFilter],
+    queryKey: ['payments', page, directionFilter, sort],
     queryFn: () =>
       getPayments({
         page,
         direction: (directionFilter || undefined) as 'in' | 'out' | undefined,
+        sort,
       }),
   });
   const { data: accounts } = useQuery({
@@ -151,18 +154,27 @@ export function PaymentsPage() {
         </Button>
       </div>
 
-      <Select
-        className="mb-3 w-44"
-        value={directionFilter}
-        onChange={(e) => {
-          setDirectionFilter(e.target.value);
-          setPage(1);
-        }}
-      >
-        <option value="">{t('common.all')}</option>
-        <option value="in">{t('payments.in')}</option>
-        <option value="out">{t('payments.out')}</option>
-      </Select>
+      <div className="mb-3 flex items-center gap-2">
+        <Select
+          className="w-44"
+          value={directionFilter}
+          onChange={(e) => {
+            setDirectionFilter(e.target.value);
+            setPage(1);
+          }}
+        >
+          <option value="">{t('common.all')}</option>
+          <option value="in">{t('payments.in')}</option>
+          <option value="out">{t('payments.out')}</option>
+        </Select>
+        <SortToggle
+          value={sort}
+          onChange={(v) => {
+            setSort(v);
+            setPage(1);
+          }}
+        />
+      </div>
       {listError && <p className="mb-2 text-sm text-destructive">{listError}</p>}
 
       <Table>

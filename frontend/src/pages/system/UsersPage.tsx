@@ -10,6 +10,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { PasswordInput } from '@/components/ui/password-input';
 import { Select } from '@/components/ui/select';
+import { SortToggle, type SortDir } from '@/components/ui/sort-toggle';
 import {
   Table,
   TableBody,
@@ -36,14 +37,15 @@ const emptyForm = {
 export function UsersPage() {
   const queryClient = useQueryClient();
   const [page, setPage] = useState(1);
+  const [sort, setSort] = useState<SortDir>('desc');
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editing, setEditing] = useState<AppUser | null>(null);
   const [form, setForm] = useState(emptyForm);
   const [error, setError] = useState('');
 
   const { data: list, isLoading } = useQuery({
-    queryKey: ['users', page],
-    queryFn: () => getUsers({ page }),
+    queryKey: ['users', page, sort],
+    queryFn: () => getUsers({ page, sort }),
   });
 
   const mutation = useMutation({
@@ -97,6 +99,16 @@ export function UsersPage() {
         <Button onClick={openCreate}>
           <Plus className="h-4 w-4" /> {t('users.new')}
         </Button>
+      </div>
+
+      <div className="mb-3 flex justify-end">
+        <SortToggle
+          value={sort}
+          onChange={(v) => {
+            setSort(v);
+            setPage(1);
+          }}
+        />
       </div>
 
       <Table>

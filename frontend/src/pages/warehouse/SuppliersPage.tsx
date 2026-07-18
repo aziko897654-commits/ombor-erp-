@@ -13,6 +13,7 @@ import { Button } from '@/components/ui/button';
 import { Dialog } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { SortToggle, type SortDir } from '@/components/ui/sort-toggle';
 import {
   Table,
   TableBody,
@@ -33,14 +34,15 @@ export function SuppliersPage() {
   const queryClient = useQueryClient();
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState('');
+  const [sort, setSort] = useState<SortDir>('desc');
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editing, setEditing] = useState<Supplier | null>(null);
   const [form, setForm] = useState(emptyForm);
   const [error, setError] = useState('');
 
   const { data: list, isLoading } = useQuery({
-    queryKey: ['suppliers', page, search],
-    queryFn: () => getSuppliers({ page, search: search || undefined }),
+    queryKey: ['suppliers', page, search, sort],
+    queryFn: () => getSuppliers({ page, search: search || undefined, sort }),
   });
 
   const mutation = useMutation({
@@ -96,15 +98,24 @@ export function SuppliersPage() {
         )}
       </div>
 
-      <Input
-        className="mb-3 w-64"
-        placeholder={t('common.search')}
-        value={search}
-        onChange={(e) => {
-          setSearch(e.target.value);
-          setPage(1);
-        }}
-      />
+      <div className="mb-3 flex items-center gap-2">
+        <Input
+          className="w-64"
+          placeholder={t('common.search')}
+          value={search}
+          onChange={(e) => {
+            setSearch(e.target.value);
+            setPage(1);
+          }}
+        />
+        <SortToggle
+          value={sort}
+          onChange={(v) => {
+            setSort(v);
+            setPage(1);
+          }}
+        />
+      </div>
 
       <Table>
         <TableHeader>

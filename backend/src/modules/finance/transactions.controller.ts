@@ -33,6 +33,7 @@ export class TransactionsController {
     @Query('source') source?: TxSource,
     @Query('from') from?: string,
     @Query('to') to?: string,
+    @Query('sort') sort?: 'asc' | 'desc',
   ) {
     return this.service.findAll({
       page,
@@ -43,6 +44,7 @@ export class TransactionsController {
       source,
       from,
       to,
+      sort,
     });
   }
 

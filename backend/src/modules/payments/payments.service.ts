@@ -55,6 +55,7 @@ export class PaymentsService {
     purchaseId?: number;
     from?: string;
     to?: string;
+    sort?: 'asc' | 'desc';
   }) {
     const {
       page,
@@ -66,6 +67,7 @@ export class PaymentsService {
       purchaseId,
       from,
       to,
+      sort,
     } = params;
     const where: Prisma.PaymentWhereInput = {
       ...(direction ? { direction } : {}),
@@ -86,7 +88,7 @@ export class PaymentsService {
       this.prisma.payment.findMany({
         where,
         include: PAYMENT_INCLUDE,
-        orderBy: [{ date: 'desc' }, { id: 'desc' }],
+        orderBy: sort ? { createdAt: sort } : [{ date: 'desc' }, { id: 'desc' }],
         skip: (page - 1) * limit,
         take: limit,
       }),

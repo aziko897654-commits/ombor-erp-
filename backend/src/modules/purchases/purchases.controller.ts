@@ -28,11 +28,13 @@ export class PurchasesController {
     @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number,
     @Query('limit', new DefaultValuePipe(20), ParseIntPipe) limit: number,
     @Query('supplierId') supplierId?: string,
+    @Query('sort') sort?: 'asc' | 'desc',
   ) {
     return this.service.findAll(
       page,
       limit,
       supplierId ? parseInt(supplierId, 10) : undefined,
+      sort,
     );
   }
 

@@ -33,12 +33,14 @@ export class OrdersController {
     @Query('limit', new DefaultValuePipe(20), ParseIntPipe) limit: number,
     @Query('status') status?: OrderStatus,
     @Query('customerId') customerId?: string,
+    @Query('sort') sort?: 'asc' | 'desc',
   ) {
     return this.service.findAll({
       page,
       limit,
       status,
       customerId: customerId ? parseInt(customerId, 10) : undefined,
+      sort,
     });
   }
 

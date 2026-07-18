@@ -29,8 +29,9 @@ export class EmployeesController {
     @Query('limit', new DefaultValuePipe(20), ParseIntPipe) limit: number,
     @Query('search') search?: string,
     @Query('status') status?: EmployeeStatus,
+    @Query('sort') sort?: 'asc' | 'desc',
   ) {
-    return this.service.findAll({ page, limit, search, status });
+    return this.service.findAll({ page, limit, search, status, sort });
   }
 
   @Get(':id')

@@ -105,6 +105,7 @@ export const getEmployees = async (params: {
   limit?: number;
   search?: string;
   status?: EmployeeStatus;
+  sort?: 'asc' | 'desc';
 }) =>
   (
     await api.get<{ data: Employee[]; meta: Meta }>('/employees', { params })
@@ -130,7 +131,7 @@ export const setAttendance = async (body: {
 }) => (await api.post('/attendance', body)).data.data;
 
 // --- Advances ---
-export const getAdvances = async (params: { page?: number }) =>
+export const getAdvances = async (params: { page?: number; sort?: 'asc' | 'desc' }) =>
   (
     await api.get<{ data: AdvanceRow[]; meta: Meta }>('/advances', { params })
   ).data;
@@ -138,7 +139,7 @@ export const createAdvance = async (body: Record<string, unknown>) =>
   (await api.post<{ data: AdvanceRow }>('/advances', body)).data.data;
 
 // --- Payroll ---
-export const getPayrolls = async (params: { page?: number }) =>
+export const getPayrolls = async (params: { page?: number; sort?: 'asc' | 'desc' }) =>
   (await api.get<{ data: Payroll[]; meta: Meta }>('/payroll', { params })).data;
 export const getPayroll = async (id: number) =>
   (await api.get<{ data: Payroll }>(`/payroll/${id}`)).data.data;

@@ -164,7 +164,11 @@ export interface AppUser {
   createdAt: string;
 }
 
-export const getUsers = async (params: { page?: number; limit?: number }) =>
+export const getUsers = async (params: {
+  page?: number;
+  limit?: number;
+  sort?: 'asc' | 'desc';
+}) =>
   (await api.get<{ data: AppUser[]; meta: Meta }>('/users', { params })).data;
 export const createUser = async (body: Record<string, unknown>) =>
   (await api.post<{ data: AppUser }>('/users', body)).data.data;

@@ -21,8 +21,9 @@ export class ProductsService {
     search?: string;
     warehouseId?: number;
     includeInactive?: boolean;
+    sort?: 'asc' | 'desc';
   }) {
-    const { page, limit, search, warehouseId, includeInactive } = params;
+    const { page, limit, search, warehouseId, includeInactive, sort } = params;
     const where: Prisma.ProductWhereInput = {
       ...(includeInactive ? {} : { isActive: true }),
       ...(search
@@ -40,7 +41,7 @@ export class ProductsService {
       this.prisma.product.findMany({
         where,
         include: { category: true },
-        orderBy: { name: 'asc' },
+        orderBy: sort ? { id: sort } : { name: 'asc' },
         skip: (page - 1) * limit,
         take: limit,
       }),

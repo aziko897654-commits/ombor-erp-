@@ -5,6 +5,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { getPurchases } from '@/api/warehouse';
 import { Pagination } from '@/components/Pagination';
 import { Button } from '@/components/ui/button';
+import { SortToggle, type SortDir } from '@/components/ui/sort-toggle';
 import {
   Table,
   TableBody,
@@ -19,9 +20,10 @@ import { t } from '@/lib/i18n';
 export function PurchasesPage() {
   const navigate = useNavigate();
   const [page, setPage] = useState(1);
+  const [sort, setSort] = useState<SortDir>('desc');
   const { data: list, isLoading } = useQuery({
-    queryKey: ['purchases', page],
-    queryFn: () => getPurchases({ page }),
+    queryKey: ['purchases', page, sort],
+    queryFn: () => getPurchases({ page, sort }),
   });
 
   return (
@@ -31,6 +33,16 @@ export function PurchasesPage() {
         <Button onClick={() => navigate('/purchases/new')}>
           <Plus className="h-4 w-4" /> {t('purchases.new')}
         </Button>
+      </div>
+
+      <div className="mb-3 flex items-center gap-2">
+        <SortToggle
+          value={sort}
+          onChange={(v) => {
+            setSort(v);
+            setPage(1);
+          }}
+        />
       </div>
 
       <Table>

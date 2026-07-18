@@ -7,6 +7,7 @@ import { OrderStatusBadge } from '@/components/OrderStatusBadge';
 import { Pagination } from '@/components/Pagination';
 import { Button } from '@/components/ui/button';
 import { Select } from '@/components/ui/select';
+import { SortToggle, type SortDir } from '@/components/ui/sort-toggle';
 import {
   Table,
   TableBody,
@@ -23,11 +24,16 @@ const STATUSES: OrderStatus[] = ['draft', 'confirmed', 'shipped', 'cancelled'];
 export function OrdersPage() {
   const [page, setPage] = useState(1);
   const [status, setStatus] = useState('');
+  const [sort, setSort] = useState<SortDir>('desc');
 
   const { data: list, isLoading } = useQuery({
-    queryKey: ['orders', page, status],
+    queryKey: ['orders', page, status, sort],
     queryFn: () =>
-      getOrders({ page, status: (status || undefined) as OrderStatus | undefined }),
+      getOrders({
+        page,
+        status: (status || undefined) as OrderStatus | undefined,
+        sort,
+      }),
   });
 
   return (
@@ -41,21 +47,30 @@ export function OrdersPage() {
         </Button>
       </div>
 
-      <Select
-        className="mb-3 w-56"
-        value={status}
-        onChange={(e) => {
-          setStatus(e.target.value);
-          setPage(1);
-        }}
-      >
-        <option value="">{t('common.all')}</option>
-        {STATUSES.map((s) => (
-          <option key={s} value={s}>
-            {t(`orders.status.${s}`)}
-          </option>
-        ))}
-      </Select>
+      <div className="mb-3 flex items-center gap-2">
+        <Select
+          className="w-56"
+          value={status}
+          onChange={(e) => {
+            setStatus(e.target.value);
+            setPage(1);
+          }}
+        >
+          <option value="">{t('common.all')}</option>
+          {STATUSES.map((s) => (
+            <option key={s} value={s}>
+              {t(`orders.status.${s}`)}
+            </option>
+          ))}
+        </Select>
+        <SortToggle
+          value={sort}
+          onChange={(v) => {
+            setSort(v);
+            setPage(1);
+          }}
+        />
+      </div>
 
       <Table>
         <TableHeader>

@@ -19,7 +19,12 @@ export class PurchasesService {
     private readonly audit: AuditService,
   ) {}
 
-  async findAll(page: number, limit: number, supplierId?: number) {
+  async findAll(
+    page: number,
+    limit: number,
+    supplierId?: number,
+    sort?: 'asc' | 'desc',
+  ) {
     const where: Prisma.PurchaseWhereInput = supplierId ? { supplierId } : {};
     const [purchases, total] = await this.prisma.$transaction([
       this.prisma.purchase.findMany({
@@ -28,7 +33,7 @@ export class PurchasesService {
           supplier: { select: { id: true, name: true } },
           warehouse: { select: { id: true, name: true } },
         },
-        orderBy: { id: 'desc' },
+        orderBy: sort ? { createdAt: sort } : { id: 'desc' },
         skip: (page - 1) * limit,
         take: limit,
       }),

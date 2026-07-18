@@ -109,6 +109,7 @@ export const getCustomers = async (params: {
   page?: number;
   limit?: number;
   search?: string;
+  sort?: 'asc' | 'desc';
 }) =>
   (
     await api.get<{ data: Customer[]; meta: Meta }>('/customers', { params })
@@ -136,6 +137,7 @@ export const getOrders = async (params: {
   limit?: number;
   status?: OrderStatus;
   customerId?: number;
+  sort?: 'asc' | 'desc';
 }) => (await api.get<{ data: Order[]; meta: Meta }>('/orders', { params })).data;
 export const getOrder = async (id: number) =>
   (await api.get<{ data: Order }>(`/orders/${id}`)).data.data;
@@ -161,7 +163,10 @@ export const downloadDeliveryNote = async (orderId: number) => {
 };
 
 // --- Sales returns ---
-export const getSalesReturns = async (params: { page?: number }) =>
+export const getSalesReturns = async (params: {
+  page?: number;
+  sort?: 'asc' | 'desc';
+}) =>
   (
     await api.get<{ data: SalesReturn[]; meta: Meta }>('/sales-returns', {
       params,

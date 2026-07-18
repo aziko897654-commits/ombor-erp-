@@ -53,10 +53,10 @@ export class StockOperationsService {
     return { success: true };
   }
 
-  async findTransfers(page: number, limit: number) {
+  async findTransfers(page: number, limit: number, sort?: 'asc' | 'desc') {
     const [transfers, total] = await this.prisma.$transaction([
       this.prisma.stockTransfer.findMany({
-        orderBy: { id: 'desc' },
+        orderBy: sort ? { date: sort } : { id: 'desc' },
         skip: (page - 1) * limit,
         take: limit,
       }),
@@ -192,11 +192,11 @@ export class StockOperationsService {
     return this.findTransfer(transfer.id);
   }
 
-  async findCounts(page: number, limit: number) {
+  async findCounts(page: number, limit: number, sort?: 'asc' | 'desc') {
     const [counts, total] = await this.prisma.$transaction([
       this.prisma.stockCount.findMany({
         include: { warehouse: { select: { id: true, name: true } } },
-        orderBy: { id: 'desc' },
+        orderBy: sort ? { createdAt: sort } : { id: 'desc' },
         skip: (page - 1) * limit,
         take: limit,
       }),

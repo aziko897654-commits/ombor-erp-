@@ -12,6 +12,7 @@ import { Dialog } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select } from '@/components/ui/select';
+import { SortToggle, type SortDir } from '@/components/ui/sort-toggle';
 import {
   Table,
   TableBody,
@@ -29,13 +30,14 @@ const emptyForm = { fromAccountId: '', toAccountId: '', amount: '', note: '' };
 export function TransfersPage() {
   const queryClient = useQueryClient();
   const [page, setPage] = useState(1);
+  const [sort, setSort] = useState<SortDir>('desc');
   const [dialogOpen, setDialogOpen] = useState(false);
   const [form, setForm] = useState(emptyForm);
   const [error, setError] = useState('');
 
   const { data: list, isLoading } = useQuery({
-    queryKey: ['finance', 'transfers', page],
-    queryFn: () => getMoneyTransfers({ page }),
+    queryKey: ['finance', 'transfers', page, sort],
+    queryFn: () => getMoneyTransfers({ page, sort }),
   });
   const { data: accounts } = useQuery({
     queryKey: ['accounts'],
@@ -77,6 +79,16 @@ export function TransfersPage() {
         >
           <Plus className="h-4 w-4" /> {t('moneyTransfers.new')}
         </Button>
+      </div>
+
+      <div className="mb-3 flex justify-end">
+        <SortToggle
+          value={sort}
+          onChange={(v) => {
+            setSort(v);
+            setPage(1);
+          }}
+        />
       </div>
 
       <Table>

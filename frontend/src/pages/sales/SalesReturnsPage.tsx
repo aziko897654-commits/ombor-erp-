@@ -14,6 +14,7 @@ import { Dialog } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select } from '@/components/ui/select';
+import { SortToggle, type SortDir } from '@/components/ui/sort-toggle';
 import {
   Table,
   TableBody,
@@ -29,6 +30,7 @@ import { t } from '@/lib/i18n';
 export function SalesReturnsPage() {
   const queryClient = useQueryClient();
   const [page, setPage] = useState(1);
+  const [sort, setSort] = useState<SortDir>('desc');
   const [dialogOpen, setDialogOpen] = useState(false);
   const [orderId, setOrderId] = useState('');
   const [quantities, setQuantities] = useState<Record<number, string>>({});
@@ -36,8 +38,8 @@ export function SalesReturnsPage() {
   const [error, setError] = useState('');
 
   const { data: list, isLoading } = useQuery({
-    queryKey: ['sales-returns', page],
-    queryFn: () => getSalesReturns({ page }),
+    queryKey: ['sales-returns', page, sort],
+    queryFn: () => getSalesReturns({ page, sort }),
   });
   // returns are based on confirmed or shipped orders only (FR-1.8)
   const { data: returnableOrders } = useQuery({
@@ -103,6 +105,16 @@ export function SalesReturnsPage() {
         <Button onClick={() => setDialogOpen(true)}>
           <Plus className="h-4 w-4" /> {t('salesReturns.new')}
         </Button>
+      </div>
+
+      <div className="mb-3 flex items-center gap-2">
+        <SortToggle
+          value={sort}
+          onChange={(v) => {
+            setSort(v);
+            setPage(1);
+          }}
+        />
       </div>
 
       <Table>

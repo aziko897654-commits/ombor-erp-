@@ -41,13 +41,18 @@ export class InvoicesService {
     private readonly audit: AuditService,
   ) {}
 
-  async findAll(page: number, limit: number, status?: InvoiceStatus) {
+  async findAll(
+    page: number,
+    limit: number,
+    status?: InvoiceStatus,
+    sort?: 'asc' | 'desc',
+  ) {
     const where: Prisma.InvoiceWhereInput = status ? { status } : {};
     const [invoices, total] = await this.prisma.$transaction([
       this.prisma.invoice.findMany({
         where,
         include: INVOICE_INCLUDE,
-        orderBy: { id: 'desc' },
+        orderBy: sort ? { issuedAt: sort } : { id: 'desc' },
         skip: (page - 1) * limit,
         take: limit,
       }),

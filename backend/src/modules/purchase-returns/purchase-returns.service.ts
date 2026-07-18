@@ -19,7 +19,7 @@ export class PurchaseReturnsService {
     private readonly audit: AuditService,
   ) {}
 
-  async findAll(page: number, limit: number) {
+  async findAll(page: number, limit: number, sort?: 'asc' | 'desc') {
     const [returns, total] = await this.prisma.$transaction([
       this.prisma.purchaseReturn.findMany({
         include: {
@@ -32,7 +32,7 @@ export class PurchaseReturnsService {
           },
           warehouse: { select: { id: true, name: true } },
         },
-        orderBy: { id: 'desc' },
+        orderBy: sort ? { createdAt: sort } : { id: 'desc' },
         skip: (page - 1) * limit,
         take: limit,
       }),

@@ -5,6 +5,7 @@ import { Link } from 'react-router-dom';
 import { getPayrolls } from '@/api/hr';
 import { Pagination } from '@/components/Pagination';
 import { Button } from '@/components/ui/button';
+import { SortToggle, type SortDir } from '@/components/ui/sort-toggle';
 import {
   Table,
   TableBody,
@@ -18,9 +19,10 @@ import { t } from '@/lib/i18n';
 
 export function PayrollPage() {
   const [page, setPage] = useState(1);
+  const [sort, setSort] = useState<SortDir>('desc');
   const { data: list, isLoading } = useQuery({
-    queryKey: ['payroll', page],
-    queryFn: () => getPayrolls({ page }),
+    queryKey: ['payroll', page, sort],
+    queryFn: () => getPayrolls({ page, sort }),
   });
 
   return (
@@ -32,6 +34,16 @@ export function PayrollPage() {
             <Plus className="h-4 w-4" /> {t('payroll.new')}
           </Link>
         </Button>
+      </div>
+
+      <div className="mb-3 flex justify-end">
+        <SortToggle
+          value={sort}
+          onChange={(v) => {
+            setSort(v);
+            setPage(1);
+          }}
+        />
       </div>
 
       <Table>

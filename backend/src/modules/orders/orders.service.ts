@@ -61,8 +61,9 @@ export class OrdersService {
     limit: number;
     status?: OrderStatus;
     customerId?: number;
+    sort?: 'asc' | 'desc';
   }) {
-    const { page, limit, status, customerId } = params;
+    const { page, limit, status, customerId, sort } = params;
     const where: Prisma.OrderWhereInput = {
       ...(status ? { status } : {}),
       ...(customerId ? { customerId } : {}),
@@ -74,7 +75,7 @@ export class OrdersService {
           customer: { select: { id: true, name: true } },
           warehouse: { select: { id: true, name: true } },
         },
-        orderBy: { id: 'desc' },
+        orderBy: sort ? { createdAt: sort } : { id: 'desc' },
         skip: (page - 1) * limit,
         take: limit,
       }),

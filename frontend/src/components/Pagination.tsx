@@ -1,5 +1,6 @@
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { t } from '@/lib/i18n';
 
 interface Props {
   page: number;
@@ -13,7 +14,10 @@ export function Pagination({ page, limit, total, onPageChange }: Props) {
   if (pages <= 1) return null;
 
   return (
-    <div className="mt-4 flex items-center justify-between text-sm text-muted-foreground">
+    <nav
+      aria-label={t('common.pagination')}
+      className="mt-4 flex items-center justify-between text-sm text-muted-foreground"
+    >
       <span>
         Jami: {total} ta, {page}/{pages}-sahifa
       </span>
@@ -21,6 +25,7 @@ export function Pagination({ page, limit, total, onPageChange }: Props) {
         <Button
           variant="outline"
           size="icon"
+          aria-label={t('common.prevPage')}
           disabled={page <= 1}
           onClick={() => onPageChange(page - 1)}
         >
@@ -29,12 +34,13 @@ export function Pagination({ page, limit, total, onPageChange }: Props) {
         <Button
           variant="outline"
           size="icon"
+          aria-label={t('common.nextPage')}
           disabled={page >= pages}
           onClick={() => onPageChange(page + 1)}
         >
           <ChevronRight className="h-4 w-4" />
         </Button>
       </div>
-    </div>
+    </nav>
   );
 }

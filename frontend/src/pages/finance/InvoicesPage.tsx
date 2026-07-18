@@ -15,6 +15,7 @@ import { Button } from '@/components/ui/button';
 import { Dialog } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import { Select } from '@/components/ui/select';
+import { SortToggle, type SortDir } from '@/components/ui/sort-toggle';
 import {
   Table,
   TableBody,
@@ -37,17 +38,19 @@ export function InvoicesPage() {
   const queryClient = useQueryClient();
   const [page, setPage] = useState(1);
   const [statusFilter, setStatusFilter] = useState('');
+  const [sort, setSort] = useState<SortDir>('desc');
   const [dialogOpen, setDialogOpen] = useState(false);
   const [orderId, setOrderId] = useState('');
   const [error, setError] = useState('');
   const [listError, setListError] = useState('');
 
   const { data: list, isLoading } = useQuery({
-    queryKey: ['invoices', page, statusFilter],
+    queryKey: ['invoices', page, statusFilter, sort],
     queryFn: () =>
       getInvoices({
         page,
         status: (statusFilter || undefined) as InvoiceStatus | undefined,
+        sort,
       }),
   });
   const { data: invoiceableOrders } = useQuery({
@@ -115,21 +118,30 @@ export function InvoicesPage() {
         </Button>
       </div>
 
-      <Select
-        className="mb-3 w-44"
-        value={statusFilter}
-        onChange={(e) => {
-          setStatusFilter(e.target.value);
-          setPage(1);
-        }}
-      >
-        <option value="">{t('common.all')}</option>
-        {(['draft', 'sent', 'paid'] as const).map((s) => (
-          <option key={s} value={s}>
-            {t(`invoices.status.${s}`)}
-          </option>
-        ))}
-      </Select>
+      <div className="mb-3 flex items-center gap-2">
+        <Select
+          className="w-44"
+          value={statusFilter}
+          onChange={(e) => {
+            setStatusFilter(e.target.value);
+            setPage(1);
+          }}
+        >
+          <option value="">{t('common.all')}</option>
+          {(['draft', 'sent', 'paid'] as const).map((s) => (
+            <option key={s} value={s}>
+              {t(`invoices.status.${s}`)}
+            </option>
+          ))}
+        </Select>
+        <SortToggle
+          value={sort}
+          onChange={(v) => {
+            setSort(v);
+            setPage(1);
+          }}
+        />
+      </div>
       {listError && <p className="mb-2 text-sm text-destructive">{listError}</p>}
 
       <Table>

@@ -27,6 +27,7 @@ export class ProductsController {
     @Query('search') search?: string,
     @Query('warehouseId') warehouseId?: string,
     @Query('all') all?: string,
+    @Query('sort') sort?: 'asc' | 'desc',
   ) {
     return this.service.findAll({
       page,
@@ -34,6 +35,7 @@ export class ProductsController {
       search,
       warehouseId: warehouseId ? parseInt(warehouseId, 10) : undefined,
       includeInactive: all === 'true',
+      sort,
     });
   }
 

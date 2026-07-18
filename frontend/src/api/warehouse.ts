@@ -167,6 +167,7 @@ export const getProducts = async (params: {
   limit?: number;
   search?: string;
   warehouseId?: number;
+  sort?: 'asc' | 'desc';
 }) =>
   (
     await api.get<{ data: Product[]; meta: Meta }>('/products', { params })
@@ -192,6 +193,7 @@ export const getSuppliers = async (params: {
   page?: number;
   limit?: number;
   search?: string;
+  sort?: 'asc' | 'desc';
 }) =>
   (
     await api.get<{ data: Supplier[]; meta: Meta }>('/suppliers', { params })
@@ -208,6 +210,7 @@ export const getPurchases = async (params: {
   page?: number;
   limit?: number;
   supplierId?: number;
+  sort?: 'asc' | 'desc';
 }) =>
   (
     await api.get<{ data: Purchase[]; meta: Meta }>('/purchases', { params })
@@ -218,7 +221,10 @@ export const createPurchase = async (body: Record<string, unknown>) =>
   (await api.post<{ data: Purchase }>('/purchases', body)).data.data;
 
 // --- Purchase returns ---
-export const getPurchaseReturns = async (params: { page?: number }) =>
+export const getPurchaseReturns = async (params: {
+  page?: number;
+  sort?: 'asc' | 'desc';
+}) =>
   (
     await api.get<{ data: PurchaseReturn[]; meta: Meta }>('/purchase-returns', {
       params,
@@ -230,7 +236,10 @@ export const createPurchaseReturn = async (body: Record<string, unknown>) =>
 // --- Stock operations ---
 export const writeoff = async (body: Record<string, unknown>) =>
   (await api.post('/stock/writeoff', body)).data.data;
-export const getTransfers = async (params: { page?: number }) =>
+export const getTransfers = async (params: {
+  page?: number;
+  sort?: 'asc' | 'desc';
+}) =>
   (
     await api.get<{ data: StockTransfer[]; meta: Meta }>('/stock/transfers', {
       params,
@@ -238,7 +247,10 @@ export const getTransfers = async (params: { page?: number }) =>
   ).data;
 export const createTransfer = async (body: Record<string, unknown>) =>
   (await api.post<{ data: StockTransfer }>('/stock/transfers', body)).data.data;
-export const getStockCounts = async (params: { page?: number }) =>
+export const getStockCounts = async (params: {
+  page?: number;
+  sort?: 'asc' | 'desc';
+}) =>
   (
     await api.get<{ data: StockCount[]; meta: Meta }>('/stock/counts', { params })
   ).data;
