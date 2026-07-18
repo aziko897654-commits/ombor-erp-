@@ -69,7 +69,7 @@ export interface EmployeeDetail extends Employee {
 
 export interface AttendanceMonth {
   month: string;
-  employees: Array<{ id: number; fullName: string }>;
+  employees: Array<{ id: number; fullName: string; hiredAt: string }>;
   entries: Array<{ employeeId: number; date: string; status: AttendanceStatus }>;
 }
 

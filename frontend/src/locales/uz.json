@@ -375,11 +375,14 @@
   "attendance": {
     "title": "Davomat",
     "hint": "Katakni bosib holatni almashtiring",
+    "beforeHire": "Ishga kirgan sanadan oldin",
+    "futureDay": "Kelajakdagi kun",
     "statuses": {
       "present": "Keldi",
       "absent": "Kelmadi",
       "vacation": "Ta'til",
-      "sick": "Kasal"
+      "sick": "Kasal",
+      "empty": "Belgilanmagan"
     }
   },
   "advances": {

@@ -20,7 +20,8 @@ export class AttendanceService {
     const [employees, entries] = await Promise.all([
       this.prisma.employee.findMany({
         where: { status: 'active' },
-        select: { id: true, fullName: true },
+        // TASK-015: hiredAt lets the grid disable pre-hire cells
+        select: { id: true, fullName: true, hiredAt: true },
         orderBy: { fullName: 'asc' },
       }),
       this.prisma.attendance.findMany({
@@ -44,6 +45,19 @@ export class AttendanceService {
     }
 
     const date = new Date(dto.date);
+    // TASK-015: no marks before the hire date or in the future
+    if (date < new Date(employee.hiredAt.toDateString())) {
+      throw new BadRequestException(
+        'Ishga kirgan sanadan oldingi kun uchun davomat belgilanmaydi',
+      );
+    }
+    const today = new Date();
+    today.setHours(23, 59, 59, 999);
+    if (date > today) {
+      throw new BadRequestException(
+        'Kelajakdagi kun uchun davomat belgilanmaydi',
+      );
+    }
     if (dto.status === 'clear') {
       await this.prisma.attendance.deleteMany({
         where: { employeeId: dto.employeeId, date },
