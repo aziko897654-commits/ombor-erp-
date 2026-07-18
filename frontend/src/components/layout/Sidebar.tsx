@@ -21,7 +21,7 @@ export function SidebarNav({ onNavigate }: { onNavigate?: () => void }) {
           {t('app.name')}
         </span>
       </div>
-      <nav className="flex-1 space-y-4 overflow-y-auto px-2 py-4">
+      <nav className="sidebar-scroll flex-1 space-y-4 overflow-y-auto px-2 py-4">
         {sections.map((section, i) => (
           <div key={section.labelKey ?? i}>
             {section.labelKey && (
