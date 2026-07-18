@@ -16,7 +16,7 @@ import {
 } from 'recharts';
 import { getDashboardCharts, getDashboardSummary } from '@/api/system';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
+import { DatePicker } from '@/components/ui/date-picker';
 import { changeTone, formatMoney } from '@/lib/format';
 import { t } from '@/lib/i18n';
 import { cn } from '@/lib/utils';
@@ -141,22 +141,20 @@ export function DashboardPage() {
             </button>
           ))}
           <div className="ml-2 flex items-center gap-1">
-            <Input
-              type="date"
-              className="h-8 w-36"
+            <DatePicker
+              className="w-40"
               value={custom.from}
-              onChange={(e) => {
-                setCustom((c) => ({ ...c, from: e.target.value }));
+              onChange={(v) => {
+                setCustom((c) => ({ ...c, from: v }));
                 setPreset('custom');
               }}
             />
             <span className="text-muted-foreground">—</span>
-            <Input
-              type="date"
-              className="h-8 w-36"
+            <DatePicker
+              className="w-40"
               value={custom.to}
-              onChange={(e) => {
-                setCustom((c) => ({ ...c, to: e.target.value }));
+              onChange={(v) => {
+                setCustom((c) => ({ ...c, to: v }));
                 setPreset('custom');
               }}
             />

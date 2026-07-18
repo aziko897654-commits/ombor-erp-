@@ -16,6 +16,7 @@ import { Pagination } from '@/components/Pagination';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Dialog } from '@/components/ui/dialog';
+import { DatePicker } from '@/components/ui/date-picker';
 import { Input } from '@/components/ui/input';
 import { PasswordInput } from '@/components/ui/password-input';
 import { Label } from '@/components/ui/label';
@@ -344,11 +345,10 @@ export function EmployeesPage() {
             </div>
             <div className="space-y-1.5">
               <Label>{t('employees.hiredAt')} *</Label>
-              <Input
+              <DatePicker
                 required
-                type="date"
                 value={form.hiredAt}
-                onChange={(e) => setForm({ ...form, hiredAt: e.target.value })}
+                onChange={(v) => setForm({ ...form, hiredAt: v })}
               />
             </div>
           </div>
@@ -367,10 +367,10 @@ export function EmployeesPage() {
               {form.status === 'fired' && (
                 <div className="space-y-1.5">
                   <Label>{t('employees.firedAt')}</Label>
-                  <Input
-                    type="date"
+                  <DatePicker
+                    clearable
                     value={form.firedAt}
-                    onChange={(e) => setForm({ ...form, firedAt: e.target.value })}
+                    onChange={(v) => setForm({ ...form, firedAt: v })}
                   />
                 </div>
               )}

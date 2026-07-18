@@ -4,6 +4,7 @@ import { useMemo, useState } from 'react';
 import { downloadReport, getReport } from '@/api/system';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
+import { DatePicker } from '@/components/ui/date-picker';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import {
@@ -116,21 +117,11 @@ export function ReportsPage() {
             <>
               <div className="space-y-1.5">
                 <Label>{t('reports.period')}</Label>
-                <Input
-                  type="date"
-                  className="w-40"
-                  value={from}
-                  onChange={(e) => setFrom(e.target.value)}
-                />
+                <DatePicker className="w-44" value={from} onChange={setFrom} />
               </div>
               <div className="space-y-1.5">
                 <Label>&nbsp;</Label>
-                <Input
-                  type="date"
-                  className="w-40"
-                  value={to}
-                  onChange={(e) => setTo(e.target.value)}
-                />
+                <DatePicker className="w-44" value={to} onChange={setTo} />
               </div>
             </>
           )}

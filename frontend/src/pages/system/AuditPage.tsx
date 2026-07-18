@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { getAuditLog, getUsers } from '@/api/system';
 import { Pagination } from '@/components/Pagination';
 import { Badge } from '@/components/ui/badge';
+import { DatePicker } from '@/components/ui/date-picker';
 import { Input } from '@/components/ui/input';
 import { Select } from '@/components/ui/select';
 import {
@@ -69,21 +70,21 @@ export function AuditPage() {
             setPage(1);
           }}
         />
-        <Input
-          type="date"
-          className="w-40"
+        <DatePicker
+          clearable
+          className="w-44"
           value={from}
-          onChange={(e) => {
-            setFrom(e.target.value);
+          onChange={(v) => {
+            setFrom(v);
             setPage(1);
           }}
         />
-        <Input
-          type="date"
-          className="w-40"
+        <DatePicker
+          clearable
+          className="w-44"
           value={to}
-          onChange={(e) => {
-            setTo(e.target.value);
+          onChange={(v) => {
+            setTo(v);
             setPage(1);
           }}
         />
