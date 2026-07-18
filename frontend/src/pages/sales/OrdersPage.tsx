@@ -25,14 +25,16 @@ const STATUSES: OrderStatus[] = ['draft', 'confirmed', 'shipped', 'cancelled'];
 
 export function OrdersPage() {
   const [page, setPage] = useState(1);
+  const [limit, setLimit] = useState(20);
   const [status, setStatus] = useState('');
   const [sort, setSort] = useState<SortDir>('desc');
 
   const { data: list, isLoading } = useQuery({
-    queryKey: ['orders', page, status, sort],
+    queryKey: ['orders', page, limit, status, sort],
     queryFn: () =>
       getOrders({
         page,
+        limit,
         status: (status || undefined) as OrderStatus | undefined,
         sort,
       }),
@@ -137,6 +139,10 @@ export function OrdersPage() {
           limit={list.meta.limit}
           total={list.meta.total}
           onPageChange={setPage}
+          onLimitChange={(l) => {
+            setLimit(l);
+            setPage(1);
+          }}
         />
       )}
     </div>

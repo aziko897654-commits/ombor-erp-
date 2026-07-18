@@ -49,6 +49,7 @@ const emptyForm = {
 export function PaymentsPage() {
   const queryClient = useQueryClient();
   const [page, setPage] = useState(1);
+  const [limit, setLimit] = useState(20);
   const [directionFilter, setDirectionFilter] = useState('');
   const [sort, setSort] = useState<SortDir>('desc');
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -57,10 +58,11 @@ export function PaymentsPage() {
   const [listError, setListError] = useState('');
 
   const { data: list, isLoading } = useQuery({
-    queryKey: ['payments', page, directionFilter, sort],
+    queryKey: ['payments', page, limit, directionFilter, sort],
     queryFn: () =>
       getPayments({
         page,
+        limit,
         direction: (directionFilter || undefined) as 'in' | 'out' | undefined,
         sort,
       }),
@@ -273,6 +275,10 @@ export function PaymentsPage() {
           limit={list.meta.limit}
           total={list.meta.total}
           onPageChange={setPage}
+          onLimitChange={(l) => {
+            setLimit(l);
+            setPage(1);
+          }}
         />
       )}
 

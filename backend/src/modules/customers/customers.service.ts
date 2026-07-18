@@ -135,8 +135,9 @@ export class CustomersService {
     if (!customer) throw new NotFoundException('Mijoz topilmadi');
     const { orders, deals, payments } = customer._count;
     if (orders + deals + payments > 0) {
+      // TASK-019: show what blocks the delete
       throw new ConflictException(
-        "Bu mijozda hujjatlar tarixi bor — o'chirish mumkin emas",
+        `Bu mijozga ${orders} ta buyurtma, ${deals} ta bitim va ${payments} ta to'lov bog'langan — o'chirish mumkin emas`,
       );
     }
     await this.prisma.customer.delete({ where: { id } });

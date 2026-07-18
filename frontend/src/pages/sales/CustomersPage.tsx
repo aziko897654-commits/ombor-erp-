@@ -35,6 +35,7 @@ const emptyForm = { name: '', phone: '', email: '', address: '', note: '' };
 export function CustomersPage() {
   const queryClient = useQueryClient();
   const [page, setPage] = useState(1);
+  const [limit, setLimit] = useState(20);
   const [search, setSearch] = useState('');
   const [sort, setSort] = useState<SortDir>('desc');
   // TASK-008: null = auto (show only when data exists on this page)
@@ -46,8 +47,9 @@ export function CustomersPage() {
   const [listError, setListError] = useState('');
 
   const { data: list, isLoading } = useQuery({
-    queryKey: ['customers', page, search, sort],
-    queryFn: () => getCustomers({ page, search: search || undefined, sort }),
+    queryKey: ['customers', page, limit, search, sort],
+    queryFn: () =>
+      getCustomers({ page, limit, search: search || undefined, sort }),
   });
 
   const mutation = useMutation({
@@ -227,6 +229,10 @@ export function CustomersPage() {
           limit={list.meta.limit}
           total={list.meta.total}
           onPageChange={setPage}
+          onLimitChange={(l) => {
+            setLimit(l);
+            setPage(1);
+          }}
         />
       )}
 

@@ -62,6 +62,7 @@
     "pagination": "Sahifalash",
     "prevPage": "Oldingi sahifa",
     "nextPage": "Keyingi sahifa",
+    "pageSize": "Sahifa hajmi",
     "sortAsc": "O'sish tartibida saralash",
     "sortDesc": "Kamayish tartibida saralash",
     "sortByDate": "Sana",

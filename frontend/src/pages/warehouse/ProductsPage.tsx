@@ -48,6 +48,7 @@ export function ProductsPage() {
   // deep-linked from the low-stock notification / dashboard card
   const [searchParams, setSearchParams] = useSearchParams();
   const [page, setPage] = useState(1);
+  const [limit, setLimit] = useState(20);
   const [search, setSearch] = useState('');
   const [warehouseId, setWarehouseId] = useState('');
   const [sort, setSort] = useState<SortDir>('desc');
@@ -82,10 +83,11 @@ export function ProductsPage() {
     enabled: canEdit,
   });
   const { data: list, isLoading } = useQuery({
-    queryKey: ['products', page, search, warehouseId, sort],
+    queryKey: ['products', page, limit, search, warehouseId, sort],
     queryFn: () =>
       getProducts({
         page,
+        limit,
         search: search || undefined,
         warehouseId: warehouseId ? Number(warehouseId) : undefined,
         sort,
@@ -322,6 +324,10 @@ export function ProductsPage() {
           limit={list.meta.limit}
           total={list.meta.total}
           onPageChange={setPage}
+          onLimitChange={(l) => {
+            setLimit(l);
+            setPage(1);
+          }}
         />
       )}
 

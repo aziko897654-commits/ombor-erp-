@@ -41,6 +41,7 @@ const emptyCategoryForm = { name: '', type: 'expense' };
 export function TransactionsPage() {
   const queryClient = useQueryClient();
   const [page, setPage] = useState(1);
+  const [limit, setLimit] = useState(20);
   const [typeFilter, setTypeFilter] = useState('');
   const [sourceFilter, setSourceFilter] = useState('');
   const [sort, setSort] = useState<SortDir>('desc');
@@ -52,10 +53,11 @@ export function TransactionsPage() {
   const [listError, setListError] = useState('');
 
   const { data: list, isLoading } = useQuery({
-    queryKey: ['transactions', page, typeFilter, sourceFilter, sort],
+    queryKey: ['transactions', page, limit, typeFilter, sourceFilter, sort],
     queryFn: () =>
       getTransactions({
         page,
+        limit,
         type: (typeFilter || undefined) as TxType | undefined,
         source: (sourceFilter || undefined) as TxSource | undefined,
         sort,
@@ -274,6 +276,10 @@ export function TransactionsPage() {
           limit={list.meta.limit}
           total={list.meta.total}
           onPageChange={setPage}
+          onLimitChange={(l) => {
+            setLimit(l);
+            setPage(1);
+          }}
         />
       )}
 
