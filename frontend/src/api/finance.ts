@@ -70,6 +70,8 @@ export interface Invoice {
   number: string;
   orderId: number;
   status: InvoiceStatus;
+  /** TASK-007: derived on the server — 'partial' when 0 < paid < total */
+  displayStatus: InvoiceStatus | 'partial';
   issuedAt: string;
   paidAt?: string | null;
   paidTotal?: string;

@@ -73,10 +73,22 @@ export class InvoicesService {
     );
 
     return {
-      data: invoices.map((invoice) => ({
-        ...invoice,
-        paidTotal: (paidByOrder.get(invoice.orderId) ?? ZERO).toString(),
-      })),
+      data: invoices.map((invoice) => {
+        const paid = paidByOrder.get(invoice.orderId) ?? ZERO;
+        // TASK-007: partial payment is derived, never stored (NFR-10) —
+        // 0 < paid < total on a non-paid invoice shows as "partial"
+        const displayStatus =
+          invoice.status !== 'paid' &&
+          paid.greaterThan(ZERO) &&
+          paid.lessThan(invoice.order.total)
+            ? 'partial'
+            : invoice.status;
+        return {
+          ...invoice,
+          paidTotal: paid.toString(),
+          displayStatus,
+        };
+      }),
       meta: { page, limit, total },
     };
   }

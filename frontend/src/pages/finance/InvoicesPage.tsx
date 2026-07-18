@@ -27,9 +27,13 @@ import {
 import { apiErrorMessage, formatDate, formatMoney } from '@/lib/format';
 import { t } from '@/lib/i18n';
 
-const STATUS_VARIANT: Record<InvoiceStatus, 'secondary' | 'default' | 'success'> = {
+const STATUS_VARIANT: Record<
+  InvoiceStatus | 'partial',
+  'secondary' | 'default' | 'success' | 'warning'
+> = {
   draft: 'secondary',
   sent: 'default',
+  partial: 'warning',
   paid: 'success',
 };
 
@@ -180,12 +184,24 @@ export function InvoicesPage() {
                 <TableCell className="text-right">
                   {formatMoney(invoice.order?.total)}
                 </TableCell>
-                <TableCell className="text-right text-green-700">
-                  {formatMoney(invoice.paidTotal)}
+                <TableCell className="text-right">
+                  <span className="text-green-700">
+                    {formatMoney(invoice.paidTotal)}
+                  </span>
+                  {invoice.displayStatus === 'partial' && (
+                    <span className="block text-xs text-muted-foreground">
+                      {Math.round(
+                        (Number(invoice.paidTotal) /
+                          Number(invoice.order?.total || 1)) *
+                          100,
+                      )}
+                      %
+                    </span>
+                  )}
                 </TableCell>
                 <TableCell>
-                  <Badge variant={STATUS_VARIANT[invoice.status]}>
-                    {t(`invoices.status.${invoice.status}`)}
+                  <Badge variant={STATUS_VARIANT[invoice.displayStatus]}>
+                    {t(`invoices.status.${invoice.displayStatus}`)}
                   </Badge>
                 </TableCell>
                 <TableCell>
