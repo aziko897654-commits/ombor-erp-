@@ -1,5 +1,13 @@
 import { useQuery } from '@tanstack/react-query';
-import { Package, Search, ShoppingCart, Truck, Users } from 'lucide-react';
+import {
+  LayoutGrid,
+  Package,
+  Search,
+  ShoppingCart,
+  Truck,
+  Users,
+  Zap,
+} from 'lucide-react';
 import {
   useEffect,
   useRef,
@@ -9,8 +17,11 @@ import {
 } from 'react';
 import { createPortal } from 'react-dom';
 import { useNavigate } from 'react-router-dom';
+import type { Role } from '@/api/auth';
 import { globalSearch } from '@/api/system';
+import { useAuth } from '@/lib/auth';
 import { t } from '@/lib/i18n';
+import { visibleSections } from '@/lib/menu';
 import { cn } from '@/lib/utils';
 
 interface FlatItem {
@@ -20,9 +31,22 @@ interface FlatItem {
   path: string;
 }
 
-/** FR-10.1: Ctrl+K modal, grouped results, role-filtered server-side. */
+/** TASK-024: quick actions offered before any query is typed. */
+const QUICK_ACTIONS: Array<{
+  labelKey: string;
+  path: string;
+  roles: Role[];
+}> = [
+  { labelKey: 'search.newOrder', path: '/orders/new', roles: ['admin', 'sales'] },
+  { labelKey: 'search.newPurchase', path: '/purchases/new', roles: ['admin', 'warehouse'] },
+  { labelKey: 'search.newCustomer', path: '/customers', roles: ['admin', 'sales'] },
+  { labelKey: 'search.newPayment', path: '/finance/payments', roles: ['admin', 'accountant'] },
+];
+
+/** FR-10.1: Ctrl+K command palette — entities, pages, quick actions. */
 export function GlobalSearch() {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState('');
   const [debounced, setDebounced] = useState('');
@@ -65,15 +89,40 @@ export function GlobalSearch() {
     navigate(path);
   };
 
-  const hasResults =
-    results &&
-    results.customers.length +
-      results.products.length +
-      results.orders.length +
-      results.suppliers.length >
-      0;
+  // TASK-024: page navigation results, filtered by role and query
+  const q = debounced.trim().toLowerCase();
+  const pageItems: FlatItem[] = user
+    ? visibleSections(user.role)
+        .flatMap((s) => s.items)
+        .filter((i) => q.length >= 2 && t(i.labelKey).toLowerCase().includes(q))
+        .map((i) => ({
+          key: `n${i.path}`,
+          label: t(i.labelKey),
+          hint: i.path,
+          path: i.path,
+        }))
+    : [];
 
-  const flatItems: FlatItem[] = results
+  // quick actions shown before any query is typed
+  const actionItems: FlatItem[] = user
+    ? QUICK_ACTIONS.filter((a) => a.roles.includes(user.role)).map((a) => ({
+        key: `a${a.path}`,
+        label: t(a.labelKey),
+        hint: a.path,
+        path: a.path,
+      }))
+    : [];
+
+  const hasResults =
+    pageItems.length > 0 ||
+    (results &&
+      results.customers.length +
+        results.products.length +
+        results.orders.length +
+        results.suppliers.length >
+        0);
+
+  const entityItems: FlatItem[] = results
     ? [
         ...results.customers.map((c) => ({
           key: `c${c.id}`,
@@ -101,6 +150,9 @@ export function GlobalSearch() {
         })),
       ]
     : [];
+
+  const flatItems: FlatItem[] =
+    q.length < 2 ? actionItems : [...pageItems, ...entityItems];
 
   useEffect(() => {
     setActiveIndex(0);
@@ -177,10 +229,19 @@ export function GlobalSearch() {
                 role="listbox"
                 className="max-h-[50vh] overflow-y-auto p-2"
               >
-                {debounced.trim().length < 2 ? (
-                  <p className="px-3 py-6 text-center text-sm text-muted-foreground">
-                    {t('search.hint')}
-                  </p>
+                {q.length < 2 ? (
+                  <>
+                    <Group
+                      title={t('search.quickActions')}
+                      icon={<Zap className="h-3.5 w-3.5" />}
+                      items={actionItems}
+                      activeKey={activeKey}
+                      onGo={go}
+                    />
+                    <p className="px-3 py-3 text-center text-xs text-muted-foreground">
+                      {t('search.hint')}
+                    </p>
+                  </>
                 ) : !hasResults ? (
                   <p className="px-3 py-6 text-center text-sm text-muted-foreground">
                     {isFetching ? t('common.loading') : t('search.empty')}
@@ -188,30 +249,37 @@ export function GlobalSearch() {
                 ) : (
                   <>
                     <Group
+                      title={t('search.pages')}
+                      icon={<LayoutGrid className="h-3.5 w-3.5" />}
+                      items={pageItems}
+                      activeKey={activeKey}
+                      onGo={go}
+                    />
+                    <Group
                       title={t('search.customers')}
                       icon={<Users className="h-3.5 w-3.5" />}
-                      items={flatItems.filter((i) => i.key.startsWith('c'))}
+                      items={entityItems.filter((i) => i.key.startsWith('c'))}
                       activeKey={activeKey}
                       onGo={go}
                     />
                     <Group
                       title={t('search.products')}
                       icon={<Package className="h-3.5 w-3.5" />}
-                      items={flatItems.filter((i) => i.key.startsWith('p'))}
+                      items={entityItems.filter((i) => i.key.startsWith('p'))}
                       activeKey={activeKey}
                       onGo={go}
                     />
                     <Group
                       title={t('search.orders')}
                       icon={<ShoppingCart className="h-3.5 w-3.5" />}
-                      items={flatItems.filter((i) => i.key.startsWith('o'))}
+                      items={entityItems.filter((i) => i.key.startsWith('o'))}
                       activeKey={activeKey}
                       onGo={go}
                     />
                     <Group
                       title={t('search.suppliers')}
                       icon={<Truck className="h-3.5 w-3.5" />}
-                      items={flatItems.filter((i) => i.key.startsWith('s'))}
+                      items={entityItems.filter((i) => i.key.startsWith('s'))}
                       activeKey={activeKey}
                       onGo={go}
                     />

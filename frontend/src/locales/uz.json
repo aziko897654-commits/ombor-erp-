@@ -499,11 +499,17 @@
     "markAll": "Barchasini o'qildi deb belgilash"
   },
   "search": {
-    "placeholder": "Qidiruv: mijoz, mahsulot, buyurtma...",
+    "placeholder": "Qidiruv: mijoz, mahsulot, buyurtma, sahifa...",
     "customers": "Mijozlar",
     "products": "Mahsulotlar",
     "orders": "Buyurtmalar",
     "suppliers": "Yetkazib beruvchilar",
+    "pages": "Sahifalar",
+    "quickActions": "Tez amallar",
+    "newOrder": "+ Yangi buyurtma",
+    "newPurchase": "+ Yangi xarid",
+    "newCustomer": "Mijozlar sahifasi",
+    "newPayment": "To'lovlar sahifasi",
     "empty": "Hech narsa topilmadi",
     "hint": "Kamida 2 ta belgi kiriting"
   },
