@@ -33,6 +33,7 @@ import { useAuth } from '@/lib/auth';
 import { confirmDialog } from '@/lib/confirm';
 import { apiErrorMessage } from '@/lib/format';
 import { t } from '@/lib/i18n';
+import { toast } from '@/lib/toast';
 
 const emptyForm = { name: '', phone: '', email: '', address: '', note: '' };
 
@@ -77,6 +78,7 @@ export function SuppliersPage() {
     try {
       await deleteSupplier(s.id);
       queryClient.invalidateQueries({ queryKey: ['suppliers'] });
+      toast(t('common.deleted'), 'success');
     } catch (err) {
       if ((err as AxiosError).response?.status === 409) {
         const message = apiErrorMessage(err);
@@ -88,6 +90,7 @@ export function SuppliersPage() {
           try {
             await archiveSupplier(s.id);
             queryClient.invalidateQueries({ queryKey: ['suppliers'] });
+            toast(t('suppliers.archivedToast'), 'success');
           } catch (e2) {
             setListError(apiErrorMessage(e2));
           }

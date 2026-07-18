@@ -56,6 +56,7 @@ export function CategoriesDialog({
   });
   const deleteMut = useMutation({
     mutationFn: deleteCategory,
+    meta: { successMessage: t('common.deleted') },
     onSuccess: invalidate,
     onError: (err) => setError(apiErrorMessage(err)),
   });

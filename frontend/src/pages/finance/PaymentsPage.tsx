@@ -118,6 +118,7 @@ export function PaymentsPage() {
 
   const deleteMutation = useMutation({
     mutationFn: deletePayment,
+    meta: { successMessage: t('common.deleted') },
     onSuccess: () => {
       invalidate();
       setListError('');

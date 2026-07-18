@@ -25,6 +25,8 @@ export function ChangePasswordDialog({
   const mutation = useMutation({
     mutationFn: () =>
       changePasswordRequest(form.oldPassword, form.newPassword),
+    // raises its own specific toast below
+    meta: { silent: true },
     onSuccess: () => {
       toast(t('profile.passwordChanged'), 'success');
       setForm(empty);

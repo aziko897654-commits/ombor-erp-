@@ -53,6 +53,7 @@ export function CustomersPage() {
   const mutation = useMutation({
     mutationFn: (payload: Partial<Customer>) =>
       editing ? updateCustomer(editing.id, payload) : createCustomer(payload),
+    meta: { successMessage: t('customers.saved') },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['customers'] });
       setDialogOpen(false);
@@ -62,6 +63,7 @@ export function CustomersPage() {
 
   const removeMutation = useMutation({
     mutationFn: deleteCustomer,
+    meta: { successMessage: t('customers.deleted') },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['customers'] });
       setListError('');

@@ -86,6 +86,7 @@ export function TransactionsPage() {
 
   const deleteMutation = useMutation({
     mutationFn: deleteTransaction,
+    meta: { successMessage: t('common.deleted') },
     onSuccess: () => {
       invalidate();
       setListError('');

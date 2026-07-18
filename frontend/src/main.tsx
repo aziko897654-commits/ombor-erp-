@@ -1,4 +1,9 @@
-import { QueryCache, QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import {
+  MutationCache,
+  QueryCache,
+  QueryClient,
+  QueryClientProvider,
+} from '@tanstack/react-query';
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
@@ -8,6 +13,7 @@ import { ConfirmDialogHost } from './components/ui/confirm-dialog-host';
 import { Toaster } from './components/ui/toaster';
 import { AuthProvider } from './lib/auth';
 import { apiErrorMessage } from './lib/format';
+import { t as tr } from './lib/i18n';
 import { toast } from './lib/toast';
 import './index.css';
 
@@ -19,6 +25,28 @@ const queryClient = new QueryClient({
       const status = (error as { response?: { status?: number } })?.response
         ?.status;
       if (status === 401 || status === 403) return;
+      toast(apiErrorMessage(error), 'error');
+    },
+  }),
+  // TASK-018: every CRUD mutation answers with a toast. Pages set
+  // meta.successMessage for a specific text ("Mijoz saqlandi"); the
+  // fallback is a generic "Saqlandi". meta.silent opts out (e.g. the
+  // 409 negative-balance flow that shows its own confirm dialog).
+  mutationCache: new MutationCache({
+    onSuccess: (_data, _vars, _ctx, mutation) => {
+      const meta = mutation.meta as
+        | { successMessage?: string; silent?: boolean }
+        | undefined;
+      if (meta?.silent) return;
+      toast(meta?.successMessage ?? tr('common.saved'), 'success');
+    },
+    onError: (error, _vars, _ctx, mutation) => {
+      const meta = mutation.meta as { silent?: boolean } | undefined;
+      if (meta?.silent) return;
+      const status = (error as { response?: { status?: number } })?.response
+        ?.status;
+      // 409 = confirm-to-proceed flows handle their own UI
+      if (status === 401 || status === 409) return;
       toast(apiErrorMessage(error), 'error');
     },
   }),
