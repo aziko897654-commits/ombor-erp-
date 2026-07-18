@@ -31,6 +31,9 @@ export class DashboardService {
       cashPrev,
       debts,
       grossProfit,
+      prevGrossProfit,
+      opex,
+      prevOpex,
       stockValue,
       openDeals,
       activeEmployees,
@@ -42,6 +45,9 @@ export class DashboardService {
       this.cashAt(previous.end),
       this.finance.debts(),
       this.grossProfit(period),
+      this.grossProfit(previous),
+      this.operatingExpenses(period),
+      this.operatingExpenses(previous),
       this.stockValue(),
       this.prisma.deal.aggregate({
         where: { stage: { in: ['new', 'negotiation'] } },
@@ -60,8 +66,10 @@ export class DashboardService {
       (acc, d) => acc.plus(new Prisma.Decimal(d.debt)),
       ZERO,
     );
-    const profit = flow.income.minus(flow.expense);
-    const prevProfit = prevFlow.income.minus(prevFlow.expense);
+    // TASK-002: Net Profit = Gross Profit − operating expenses (accrual),
+    // NOT income − expense (that is cash flow and can exceed gross profit).
+    const profit = grossProfit.minus(opex);
+    const prevProfit = prevGrossProfit.minus(prevOpex);
 
     return {
       period: { from: period.start, to: period.end },
@@ -120,6 +128,25 @@ export class DashboardService {
       income: rows.find((r) => r.type === 'income')?._sum.amount ?? ZERO,
       expense: rows.find((r) => r.type === 'expense')?._sum.amount ?? ZERO,
     };
+  }
+
+  /**
+   * TASK-002: operating expenses for Net Profit — expense transactions
+   * excluding transfers (invariant 9) and excluding the two categories
+   * already reflected in gross profit: product purchases (become COGS
+   * when sold) and customer refunds (mirrored by sales returns).
+   */
+  private async operatingExpenses(period: Period): Promise<Prisma.Decimal> {
+    const [row] = await this.prisma.$queryRaw<Array<{ total: Prisma.Decimal | null }>>(
+      Prisma.sql`SELECT SUM(t."amount") AS total
+                 FROM "Transaction" t
+                 JOIN "TxCategory" c ON c."id" = t."categoryId"
+                 WHERE t."type" = 'expense'
+                   AND t."source" != 'transfer'
+                   AND c."name" NOT IN ('Mahsulot xaridi', 'Mijozga pul qaytarish')
+                   AND t."date" >= ${period.start} AND t."date" <= ${period.end}`,
+    );
+    return new Prisma.Decimal(row?.total ?? 0);
   }
 
   /** Cash+bank total as of a date (transfers cancel out in the sum). */

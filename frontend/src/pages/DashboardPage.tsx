@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { TrendingDown, TrendingUp } from 'lucide-react';
+import { Info, TrendingDown, TrendingUp } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import {
@@ -171,6 +171,7 @@ export function DashboardPage() {
           value={summary?.kpi.income.value}
           change={summary?.kpi.income.change}
           to="/finance/transactions"
+          hint={t('dashboard.incomeHint')}
         />
         <KpiCard
           label={t('dashboard.expense')}
@@ -178,18 +179,21 @@ export function DashboardPage() {
           change={summary?.kpi.expense.change}
           invert
           to="/finance/transactions"
+          hint={t('dashboard.expenseHint')}
         />
         <KpiCard
           label={t('dashboard.profit')}
           value={summary?.kpi.profit.value}
           change={summary?.kpi.profit.change}
           to="/finance/transactions"
+          hint={t('dashboard.profitHint')}
         />
         <KpiCard
           label={t('dashboard.cash')}
           value={summary?.kpi.cash.value}
           change={summary?.kpi.cash.change}
           to="/finance/accounts"
+          hint={t('dashboard.cashHint')}
         />
       </div>
 
@@ -211,6 +215,7 @@ export function DashboardPage() {
           label={t('dashboard.grossProfit')}
           value={formatMoney(summary?.cards.grossProfit)}
           to="/reports"
+          hint={t('dashboard.grossProfitHint')}
         />
         <SmallCard
           label={t('dashboard.stockValue')}
@@ -380,6 +385,7 @@ function KpiCard({
   change,
   invert,
   to,
+  hint,
 }: {
   label: string;
   value?: string;
@@ -387,6 +393,8 @@ function KpiCard({
   /** for expenses growth is bad: invert the delta color */
   invert?: boolean;
   to: string;
+  /** TASK-002: formula tooltip shown on hover over the ℹ icon */
+  hint?: string;
 }) {
   const up = (change ?? 0) >= 0;
   const good = invert ? !up : up;
@@ -394,8 +402,25 @@ function KpiCard({
     <Link to={to}>
       <Card className="transition hover:shadow-md">
         <CardContent className="pt-6">
-          <p className="text-sm text-muted-foreground">{label}</p>
-          <p className="mt-1 text-xl font-semibold">{formatMoney(value)}</p>
+          <p className="flex items-center gap-1 text-sm text-muted-foreground">
+            {label}
+            {hint && (
+              <Info
+                className="h-3.5 w-3.5 shrink-0 text-muted-foreground/70"
+                aria-label={hint}
+              >
+                <title>{hint}</title>
+              </Info>
+            )}
+          </p>
+          <p
+            className={cn(
+              'mt-1 text-xl font-semibold',
+              Number(value ?? 0) < 0 && 'text-destructive',
+            )}
+          >
+            {formatMoney(value)}
+          </p>
           {change !== null && change !== undefined ? (
             <p
               className={cn(
@@ -427,17 +452,29 @@ function SmallCard({
   value,
   tone,
   to,
+  hint,
 }: {
   label: string;
   value: string;
   tone?: string;
   to: string;
+  hint?: string;
 }) {
   return (
     <Link to={to}>
       <Card className="transition hover:shadow-md">
         <CardContent className="pt-6">
-          <p className="text-sm text-muted-foreground">{label}</p>
+          <p className="flex items-center gap-1 text-sm text-muted-foreground">
+            {label}
+            {hint && (
+              <Info
+                className="h-3.5 w-3.5 shrink-0 text-muted-foreground/70"
+                aria-label={hint}
+              >
+                <title>{hint}</title>
+              </Info>
+            )}
+          </p>
           <p className={cn('mt-1 text-lg font-semibold', tone)}>{value}</p>
         </CardContent>
       </Card>
