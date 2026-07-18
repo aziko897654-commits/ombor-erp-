@@ -18,6 +18,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Dialog } from '@/components/ui/dialog';
 import { EmptyState } from '@/components/ui/empty-state';
+import { TableSkeleton } from '@/components/ui/skeleton';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select } from '@/components/ui/select';
@@ -229,11 +230,7 @@ export function ProductsPage() {
           </thead>
           <tbody>
             {isLoading && !lowStockOnly ? (
-              <tr>
-                <td colSpan={8} className="px-3 py-8 text-center text-muted-foreground">
-                  {t('common.loading')}
-                </td>
-              </tr>
+              <TableSkeleton rows={8} cols={8} />
             ) : rows.length === 0 ? (
               <tr>
                 <td colSpan={8} className="p-0">

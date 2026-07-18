@@ -14,6 +14,7 @@ import { Button } from '@/components/ui/button';
 import { ColumnsToggle } from '@/components/ui/columns-toggle';
 import { Dialog } from '@/components/ui/dialog';
 import { EmptyState } from '@/components/ui/empty-state';
+import { TableSkeleton } from '@/components/ui/skeleton';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { SortToggle, type SortDir } from '@/components/ui/sort-toggle';
@@ -154,11 +155,7 @@ export function CustomersPage() {
         </TableHeader>
         <TableBody>
           {isLoading ? (
-            <TableRow>
-              <TableCell colSpan={colCount} className="py-8 text-center text-muted-foreground">
-                {t('common.loading')}
-              </TableCell>
-            </TableRow>
+            <TableSkeleton rows={6} cols={colCount} />
           ) : (list?.data.length ?? 0) === 0 ? (
             <TableRow>
               <TableCell colSpan={colCount} className="p-0">

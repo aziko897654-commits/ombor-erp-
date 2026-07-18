@@ -14,6 +14,7 @@ import { StatusBadge } from '@/components/ui/status-badge';
 import { Button } from '@/components/ui/button';
 import { Dialog } from '@/components/ui/dialog';
 import { EmptyState } from '@/components/ui/empty-state';
+import { TableSkeleton } from '@/components/ui/skeleton';
 import { Label } from '@/components/ui/label';
 import { Select } from '@/components/ui/select';
 import { SortToggle, type SortDir } from '@/components/ui/sort-toggle';
@@ -155,11 +156,7 @@ export function InvoicesPage() {
         </TableHeader>
         <TableBody>
           {isLoading ? (
-            <TableRow>
-              <TableCell colSpan={8} className="py-8 text-center text-muted-foreground">
-                {t('common.loading')}
-              </TableCell>
-            </TableRow>
+            <TableSkeleton rows={6} cols={8} />
           ) : (list?.data.length ?? 0) === 0 ? (
             <TableRow>
               <TableCell colSpan={8} className="p-0">

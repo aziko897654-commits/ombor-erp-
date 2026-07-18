@@ -15,6 +15,7 @@ import {
   YAxis,
 } from 'recharts';
 import { getDashboardCharts, getDashboardSummary } from '@/api/system';
+import { CardSkeleton, ChartSkeleton } from '@/components/ui/skeleton';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { DatePicker } from '@/components/ui/date-picker';
 import { changeTone, formatMoney } from '@/lib/format';
@@ -121,11 +122,11 @@ export function DashboardPage() {
     return presetRange(preset);
   }, [preset, custom]);
 
-  const { data: summary } = useQuery({
+  const { data: summary, isLoading: summaryLoading } = useQuery({
     queryKey: ['dashboard', 'summary', range],
     queryFn: () => getDashboardSummary(range),
   });
-  const { data: charts } = useQuery({
+  const { data: charts, isLoading: chartsLoading } = useQuery({
     queryKey: ['dashboard', 'charts', range],
     queryFn: () => getDashboardCharts(range),
   });
@@ -208,7 +209,15 @@ export function DashboardPage() {
 
       {/* FR-5.2: KPI with previous-period comparison */}
       <div className="mb-4 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-        {(() => {
+        {summaryLoading ? (
+          <>
+            <CardSkeleton />
+            <CardSkeleton />
+            <CardSkeleton />
+            <CardSkeleton />
+          </>
+        ) : (
+          (() => {
           const vsLabel = summary?.previousPeriod?.label ?? '';
           return (
             <>
@@ -247,7 +256,8 @@ export function DashboardPage() {
               />
             </>
           );
-        })()}
+          })()
+        )}
       </div>
 
       {/* FR-5.3: extra cards; FR-5.5: each links to its module */}
@@ -310,6 +320,9 @@ export function DashboardPage() {
             </label>
           </CardHeader>
           <CardContent>
+            {chartsLoading ? (
+              <ChartSkeleton height={280} />
+            ) : (
             <ResponsiveContainer width="100%" height={280}>
               <BarChart data={monthlyData} barGap={2}>
                 <CartesianGrid stroke={GRID_COLOR} vertical={false} />
@@ -348,6 +361,7 @@ export function DashboardPage() {
                 />
               </BarChart>
             </ResponsiveContainer>
+            )}
           </CardContent>
         </Card>
 

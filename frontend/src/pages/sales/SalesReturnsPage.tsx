@@ -12,6 +12,7 @@ import { Pagination } from '@/components/Pagination';
 import { Button } from '@/components/ui/button';
 import { Dialog } from '@/components/ui/dialog';
 import { EmptyState } from '@/components/ui/empty-state';
+import { TableSkeleton } from '@/components/ui/skeleton';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select } from '@/components/ui/select';
@@ -130,11 +131,7 @@ export function SalesReturnsPage() {
         </TableHeader>
         <TableBody>
           {isLoading ? (
-            <TableRow>
-              <TableCell colSpan={5} className="py-8 text-center text-muted-foreground">
-                {t('common.loading')}
-              </TableCell>
-            </TableRow>
+            <TableSkeleton rows={5} cols={5} />
           ) : (list?.data.length ?? 0) === 0 ? (
             <TableRow>
               <TableCell colSpan={5} className="p-0">
