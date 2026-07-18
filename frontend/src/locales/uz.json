@@ -430,6 +430,8 @@
     "revenue": "Tushum",
     "vsPrev": "o'tgan davrga nisbatan",
     "vsPeriod": "ga nisbatan",
+    "diff": "Farq",
+    "logScale": "Log shkala",
     "noPrev": "Yangi — o'tgan davrda ma'lumot yo'q"
   },
   "reports": {

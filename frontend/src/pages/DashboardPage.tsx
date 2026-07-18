@@ -73,10 +73,46 @@ function compactMoney(value: number): string {
   return String(value);
 }
 
+/**
+ * TASK-011: tooltip with the month's income, expense AND their
+ * difference, so the hover answers "how did this month net out".
+ */
+function MonthlyTooltip({
+  active,
+  payload,
+  label,
+}: {
+  active?: boolean;
+  payload?: Array<{ value: number }>;
+  label?: string;
+}) {
+  if (!active || !payload || payload.length < 2) return null;
+  const income = payload[0]?.value ?? 0;
+  const expense = payload[1]?.value ?? 0;
+  const diff = income - expense;
+  return (
+    <div className="rounded-md border bg-background px-3 py-2 text-xs shadow-md">
+      <p className="mb-1 font-semibold">20{label}</p>
+      <p style={{ color: INCOME_COLOR }}>
+        {t('dashboard.income')}: {formatMoney(income)}
+      </p>
+      <p style={{ color: EXPENSE_COLOR }}>
+        {t('dashboard.expense')}: {formatMoney(expense)}
+      </p>
+      <p className={diff < 0 ? 'text-destructive' : 'text-green-700'}>
+        {t('dashboard.diff')}: {diff > 0 ? '+' : ''}
+        {formatMoney(diff)}
+      </p>
+    </div>
+  );
+}
+
 /** FR-5: period picker + KPI cards with comparison + 3 charts. */
 export function DashboardPage() {
   const [preset, setPreset] = useState<PresetKey | 'custom'>('month');
   const [custom, setCustom] = useState({ from: '', to: '' });
+  // TASK-011: log scale tames the single-giant-column month
+  const [logScale, setLogScale] = useState(false);
 
   const range = useMemo(() => {
     if (preset === 'custom') {
@@ -103,11 +139,16 @@ export function DashboardPage() {
   ];
 
   const monthlyData =
-    charts?.monthly.map((m) => ({
-      month: m.month.slice(2), // "26-01"
-      income: Number(m.income),
-      expense: Number(m.expense),
-    })) ?? [];
+    charts?.monthly.map((m) => {
+      const income = Number(m.income);
+      const expense = Number(m.expense);
+      return {
+        month: m.month.slice(2), // "26-01"
+        // log scale cannot draw 0-height bars; drop them to null there
+        income: logScale && income === 0 ? null : income,
+        expense: logScale && expense === 0 ? null : expense,
+      };
+    }) ?? [];
   const funnelData =
     charts?.funnel.map((f) => ({
       stage: t(`deals.stage.${f.stage}`),
@@ -254,8 +295,16 @@ export function DashboardPage() {
       {/* FR-5.4: charts */}
       <div className="grid gap-4 xl:grid-cols-2">
         <Card className="xl:col-span-2">
-          <CardHeader>
+          <CardHeader className="flex-row items-center justify-between space-y-0">
             <CardTitle className="text-base">{t('dashboard.monthlyChart')}</CardTitle>
+            <label className="flex cursor-pointer items-center gap-1.5 text-xs text-muted-foreground">
+              <input
+                type="checkbox"
+                checked={logScale}
+                onChange={(e) => setLogScale(e.target.checked)}
+              />
+              {t('dashboard.logScale')}
+            </label>
           </CardHeader>
           <CardContent>
             <ResponsiveContainer width="100%" height={280}>
@@ -268,6 +317,9 @@ export function DashboardPage() {
                   tickLine={false}
                 />
                 <YAxis
+                  scale={logScale ? 'log' : 'linear'}
+                  domain={logScale ? [10_000, 'auto'] : [0, 'auto']}
+                  allowDataOverflow={logScale}
                   tickFormatter={compactMoney}
                   tick={{ fill: AXIS_COLOR, fontSize: 11 }}
                   axisLine={false}
@@ -275,7 +327,7 @@ export function DashboardPage() {
                   width={70}
                 />
                 <Tooltip
-                  formatter={(value) => formatMoney(Number(value))}
+                  content={<MonthlyTooltip />}
                   cursor={{ fill: 'rgba(0,0,0,0.04)' }}
                 />
                 <Legend />
