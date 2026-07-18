@@ -224,15 +224,13 @@ export class FinanceService {
     const date = dto.date ? new Date(dto.date) : new Date();
 
     const transfer = await this.prisma.$transaction(async (tx) => {
-      const lockKey = `account-${dto.fromAccountId}`;
-      await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtext(${lockKey}))`;
-
-      const balance = await this.accounts.balanceOf(tx, dto.fromAccountId);
-      if (balance.lessThan(amount)) {
-        throw new BadRequestException(
-          `Hisobda mablag' yetarli emas: ${fromAccount.name} qoldig'i ${balance.toString()} so'm, so'ralgan ${amount.toString()} so'm`,
-        );
-      }
+      // TASK-001: same negative-balance policy as manual expenses/payments
+      await this.accounts.assertCanSpend(
+        tx,
+        dto.fromAccountId,
+        amount,
+        dto.force ?? false,
+      );
 
       const created = await tx.moneyTransfer.create({
         data: {

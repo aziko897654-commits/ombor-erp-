@@ -6,6 +6,7 @@ import {
 import { PayDirection, Prisma, TxType } from '@prisma/client';
 import { AuditService } from '../../common/audit/audit.service';
 import { PrismaService } from '../../common/prisma/prisma.service';
+import { AccountsService } from '../finance/accounts.service';
 import { resolveCategory } from '../finance/categories.util';
 import { endOfDay } from '../finance/transactions.service';
 import { CreatePaymentDto } from './dto/payment.dto';
@@ -43,6 +44,7 @@ export class PaymentsService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly audit: AuditService,
+    private readonly accounts: AccountsService,
   ) {}
 
   async findAll(params: {
@@ -109,6 +111,16 @@ export class PaymentsService {
     const date = dto.date ? new Date(dto.date) : new Date();
 
     const payment = await this.prisma.$transaction(async (tx) => {
+      // TASK-001: an outgoing payment must not overdraw the account
+      if (dto.direction === 'out') {
+        await this.accounts.assertCanSpend(
+          tx,
+          dto.accountId,
+          amount,
+          dto.force ?? false,
+        );
+      }
+
       let orderTotal: Prisma.Decimal | undefined;
       let paidBefore: Prisma.Decimal | undefined;
       if (dto.orderId) {

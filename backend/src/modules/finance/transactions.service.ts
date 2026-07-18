@@ -7,6 +7,7 @@ import { Prisma, TxSource, TxType } from '@prisma/client';
 import { AuditService } from '../../common/audit/audit.service';
 import { endOfDay } from '../../common/period.util';
 import { PrismaService } from '../../common/prisma/prisma.service';
+import { AccountsService } from './accounts.service';
 import { CreateTransactionDto } from './dto/finance.dto';
 
 const TX_INCLUDE = {
@@ -20,6 +21,7 @@ export class TransactionsService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly audit: AuditService,
+    private readonly accounts: AccountsService,
   ) {}
 
   async findAll(params: {
@@ -84,19 +86,33 @@ export class TransactionsService {
       );
     }
 
-    return this.prisma.transaction.create({
-      data: {
-        type: dto.type,
-        accountId: dto.accountId,
-        amount: new Prisma.Decimal(dto.amount),
-        categoryId: dto.categoryId,
-        source: 'manual',
-        date: dto.date ? new Date(dto.date) : new Date(),
-        note: dto.note,
-        userId,
-      },
-      include: TX_INCLUDE,
+    const amount = new Prisma.Decimal(dto.amount);
+    const created = await this.prisma.$transaction(async (tx) => {
+      // TASK-001: expense must not overdraw the account (subject to the
+      // "allow negative balance" setting + confirm-to-proceed flow)
+      if (dto.type === 'expense') {
+        await this.accounts.assertCanSpend(
+          tx,
+          dto.accountId,
+          amount,
+          dto.force ?? false,
+        );
+      }
+      return tx.transaction.create({
+        data: {
+          type: dto.type,
+          accountId: dto.accountId,
+          amount,
+          categoryId: dto.categoryId,
+          source: 'manual',
+          date: dto.date ? new Date(dto.date) : new Date(),
+          note: dto.note,
+          userId,
+        },
+        include: TX_INCLUDE,
+      });
     });
+    return created;
   }
 
   /** NFR-9 exception: only manual transactions are deleted, with audit. */

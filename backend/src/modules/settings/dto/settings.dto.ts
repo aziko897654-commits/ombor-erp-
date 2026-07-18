@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import { IsBoolean, IsNotEmpty, IsOptional, IsString } from 'class-validator';
 
 export class UpdateSettingsDto {
   @IsOptional()
@@ -25,4 +25,8 @@ export class UpdateSettingsDto {
   @IsOptional()
   @IsString()
   invoiceFooter?: string;
+
+  @IsOptional()
+  @IsBoolean({ message: "Qiymat mantiqiy (true/false) bo'lishi kerak" })
+  allowNegativeBalance?: boolean;
 }

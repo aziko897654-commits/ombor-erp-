@@ -21,6 +21,7 @@ const emptyForm = {
   inn: '',
   bankDetails: '',
   invoiceFooter: '',
+  allowNegativeBalance: false,
 };
 
 /** FR-9: company requisites + logo (used on the invoice PDF). */
@@ -45,6 +46,7 @@ export function SettingsPage() {
         inn: settings.inn ?? '',
         bankDetails: settings.bankDetails ?? '',
         invoiceFooter: settings.invoiceFooter ?? '',
+        allowNegativeBalance: settings.allowNegativeBalance ?? false,
       });
     }
   }, [settings]);
@@ -58,6 +60,7 @@ export function SettingsPage() {
         inn: form.inn || null,
         bankDetails: form.bankDetails || null,
         invoiceFooter: form.invoiceFooter || null,
+        allowNegativeBalance: form.allowNegativeBalance,
       }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['settings'] });
@@ -141,6 +144,25 @@ export function SettingsPage() {
                 value={form.invoiceFooter}
                 onChange={(e) => setForm({ ...form, invoiceFooter: e.target.value })}
               />
+            </div>
+            <div className="flex items-start gap-2 rounded-md border p-3">
+              <input
+                id="allowNegativeBalance"
+                type="checkbox"
+                className="mt-0.5"
+                checked={form.allowNegativeBalance}
+                onChange={(e) =>
+                  setForm({ ...form, allowNegativeBalance: e.target.checked })
+                }
+              />
+              <label htmlFor="allowNegativeBalance" className="space-y-0.5">
+                <span className="block text-sm font-medium">
+                  {t('settings.allowNegativeBalance')}
+                </span>
+                <span className="block text-xs text-muted-foreground">
+                  {t('settings.allowNegativeBalanceHint')}
+                </span>
+              </label>
             </div>
             <div className="flex items-center justify-end gap-3 pt-2">
               {message && <span className="text-sm text-green-700">{message}</span>}

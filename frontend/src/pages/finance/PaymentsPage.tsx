@@ -29,6 +29,7 @@ import {
 import { confirmDialog } from '@/lib/confirm';
 import { apiErrorMessage, formatDate, formatMoney } from '@/lib/format';
 import { t } from '@/lib/i18n';
+import { submitWithBalanceConfirm } from '@/lib/negative-balance';
 
 const emptyForm = {
   direction: 'in',
@@ -122,21 +123,28 @@ export function PaymentsPage() {
     onError: (err) => setListError(apiErrorMessage(err)),
   });
 
-  const submit = (e: FormEvent) => {
+  const submit = async (e: FormEvent) => {
     e.preventDefault();
     setError('');
     const isCustomer = form.counterparty === 'customer';
-    createMutation.mutate({
-      direction: form.direction,
-      accountId: Number(form.accountId),
-      amount: Number(form.amount),
-      customerId: isCustomer ? Number(form.customerId) : undefined,
-      supplierId: !isCustomer ? Number(form.supplierId) : undefined,
-      orderId: isCustomer && form.orderId ? Number(form.orderId) : undefined,
-      purchaseId:
-        !isCustomer && form.purchaseId ? Number(form.purchaseId) : undefined,
-      note: form.note || undefined,
-    });
+    try {
+      await submitWithBalanceConfirm((force) =>
+        createMutation.mutateAsync({
+          direction: form.direction,
+          accountId: Number(form.accountId),
+          amount: Number(form.amount),
+          customerId: isCustomer ? Number(form.customerId) : undefined,
+          supplierId: !isCustomer ? Number(form.supplierId) : undefined,
+          orderId: isCustomer && form.orderId ? Number(form.orderId) : undefined,
+          purchaseId:
+            !isCustomer && form.purchaseId ? Number(form.purchaseId) : undefined,
+          note: form.note || undefined,
+          force,
+        }),
+      );
+    } catch {
+      // surfaced via createMutation.onError
+    }
   };
 
   return (

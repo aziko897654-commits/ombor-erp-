@@ -1,4 +1,9 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  ConflictException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { PrismaService } from '../../common/prisma/prisma.service';
 import { CreateAccountDto } from './dto/finance.dto';
@@ -51,6 +56,47 @@ export class AccountsService {
       }
       return { ...account, balance: balance.toString() };
     });
+  }
+
+  /**
+   * TASK-001: guards every money-out operation (manual expense, outgoing
+   * payment, transfer) against overdrawing an account. Takes the same
+   * advisory lock the balance is read under, so concurrent submissions
+   * can't both pass the check and jointly overdraw it.
+   *
+   * - setting off (default): always blocks going negative.
+   * - setting on + !force: blocks once, with a 409 the frontend turns
+   *   into a "continue anyway?" confirm dialog.
+   * - setting on + force: the confirm was accepted, let it through.
+   */
+  async assertCanSpend(
+    tx: Prisma.TransactionClient,
+    accountId: number,
+    amount: Prisma.Decimal,
+    force: boolean,
+  ): Promise<void> {
+    await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtext(${`account-${accountId}`}))`;
+
+    const account = await tx.account.findUnique({ where: { id: accountId } });
+    if (!account) throw new NotFoundException('Hisob topilmadi');
+
+    const balance = await this.balanceOf(tx, accountId);
+    const resulting = balance.minus(amount);
+    if (!resulting.isNegative()) return;
+
+    const setting = await tx.appSetting.findUnique({ where: { id: 1 } });
+    const current = balance.toString();
+    const after = resulting.toString();
+    if (!setting?.allowNegativeBalance) {
+      throw new BadRequestException(
+        `"${account.name}" hisobida mablag' yetarli emas. Joriy qoldiq: ${current} so'm.`,
+      );
+    }
+    if (!force) {
+      throw new ConflictException(
+        `Diqqat! "${account.name}" hisobida mablag' yetarli emas. Joriy qoldiq: ${current} so'm. Amal bajarilsa balans manfiy bo'ladi: ${after} so'm.`,
+      );
+    }
   }
 
   create(dto: CreateAccountDto) {

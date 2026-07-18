@@ -184,6 +184,7 @@ export interface AppSettings {
   bankDetails?: string | null;
   invoiceFooter?: string | null;
   logoPath?: string | null;
+  allowNegativeBalance: boolean;
 }
 
 export const getSettings = async () =>

@@ -30,6 +30,7 @@ import { getTransactions } from '@/api/finance';
 import { confirmDialog } from '@/lib/confirm';
 import { apiErrorMessage, formatDate, formatMoney } from '@/lib/format';
 import { t } from '@/lib/i18n';
+import { submitWithBalanceConfirm } from '@/lib/negative-balance';
 
 const emptyForm = { type: 'expense', accountId: '', categoryId: '', amount: '', note: '' };
 const emptyCategoryForm = { name: '', type: 'expense' };
@@ -104,16 +105,23 @@ export function TransactionsPage() {
     onError: (err) => setError(apiErrorMessage(err)),
   });
 
-  const submit = (e: FormEvent) => {
+  const submit = async (e: FormEvent) => {
     e.preventDefault();
     setError('');
-    createMutation.mutate({
-      type: form.type,
-      accountId: Number(form.accountId),
-      categoryId: Number(form.categoryId),
-      amount: Number(form.amount),
-      note: form.note || undefined,
-    });
+    try {
+      await submitWithBalanceConfirm((force) =>
+        createMutation.mutateAsync({
+          type: form.type,
+          accountId: Number(form.accountId),
+          categoryId: Number(form.categoryId),
+          amount: Number(form.amount),
+          note: form.note || undefined,
+          force,
+        }),
+      );
+    } catch {
+      // surfaced via createMutation.onError
+    }
   };
 
   const formCategories = categories?.filter((c) => c.type === form.type) ?? [];

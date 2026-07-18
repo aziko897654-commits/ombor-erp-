@@ -489,14 +489,15 @@ model PayrollItem {
 }
 
 model AppSetting {
-  id            Int     @id @default(1) // singleton
-  companyName   String
-  address       String?
-  phone         String?
-  inn           String?
-  bankDetails   String?
-  invoiceFooter String?
-  logoPath      String?
+  id                   Int     @id @default(1) // singleton
+  companyName          String
+  address              String?
+  phone                String?
+  inn                  String?
+  bankDetails          String?
+  invoiceFooter        String?
+  logoPath             String?
+  allowNegativeBalance Boolean @default(false) // TASK-001
 }
 
 model Notification {

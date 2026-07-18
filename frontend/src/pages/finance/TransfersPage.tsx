@@ -23,6 +23,7 @@ import {
 } from '@/components/ui/table';
 import { apiErrorMessage, formatDate, formatMoney } from '@/lib/format';
 import { t } from '@/lib/i18n';
+import { submitWithBalanceConfirm } from '@/lib/negative-balance';
 
 const emptyForm = { fromAccountId: '', toAccountId: '', amount: '', note: '' };
 
@@ -55,15 +56,22 @@ export function TransfersPage() {
     onError: (err) => setError(apiErrorMessage(err)),
   });
 
-  const submit = (e: FormEvent) => {
+  const submit = async (e: FormEvent) => {
     e.preventDefault();
     setError('');
-    mutation.mutate({
-      fromAccountId: Number(form.fromAccountId),
-      toAccountId: Number(form.toAccountId),
-      amount: Number(form.amount),
-      note: form.note || undefined,
-    });
+    try {
+      await submitWithBalanceConfirm((force) =>
+        mutation.mutateAsync({
+          fromAccountId: Number(form.fromAccountId),
+          toAccountId: Number(form.toAccountId),
+          amount: Number(form.amount),
+          note: form.note || undefined,
+          force,
+        }),
+      );
+    } catch {
+      // surfaced via mutation.onError
+    }
   };
 
   return (

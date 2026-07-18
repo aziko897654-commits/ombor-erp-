@@ -67,6 +67,8 @@
     "sortByDate": "Sana",
     "sortNewestFirst": "Yangi avval",
     "sortOldestFirst": "Eski avval",
+    "continueAnyway": "Baribir davom etish",
+    "balanceWarningTitle": "Balans ogohlantirishi",
     "add": "Qo'shish",
     "save": "Saqlash",
     "saving": "Saqlanmoqda...",
@@ -265,7 +267,8 @@
     "total": "Jami mablag'",
     "flowIncome": "Davr tushumi",
     "flowExpense": "Davr xarajati",
-    "flowNet": "Farq"
+    "flowNet": "Farq",
+    "negativeBalance": "Balans manfiy"
   },
   "txs": {
     "title": "Tranzaksiyalar",
@@ -453,7 +456,10 @@
     "invoiceFooter": "Hisob-faktura pastki matni",
     "logo": "Logotip",
     "uploadLogo": "Logotip yuklash (PNG/JPG, 1 MB gacha)",
-    "saved": "Saqlandi"
+    "saved": "Saqlandi",
+    "financeRules": "Moliya qoidalari",
+    "allowNegativeBalance": "Manfiy balansga ruxsat berish",
+    "allowNegativeBalanceHint": "O'chiq bo'lsa, hisob balansidan ortiq chiqim/to'lov/o'tkazma bloklanadi. Yoqilsa, ogohlantirish bilan davom etish mumkin bo'ladi."
   },
   "notifications": {
     "title": "Bildirishnomalar",

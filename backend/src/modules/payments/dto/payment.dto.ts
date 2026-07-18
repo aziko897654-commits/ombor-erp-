@@ -1,5 +1,6 @@
 import { PayDirection } from '@prisma/client';
 import {
+  IsBoolean,
   IsDateString,
   IsEnum,
   IsInt,
@@ -43,4 +44,10 @@ export class CreatePaymentDto {
   @IsOptional()
   @IsString()
   note?: string;
+
+  // TASK-001: set after the user accepts the "balance would go negative"
+  // confirm dialog, so the resubmit is allowed through.
+  @IsOptional()
+  @IsBoolean()
+  force?: boolean;
 }

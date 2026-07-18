@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { Landmark, Plus, Wallet } from 'lucide-react';
+import { AlertTriangle, Landmark, Plus, Wallet } from 'lucide-react';
 import { useState, type FormEvent } from 'react';
 import { getBalanceSummary } from '@/api/finance';
 import { createAccount } from '@/api/finance';
@@ -97,36 +97,48 @@ export function AccountsPage() {
           </div>
 
           <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-            {summary?.accounts.map((account) => (
-              <Card key={account.id}>
-                <CardHeader className="pb-2">
-                  <CardTitle className="flex items-center gap-2 text-base">
-                    {account.type === 'cash' ? (
-                      <Wallet className="h-4 w-4 text-muted-foreground" />
-                    ) : (
-                      <Landmark className="h-4 w-4 text-muted-foreground" />
+            {summary?.accounts.map((account) => {
+              const negative = Number(account.balance) < 0;
+              return (
+                <Card
+                  key={account.id}
+                  className={negative ? 'border-destructive' : undefined}
+                >
+                  <CardHeader className="pb-2">
+                    <CardTitle className="flex items-center gap-2 text-base">
+                      {account.type === 'cash' ? (
+                        <Wallet className="h-4 w-4 text-muted-foreground" />
+                      ) : (
+                        <Landmark className="h-4 w-4 text-muted-foreground" />
+                      )}
+                      {account.name}
+                      <span className="ml-auto text-xs font-normal text-muted-foreground">
+                        {t(`accounts.${account.type}`)}
+                      </span>
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <p
+                      className={`text-xl font-semibold ${
+                        negative ? 'text-destructive' : ''
+                      }`}
+                    >
+                      {formatMoney(account.balance)}
+                    </p>
+                    {negative && (
+                      <p className="mt-1 flex items-center gap-1 text-xs font-medium text-destructive">
+                        <AlertTriangle className="h-3.5 w-3.5" />
+                        {t('accounts.negativeBalance')}
+                      </p>
                     )}
-                    {account.name}
-                    <span className="ml-auto text-xs font-normal text-muted-foreground">
-                      {t(`accounts.${account.type}`)}
-                    </span>
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p
-                    className={`text-xl font-semibold ${
-                      Number(account.balance) < 0 ? 'text-destructive' : ''
-                    }`}
-                  >
-                    {formatMoney(account.balance)}
-                  </p>
-                  <p className="mt-1 text-xs text-muted-foreground">
-                    {t('accounts.openingBalance')}:{' '}
-                    {formatMoney(account.openingBalance)}
-                  </p>
-                </CardContent>
-              </Card>
-            ))}
+                    <p className="mt-1 text-xs text-muted-foreground">
+                      {t('accounts.openingBalance')}:{' '}
+                      {formatMoney(account.openingBalance)}
+                    </p>
+                  </CardContent>
+                </Card>
+              );
+            })}
           </div>
         </>
       )}
