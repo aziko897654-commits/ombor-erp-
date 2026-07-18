@@ -90,7 +90,12 @@ export class PaymentsService {
       this.prisma.payment.findMany({
         where,
         include: PAYMENT_INCLUDE,
-        orderBy: sort ? { createdAt: sort } : [{ date: 'desc' }, { id: 'desc' }],
+        // TASK-004: sort by the displayed business date (SANA column),
+        // not createdAt — seeded rows share one createdAt and fell back
+        // to insertion order, grouping out- before in-payments
+        orderBy: sort
+          ? [{ date: sort }, { id: sort }]
+          : [{ date: 'desc' }, { id: 'desc' }],
         skip: (page - 1) * limit,
         take: limit,
       }),

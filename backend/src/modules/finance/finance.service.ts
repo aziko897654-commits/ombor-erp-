@@ -195,7 +195,10 @@ export class FinanceService {
     const [transfers, total] = await this.prisma.$transaction([
       this.prisma.moneyTransfer.findMany({
         include: TRANSFER_INCLUDE,
-        orderBy: sort ? { createdAt: sort } : [{ date: 'desc' }, { id: 'desc' }],
+        // TASK-004: sort by the displayed business date, not createdAt
+        orderBy: sort
+          ? [{ date: sort }, { id: sort }]
+          : [{ date: 'desc' }, { id: 'desc' }],
         skip: (page - 1) * limit,
         take: limit,
       }),

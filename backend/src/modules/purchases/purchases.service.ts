@@ -33,7 +33,8 @@ export class PurchasesService {
           supplier: { select: { id: true, name: true } },
           warehouse: { select: { id: true, name: true } },
         },
-        orderBy: sort ? { createdAt: sort } : { id: 'desc' },
+        // TASK-004: sort by the displayed business date, not createdAt
+        orderBy: sort ? [{ date: sort }, { id: sort }] : { id: 'desc' },
         skip: (page - 1) * limit,
         take: limit,
       }),
