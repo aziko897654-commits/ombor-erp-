@@ -1,11 +1,19 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { Prisma } from '@prisma/client';
+import { AuditService } from '../../common/audit/audit.service';
 import { PrismaService } from '../../common/prisma/prisma.service';
 import { CreateSupplierDto, UpdateSupplierDto } from './dto/supplier.dto';
 
 @Injectable()
 export class SuppliersService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly audit: AuditService,
+  ) {}
 
   async findAll(
     page: number,
@@ -94,5 +102,51 @@ export class SuppliersService {
     const supplier = await this.prisma.supplier.findUnique({ where: { id } });
     if (!supplier) throw new NotFoundException('Yetkazib beruvchi topilmadi');
     return this.prisma.supplier.update({ where: { id }, data: dto });
+  }
+
+  /**
+   * TASK-009: mirrors customers.remove — hard delete only when there is
+   * no document history (NFR-9); otherwise a 409 tells the UI to offer
+   * archiving (isActive=false) instead. Logged to audit.
+   */
+  async remove(id: number, actorId: number) {
+    const supplier = await this.prisma.supplier.findUnique({
+      where: { id },
+      include: { _count: { select: { purchases: true, payments: true } } },
+    });
+    if (!supplier) throw new NotFoundException('Yetkazib beruvchi topilmadi');
+    const { purchases, payments } = supplier._count;
+    if (purchases + payments > 0) {
+      throw new ConflictException(
+        `Bu yetkazib beruvchiga ${purchases} ta xarid va ${payments} ta to'lov bog'langan — o'chirib bo'lmaydi. Arxivlansinmi?`,
+      );
+    }
+    await this.prisma.supplier.delete({ where: { id } });
+    await this.audit.log({
+      userId: actorId,
+      action: 'supplier.delete',
+      entity: 'Supplier',
+      entityId: id,
+      details: { name: supplier.name },
+    });
+    return { success: true };
+  }
+
+  /** TASK-009: archive (soft-delete) for suppliers with history. */
+  async archive(id: number, actorId: number) {
+    const supplier = await this.prisma.supplier.findUnique({ where: { id } });
+    if (!supplier) throw new NotFoundException('Yetkazib beruvchi topilmadi');
+    const updated = await this.prisma.supplier.update({
+      where: { id },
+      data: { isActive: false },
+    });
+    await this.audit.log({
+      userId: actorId,
+      action: 'supplier.archive',
+      entity: 'Supplier',
+      entityId: id,
+      details: { name: supplier.name },
+    });
+    return updated;
   }
 }

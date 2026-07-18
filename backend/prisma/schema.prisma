@@ -122,6 +122,7 @@ model Supplier {
   email     String?
   address   String?
   note      String?
+  isActive  Boolean    @default(true) // TASK-009: soft-delete (archive)
   createdAt DateTime   @default(now())
   purchases Purchase[]
   payments  Payment[]

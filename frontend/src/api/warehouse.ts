@@ -60,6 +60,7 @@ export interface Supplier {
   email?: string | null;
   address?: string | null;
   note?: string | null;
+  isActive?: boolean;
   purchases?: Purchase[];
   stats?: {
     purchasesTotal: string;
@@ -204,6 +205,10 @@ export const createSupplier = async (body: Partial<Supplier>) =>
   (await api.post('/suppliers', body)).data.data;
 export const updateSupplier = async (id: number, body: Partial<Supplier>) =>
   (await api.patch(`/suppliers/${id}`, body)).data.data;
+export const deleteSupplier = async (id: number) =>
+  (await api.delete(`/suppliers/${id}`)).data.data;
+export const archiveSupplier = async (id: number) =>
+  (await api.post(`/suppliers/${id}/archive`)).data.data;
 
 // --- Purchases ---
 export const getPurchases = async (params: {

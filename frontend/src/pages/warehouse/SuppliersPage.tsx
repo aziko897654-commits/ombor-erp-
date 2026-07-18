@@ -1,15 +1,20 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { Pencil, Plus } from 'lucide-react';
+import { Pencil, Plus, Trash2 } from 'lucide-react';
 import { useState, type FormEvent } from 'react';
 import { Link } from 'react-router-dom';
+import type { AxiosError } from 'axios';
 import {
+  archiveSupplier,
   createSupplier,
+  deleteSupplier,
   getSuppliers,
   updateSupplier,
   type Supplier,
 } from '@/api/warehouse';
 import { Pagination } from '@/components/Pagination';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { ColumnsToggle } from '@/components/ui/columns-toggle';
 import { Dialog } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -23,6 +28,7 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { useAuth } from '@/lib/auth';
+import { confirmDialog } from '@/lib/confirm';
 import { apiErrorMessage } from '@/lib/format';
 import { t } from '@/lib/i18n';
 
@@ -39,6 +45,9 @@ export function SuppliersPage() {
   const [editing, setEditing] = useState<Supplier | null>(null);
   const [form, setForm] = useState(emptyForm);
   const [error, setError] = useState('');
+  const [listError, setListError] = useState('');
+  // TASK-008: null = auto (show only when data exists on this page)
+  const [emailCol, setEmailCol] = useState<boolean | null>(null);
 
   const { data: list, isLoading } = useQuery({
     queryKey: ['suppliers', page, search, sort],
@@ -54,6 +63,38 @@ export function SuppliersPage() {
     },
     onError: (err) => setError(apiErrorMessage(err)),
   });
+
+  // TASK-009: hard delete when history-free; a 409 offers archiving
+  const handleDelete = async (s: Supplier) => {
+    setListError('');
+    const ok = await confirmDialog(t('suppliers.deleteConfirm'), {
+      tone: 'danger',
+      confirmLabel: t('common.delete'),
+    });
+    if (!ok) return;
+    try {
+      await deleteSupplier(s.id);
+      queryClient.invalidateQueries({ queryKey: ['suppliers'] });
+    } catch (err) {
+      if ((err as AxiosError).response?.status === 409) {
+        const message = apiErrorMessage(err);
+        const archive = await confirmDialog(message, {
+          title: t('suppliers.archiveTitle'),
+          confirmLabel: t('suppliers.archive'),
+        });
+        if (archive) {
+          try {
+            await archiveSupplier(s.id);
+            queryClient.invalidateQueries({ queryKey: ['suppliers'] });
+          } catch (e2) {
+            setListError(apiErrorMessage(e2));
+          }
+        }
+      } else {
+        setListError(apiErrorMessage(err));
+      }
+    }
+  };
 
   const openCreate = () => {
     setEditing(null);
@@ -87,6 +128,9 @@ export function SuppliersPage() {
     });
   };
 
+  const showEmail = emailCol ?? (list?.data.some((s) => s.email) ?? false);
+  const colCount = (showEmail ? 4 : 3) + (canEdit ? 1 : 0);
+
   return (
     <div>
       <div className="mb-4 flex items-center justify-between">
@@ -115,28 +159,39 @@ export function SuppliersPage() {
             setPage(1);
           }}
         />
+        <ColumnsToggle
+          columns={[
+            {
+              key: 'email',
+              label: 'Email',
+              visible: showEmail,
+              onToggle: setEmailCol,
+            },
+          ]}
+        />
       </div>
+      {listError && <p className="mb-2 text-sm text-destructive">{listError}</p>}
 
       <Table>
         <TableHeader>
           <TableRow>
             <TableHead>{t('common.name')}</TableHead>
             <TableHead>{t('common.phone')}</TableHead>
-            <TableHead>Email</TableHead>
+            {showEmail && <TableHead>Email</TableHead>}
             <TableHead>{t('common.address')}</TableHead>
-            {canEdit && <TableHead className="w-16">{t('common.actions')}</TableHead>}
+            {canEdit && <TableHead className="w-24">{t('common.actions')}</TableHead>}
           </TableRow>
         </TableHeader>
         <TableBody>
           {isLoading ? (
             <TableRow>
-              <TableCell colSpan={5} className="py-8 text-center text-muted-foreground">
+              <TableCell colSpan={colCount} className="py-8 text-center text-muted-foreground">
                 {t('common.loading')}
               </TableCell>
             </TableRow>
           ) : (list?.data.length ?? 0) === 0 ? (
             <TableRow>
-              <TableCell colSpan={5} className="py-8 text-center text-muted-foreground">
+              <TableCell colSpan={colCount} className="py-8 text-center text-muted-foreground">
                 {t('common.noData')}
               </TableCell>
             </TableRow>
@@ -147,20 +202,35 @@ export function SuppliersPage() {
                   <Link to={`/suppliers/${s.id}`} className="font-medium hover:underline">
                     {s.name}
                   </Link>
+                  {s.isActive === false && (
+                    <Badge variant="secondary" className="ml-2">
+                      {t('suppliers.archived')}
+                    </Badge>
+                  )}
                 </TableCell>
                 <TableCell>{s.phone ?? '—'}</TableCell>
-                <TableCell>{s.email ?? '—'}</TableCell>
+                {showEmail && <TableCell>{s.email ?? '—'}</TableCell>}
                 <TableCell className="text-muted-foreground">{s.address ?? '—'}</TableCell>
                 {canEdit && (
                   <TableCell>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      aria-label={t('common.edit')}
-                      onClick={() => openEdit(s)}
-                    >
-                      <Pencil className="h-4 w-4" />
-                    </Button>
+                    <div className="flex">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        aria-label={t('common.edit')}
+                        onClick={() => openEdit(s)}
+                      >
+                        <Pencil className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        aria-label={t('common.delete')}
+                        onClick={() => handleDelete(s)}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
                   </TableCell>
                 )}
               </TableRow>
