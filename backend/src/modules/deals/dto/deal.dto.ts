@@ -1,17 +1,25 @@
 import { DealStage } from '@prisma/client';
+import { Transform } from 'class-transformer';
 import {
   IsEnum,
   IsInt,
-  IsNotEmpty,
   IsNumber,
   IsOptional,
   IsString,
   Min,
+  MinLength,
 } from 'class-validator';
+
+// TASK-005: trim first so whitespace-only titles fail MinLength
+const trim = ({ value }: { value: unknown }) =>
+  typeof value === 'string' ? value.trim() : value;
 
 export class CreateDealDto {
   @IsString()
-  @IsNotEmpty({ message: 'Bitim nomi kiritilishi shart' })
+  @Transform(trim)
+  @MinLength(3, {
+    message: "Bitim nomi kamida 3 ta belgidan iborat bo'lishi kerak",
+  })
   title!: string;
 
   @IsInt({ message: 'Mijoz tanlanishi shart' })
@@ -37,7 +45,10 @@ export class CreateDealDto {
 export class UpdateDealDto {
   @IsOptional()
   @IsString()
-  @IsNotEmpty()
+  @Transform(trim)
+  @MinLength(3, {
+    message: "Bitim nomi kamida 3 ta belgidan iborat bo'lishi kerak",
+  })
   title?: string;
 
   @IsOptional()

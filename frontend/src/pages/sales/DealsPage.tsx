@@ -197,6 +197,9 @@ export function DealsPage() {
             <Label>{t('deals.dealTitle')} *</Label>
             <Input
               required
+              minLength={3}
+              pattern=".*\S{1}.*\S{1}.*\S{1}.*"
+              title={t('deals.titleMinLength')}
               value={form.title}
               onChange={(e) => setForm({ ...form, title: e.target.value })}
             />
