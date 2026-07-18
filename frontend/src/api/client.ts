@@ -11,8 +11,13 @@ export function setToken(token: string | null) {
   else localStorage.removeItem(TOKEN_KEY);
 }
 
+// Dev runs behind the Vite proxy (relative path); prod points straight
+// at the deployed backend origin since frontend and backend are hosted
+// separately (Vercel + Render).
+const API_BASE = import.meta.env.VITE_API_URL || '/api/v1';
+
 export const api = axios.create({
-  baseURL: '/api/v1',
+  baseURL: API_BASE,
   withCredentials: true,
 });
 
@@ -26,7 +31,7 @@ let refreshPromise: Promise<string> | null = null;
 
 async function refreshAccessToken(): Promise<string> {
   refreshPromise ??= axios
-    .post('/api/v1/auth/refresh', null, { withCredentials: true })
+    .post(`${API_BASE}/auth/refresh`, null, { withCredentials: true })
     .then((res) => {
       const token: string = res.data.data.accessToken;
       setToken(token);

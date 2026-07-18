@@ -81,10 +81,14 @@ export class AuthController {
   }
 
   private setRefreshCookie(res: Response, token: string) {
+    // Prod deploy is cross-origin (frontend and backend on different
+    // domains), so the cookie needs SameSite=None to be sent on API
+    // calls; dev runs behind the Vite proxy, so Lax is fine there.
+    const isProd = process.env.NODE_ENV === 'production';
     res.cookie(REFRESH_COOKIE, token, {
       httpOnly: true,
-      sameSite: 'lax',
-      secure: process.env.NODE_ENV === 'production',
+      sameSite: isProd ? 'none' : 'lax',
+      secure: isProd,
       path: '/api/v1/auth',
       maxAge: REFRESH_COOKIE_MAX_AGE,
     });
