@@ -163,7 +163,10 @@ export function DashboardPage() {
 
   return (
     <div>
-      <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+      {/* TASK-014: title + period filters stay pinned while scrolling;
+          negative margins cancel main's padding so the bar sits flush
+          against the scrollport and content slides underneath it */}
+      <div className="sticky -top-4 z-30 -mx-4 -mt-4 mb-4 flex flex-wrap items-center justify-between gap-3 border-b bg-background/95 px-4 py-3 backdrop-blur md:-top-6 md:-mx-6 md:-mt-6 md:px-6">
         <h1 className="text-2xl font-semibold">{t('menu.dashboard')}</h1>
         <div className="flex flex-wrap items-center gap-1">
           {presets.map((p) => (
