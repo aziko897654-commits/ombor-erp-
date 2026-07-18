@@ -416,6 +416,131 @@ export class ReportsService {
     );
     return mergeProfit(sold, returned);
   }
+
+  /** TASK-022: 8) transaction journal export. */
+  async transactions(from?: string, to?: string): Promise<Report> {
+    const period = parsePeriod(from, to);
+    const rows = await this.prisma.transaction.findMany({
+      where: { date: { gte: period.start, lte: period.end } },
+      include: {
+        account: { select: { name: true } },
+        category: { select: { name: true } },
+      },
+      orderBy: [{ date: 'asc' }, { id: 'asc' }],
+    });
+    const income = rows
+      .filter((r) => r.type === 'income')
+      .reduce((acc, r) => acc.plus(r.amount), ZERO);
+    const expense = rows
+      .filter((r) => r.type === 'expense')
+      .reduce((acc, r) => acc.plus(r.amount), ZERO);
+
+    const SOURCE_LABEL: Record<string, string> = {
+      manual: "Qo'lda",
+      payment: "To'lov",
+      salary: 'Ish haqi',
+      advance: 'Avans',
+      transfer: "O'tkazma",
+    };
+
+    return {
+      slug: 'transactions',
+      title: 'Tranzaksiyalar jurnali',
+      period,
+      sections: [
+        {
+          title: 'Tranzaksiyalar',
+          columns: [
+            { key: 'date', label: 'Sana' },
+            { key: 'account', label: 'Hisob' },
+            { key: 'category', label: 'Kategoriya' },
+            { key: 'source', label: 'Manba' },
+            { key: 'note', label: 'Izoh' },
+            { key: 'income', label: 'Kirim', money: true },
+            { key: 'expense', label: 'Chiqim', money: true },
+          ],
+          rows: [
+            ...rows.map((r) => ({
+              date: formatDate(r.date),
+              account: r.account.name,
+              category: r.category.name,
+              source: SOURCE_LABEL[r.source] ?? r.source,
+              note: r.note ?? '',
+              income: r.type === 'income' ? r.amount.toString() : '',
+              expense: r.type === 'expense' ? r.amount.toString() : '',
+            })),
+            {
+              date: 'JAMI',
+              account: '',
+              category: '',
+              source: '',
+              note: '',
+              income: income.toString(),
+              expense: expense.toString(),
+            },
+          ],
+        },
+      ],
+    };
+  }
+
+  /** TASK-022: 9) payroll sheet export (latest month by default). */
+  async payroll(month?: string): Promise<Report> {
+    const target = month ?? currentMonth();
+    if (!/^\d{4}-(0[1-9]|1[0-2])$/.test(target)) {
+      throw new BadRequestException("Oy formati noto'g'ri (YYYY-MM)");
+    }
+    const payroll = await this.prisma.payroll.findFirst({
+      where: month ? { month: target } : {},
+      orderBy: { month: 'desc' },
+      include: {
+        items: {
+          include: { employee: { select: { fullName: true } } },
+          orderBy: { id: 'asc' },
+        },
+      },
+    });
+    if (!payroll) {
+      throw new BadRequestException('Vedomost topilmadi');
+    }
+
+    return {
+      slug: 'payroll',
+      title: `Ish haqi vedomosti — ${payroll.month}`,
+      period: monthRange(payroll.month),
+      sections: [
+        {
+          title: 'Xodimlar',
+          columns: [
+            { key: 'employee', label: 'Xodim' },
+            { key: 'baseSalary', label: 'Bazaviy maosh', money: true },
+            { key: 'bonus', label: 'Bonus', money: true },
+            { key: 'penalty', label: 'Jarima', money: true },
+            { key: 'advance', label: 'Avans', money: true },
+            { key: 'amount', label: "To'lanadigan", money: true },
+          ],
+          rows: [
+            ...payroll.items.map((i) => ({
+              employee: i.employee.fullName,
+              baseSalary: i.baseSalary.toString(),
+              bonus: i.bonus.toString(),
+              penalty: i.penalty.toString(),
+              advance: i.advance.toString(),
+              amount: i.amount.toString(),
+            })),
+            {
+              employee: 'JAMI',
+              baseSalary: '',
+              bonus: '',
+              penalty: '',
+              advance: '',
+              amount: payroll.total.toString(),
+            },
+          ],
+        },
+      ],
+    };
+  }
 }
 
 function mergeProfit(

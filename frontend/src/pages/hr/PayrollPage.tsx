@@ -5,6 +5,7 @@ import { Link } from 'react-router-dom';
 import { getPayrolls } from '@/api/hr';
 import { Pagination } from '@/components/Pagination';
 import { Button } from '@/components/ui/button';
+import { ExportMenu } from '@/components/ui/export-menu';
 import { SortToggle, type SortDir } from '@/components/ui/sort-toggle';
 import {
   Table,
@@ -36,7 +37,8 @@ export function PayrollPage() {
         </Button>
       </div>
 
-      <div className="mb-3 flex justify-end">
+      <div className="mb-3 flex items-center justify-end gap-2">
+        <ExportMenu slug="payroll" />
         <SortToggle
           value={sort}
           onChange={(v) => {

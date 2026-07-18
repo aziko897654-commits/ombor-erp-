@@ -6,6 +6,7 @@ import {
   type AttendanceStatus,
 } from '@/api/hr';
 import { Badge } from '@/components/ui/badge';
+import { ExportMenu } from '@/components/ui/export-menu';
 import { Input } from '@/components/ui/input';
 import { apiErrorMessage } from '@/lib/format';
 import { t } from '@/lib/i18n';
@@ -116,6 +117,7 @@ export function AttendancePage() {
       <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
         <h1 className="text-2xl font-semibold">{t('attendance.title')}</h1>
         <div className="flex items-center gap-3">
+          <ExportMenu slug="attendance" params={{ month }} />
           <Input
             type="month"
             className="w-44"

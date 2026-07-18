@@ -9,6 +9,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+import { ExportMenu } from '@/components/ui/export-menu';
 import { useAuth } from '@/lib/auth';
 import { formatMoney } from '@/lib/format';
 import { t } from '@/lib/i18n';
@@ -26,7 +27,10 @@ export function DebtsPage() {
 
   return (
     <div>
-      <h1 className="mb-4 text-2xl font-semibold">{t('debts.title')}</h1>
+      <div className="mb-4 flex items-center justify-between">
+        <h1 className="text-2xl font-semibold">{t('debts.title')}</h1>
+        <ExportMenu slug="debts" />
+      </div>
       <div className="grid gap-6 xl:grid-cols-2">
         <DebtTable
           title={t('debts.debtors')}

@@ -15,6 +15,7 @@ import { Button } from '@/components/ui/button';
 import { Combobox } from '@/components/ui/combobox';
 import { Dialog } from '@/components/ui/dialog';
 import { EmptyState } from '@/components/ui/empty-state';
+import { ExportMenu } from '@/components/ui/export-menu';
 import { TableSkeleton } from '@/components/ui/skeleton';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -187,6 +188,9 @@ export function PaymentsPage() {
             setPage(1);
           }}
         />
+        <div className="ml-auto">
+          <ExportMenu slug="payments" />
+        </div>
       </div>
       {listError && <p className="mb-2 text-sm text-destructive">{listError}</p>}
 

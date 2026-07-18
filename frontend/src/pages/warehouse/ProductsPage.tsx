@@ -18,6 +18,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Dialog } from '@/components/ui/dialog';
 import { EmptyState } from '@/components/ui/empty-state';
+import { ExportMenu } from '@/components/ui/export-menu';
 import { TableSkeleton } from '@/components/ui/skeleton';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -212,6 +213,9 @@ export function ProductsPage() {
             >
               <AlertTriangle className="h-4 w-4" /> {t('products.lowStockOnly')}
             </Button>
+            <div className="ml-auto">
+              <ExportMenu slug="stock" />
+            </div>
           </>
         )}
       </div>

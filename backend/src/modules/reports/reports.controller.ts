@@ -78,6 +78,23 @@ export class ReportsController {
     return this.deliver(() => this.service.profit(from, to), format);
   }
 
+  // TASK-022: journal + payroll exports for the table pages
+  @Get('transactions')
+  @Roles(Role.admin, Role.accountant)
+  transactions(
+    @Query('from') from?: string,
+    @Query('to') to?: string,
+    @Query('format') format?: string,
+  ) {
+    return this.deliver(() => this.service.transactions(from, to), format);
+  }
+
+  @Get('payroll')
+  @Roles(Role.admin, Role.hr, Role.accountant)
+  payroll(@Query('month') month?: string, @Query('format') format?: string) {
+    return this.deliver(() => this.service.payroll(month), format);
+  }
+
   private async deliver(build: () => Promise<Report>, formatRaw?: string) {
     const format = assertFormat(formatRaw);
     const report = await build();
