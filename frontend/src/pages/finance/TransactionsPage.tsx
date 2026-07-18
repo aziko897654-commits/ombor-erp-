@@ -20,7 +20,11 @@ import { TableSkeleton } from '@/components/ui/skeleton';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select } from '@/components/ui/select';
-import { SortToggle, type SortDir } from '@/components/ui/sort-toggle';
+import {
+  nextSort,
+  SortableHead,
+  type ColumnSort,
+} from '@/components/ui/sortable-head';
 import {
   Table,
   TableBody,
@@ -45,7 +49,7 @@ export function TransactionsPage() {
   const [limit, setLimit] = useState(20);
   const [typeFilter, setTypeFilter] = useState('');
   const [sourceFilter, setSourceFilter] = useState('');
-  const [sort, setSort] = useState<SortDir>('desc');
+  const [sort, setSort] = useState<ColumnSort>({ by: 'date', dir: 'desc' });
   const [dialogOpen, setDialogOpen] = useState(false);
   const [categoriesOpen, setCategoriesOpen] = useState(false);
   const [form, setForm] = useState(emptyForm);
@@ -61,7 +65,8 @@ export function TransactionsPage() {
         limit,
         type: (typeFilter || undefined) as TxType | undefined,
         source: (sourceFilter || undefined) as TxSource | undefined,
-        sort,
+        sort: sort.dir,
+        sortBy: sort.by,
       }),
   });
   const { data: accounts } = useQuery({
@@ -182,13 +187,6 @@ export function TransactionsPage() {
             ),
           )}
         </Select>
-        <SortToggle
-          value={sort}
-          onChange={(v) => {
-            setSort(v);
-            setPage(1);
-          }}
-        />
         <div className="ml-auto">
           <ExportMenu slug="transactions" />
         </div>
@@ -198,13 +196,23 @@ export function TransactionsPage() {
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>{t('common.date')}</TableHead>
-            <TableHead>{t('txs.account')}</TableHead>
-            <TableHead>{t('txs.category')}</TableHead>
-            <TableHead>{t('txs.sourceLabel')}</TableHead>
-            <TableHead>{t('common.note')}</TableHead>
-            <TableHead className="text-right">{t('common.total')}</TableHead>
-            <TableHead className="w-14">{t('common.actions')}</TableHead>
+            {(() => {
+              const onSort = (key: string) => {
+                setSort((s) => nextSort(s, key));
+                setPage(1);
+              };
+              return (
+                <>
+                  <SortableHead label={t('common.date')} sortKey="date" sort={sort} onSort={onSort} />
+                  <SortableHead label={t('txs.account')} sortKey="account" sort={sort} onSort={onSort} />
+                  <SortableHead label={t('txs.category')} sortKey="category" sort={sort} onSort={onSort} />
+                  <SortableHead label={t('txs.sourceLabel')} sortKey="source" sort={sort} onSort={onSort} />
+                  <TableHead>{t('common.note')}</TableHead>
+                  <SortableHead label={t('common.total')} sortKey="amount" sort={sort} onSort={onSort} className="text-right" />
+                  <TableHead className="w-14">{t('common.actions')}</TableHead>
+                </>
+              );
+            })()}
           </TableRow>
         </TableHeader>
         <TableBody>

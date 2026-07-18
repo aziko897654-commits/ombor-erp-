@@ -138,6 +138,7 @@ export const getOrders = async (params: {
   status?: OrderStatus;
   customerId?: number;
   sort?: 'asc' | 'desc';
+  sortBy?: string;
 }) => (await api.get<{ data: Order[]; meta: Meta }>('/orders', { params })).data;
 export const getOrder = async (id: number) =>
   (await api.get<{ data: Order }>(`/orders/${id}`)).data.data;

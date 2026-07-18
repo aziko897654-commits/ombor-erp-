@@ -34,6 +34,7 @@ export class OrdersController {
     @Query('status') status?: OrderStatus,
     @Query('customerId') customerId?: string,
     @Query('sort') sort?: 'asc' | 'desc',
+    @Query('sortBy') sortBy?: string,
   ) {
     return this.service.findAll({
       page,
@@ -41,6 +42,7 @@ export class OrdersController {
       status,
       customerId: customerId ? parseInt(customerId, 10) : undefined,
       sort,
+      sortBy,
     });
   }
 

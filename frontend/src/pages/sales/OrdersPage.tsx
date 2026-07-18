@@ -9,12 +9,15 @@ import { Button } from '@/components/ui/button';
 import { EmptyState } from '@/components/ui/empty-state';
 import { TableSkeleton } from '@/components/ui/skeleton';
 import { Select } from '@/components/ui/select';
-import { SortToggle, type SortDir } from '@/components/ui/sort-toggle';
+import {
+  nextSort,
+  SortableHead,
+  type ColumnSort,
+} from '@/components/ui/sortable-head';
 import {
   Table,
   TableBody,
   TableCell,
-  TableHead,
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
@@ -27,7 +30,12 @@ export function OrdersPage() {
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(20);
   const [status, setStatus] = useState('');
-  const [sort, setSort] = useState<SortDir>('desc');
+  const [sort, setSort] = useState<ColumnSort>({ by: 'date', dir: 'desc' });
+
+  const onSort = (key: string) => {
+    setSort((s) => nextSort(s, key));
+    setPage(1);
+  };
 
   const { data: list, isLoading } = useQuery({
     queryKey: ['orders', page, limit, status, sort],
@@ -36,7 +44,8 @@ export function OrdersPage() {
         page,
         limit,
         status: (status || undefined) as OrderStatus | undefined,
-        sort,
+        sort: sort.dir,
+        sortBy: sort.by,
       }),
   });
 
@@ -67,24 +76,17 @@ export function OrdersPage() {
             </option>
           ))}
         </Select>
-        <SortToggle
-          value={sort}
-          onChange={(v) => {
-            setSort(v);
-            setPage(1);
-          }}
-        />
       </div>
 
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>{t('common.number')}</TableHead>
-            <TableHead>{t('common.date')}</TableHead>
-            <TableHead>{t('orders.customer')}</TableHead>
-            <TableHead>{t('orders.warehouse')}</TableHead>
-            <TableHead>{t('common.status')}</TableHead>
-            <TableHead className="text-right">{t('common.total')}</TableHead>
+            <SortableHead label={t('common.number')} sortKey="number" sort={sort} onSort={onSort} />
+            <SortableHead label={t('common.date')} sortKey="date" sort={sort} onSort={onSort} />
+            <SortableHead label={t('orders.customer')} sortKey="customer" sort={sort} onSort={onSort} />
+            <SortableHead label={t('orders.warehouse')} sortKey="warehouse" sort={sort} onSort={onSort} />
+            <SortableHead label={t('common.status')} sortKey="status" sort={sort} onSort={onSort} />
+            <SortableHead label={t('common.total')} sortKey="total" sort={sort} onSort={onSort} className="text-right" />
           </TableRow>
         </TableHeader>
         <TableBody>

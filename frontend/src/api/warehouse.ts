@@ -169,6 +169,7 @@ export const getProducts = async (params: {
   search?: string;
   warehouseId?: number;
   sort?: 'asc' | 'desc';
+  sortBy?: string;
 }) =>
   (
     await api.get<{ data: Product[]; meta: Meta }>('/products', { params })

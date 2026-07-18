@@ -117,6 +117,7 @@ export const getTransactions = async (params: {
   accountId?: number;
   source?: TxSource;
   sort?: 'asc' | 'desc';
+  sortBy?: string;
 }) =>
   (
     await api.get<{ data: Transaction[]; meta: Meta }>('/transactions', {

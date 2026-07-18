@@ -34,6 +34,7 @@ export class TransactionsService {
     from?: string;
     to?: string;
     sort?: 'asc' | 'desc';
+    sortBy?: string;
   }) {
     const {
       page,
@@ -45,6 +46,7 @@ export class TransactionsService {
       from,
       to,
       sort,
+      sortBy,
     } = params;
     const where: Prisma.TransactionWhereInput = {
       ...(type ? { type } : {}),
@@ -64,7 +66,19 @@ export class TransactionsService {
       this.prisma.transaction.findMany({
         where,
         include: TX_INCLUDE,
-        orderBy: sort ? { date: sort } : [{ date: 'desc' }, { id: 'desc' }],
+        // TASK-021: whitelist of sortable columns
+        orderBy:
+          sortBy === 'account'
+            ? { account: { name: sort ?? 'asc' } }
+            : sortBy === 'category'
+              ? { category: { name: sort ?? 'asc' } }
+              : sortBy === 'source'
+                ? { source: sort ?? 'asc' }
+                : sortBy === 'amount'
+                  ? { amount: sort ?? 'desc' }
+                  : sort
+                    ? { date: sort }
+                    : [{ date: 'desc' }, { id: 'desc' }],
         skip: (page - 1) * limit,
         take: limit,
       }),

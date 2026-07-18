@@ -62,12 +62,29 @@ export class OrdersService {
     status?: OrderStatus;
     customerId?: number;
     sort?: 'asc' | 'desc';
+    sortBy?: string;
   }) {
-    const { page, limit, status, customerId, sort } = params;
+    const { page, limit, status, customerId, sort, sortBy } = params;
     const where: Prisma.OrderWhereInput = {
       ...(status ? { status } : {}),
       ...(customerId ? { customerId } : {}),
     };
+    // TASK-021: whitelist of sortable columns
+    const dir = sort ?? 'desc';
+    const orderBy: Prisma.OrderOrderByWithRelationInput =
+      sortBy === 'number'
+        ? { number: dir }
+        : sortBy === 'customer'
+          ? { customer: { name: dir } }
+          : sortBy === 'warehouse'
+            ? { warehouse: { name: dir } }
+            : sortBy === 'status'
+              ? { status: dir }
+              : sortBy === 'total'
+                ? { total: dir }
+                : sortBy === 'date' || sort
+                  ? { createdAt: dir }
+                  : { id: 'desc' };
     const [orders, total] = await this.prisma.$transaction([
       this.prisma.order.findMany({
         where,
@@ -75,7 +92,7 @@ export class OrdersService {
           customer: { select: { id: true, name: true } },
           warehouse: { select: { id: true, name: true } },
         },
-        orderBy: sort ? { createdAt: sort } : { id: 'desc' },
+        orderBy,
         skip: (page - 1) * limit,
         take: limit,
       }),

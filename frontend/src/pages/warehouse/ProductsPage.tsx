@@ -1,5 +1,14 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { AlertTriangle, Pencil, Plus, Tags, TrendingDown } from 'lucide-react';
+import {
+  AlertTriangle,
+  ArrowDown,
+  ArrowUp,
+  ChevronsUpDown,
+  Pencil,
+  Plus,
+  Tags,
+  TrendingDown,
+} from 'lucide-react';
 import { useState, type FormEvent } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import {
@@ -20,13 +29,14 @@ import { Dialog } from '@/components/ui/dialog';
 import { EmptyState } from '@/components/ui/empty-state';
 import { ExportMenu } from '@/components/ui/export-menu';
 import { TableSkeleton } from '@/components/ui/skeleton';
+import { nextSort, type ColumnSort } from '@/components/ui/sortable-head';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select } from '@/components/ui/select';
-import { SortToggle, type SortDir } from '@/components/ui/sort-toggle';
 import { useAuth } from '@/lib/auth';
 import { apiErrorMessage, formatMoney, formatQty } from '@/lib/format';
 import { t } from '@/lib/i18n';
+import { cn } from '@/lib/utils';
 
 const UNITS = ['dona', 'kg', 'litr', 'metr'];
 
@@ -52,7 +62,7 @@ export function ProductsPage() {
   const [limit, setLimit] = useState(20);
   const [search, setSearch] = useState('');
   const [warehouseId, setWarehouseId] = useState('');
-  const [sort, setSort] = useState<SortDir>('desc');
+  const [sort, setSort] = useState<ColumnSort>({ by: 'name', dir: 'asc' });
   const [lowStockOnly, setLowStockOnly] = useState(
     searchParams.get('lowStock') === '1',
   );
@@ -91,10 +101,16 @@ export function ProductsPage() {
         limit,
         search: search || undefined,
         warehouseId: warehouseId ? Number(warehouseId) : undefined,
-        sort,
+        sort: sort.dir,
+        sortBy: sort.by,
       }),
     enabled: !lowStockOnly,
   });
+
+  const onSort = (key: string) => {
+    setSort((s) => nextSort(s, key));
+    setPage(1);
+  };
   const { data: lowStock } = useQuery({
     queryKey: ['products-low-stock'],
     queryFn: getLowStock,
@@ -183,13 +199,6 @@ export function ProductsPage() {
             setPage(1);
           }}
         />
-        <SortToggle
-          value={sort}
-          onChange={(v) => {
-            setSort(v);
-            setPage(1);
-          }}
-        />
         {canEdit && (
           <>
             <Select
@@ -224,13 +233,13 @@ export function ProductsPage() {
         <table className="w-full text-sm">
           <thead className="bg-muted/50">
             <tr className="border-b text-left text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-              <th className="px-3 py-2.5">{t('common.name')}</th>
-              <th className="px-3 py-2.5">{t('products.sku')}</th>
-              <th className="px-3 py-2.5">{t('products.category')}</th>
+              <th className="px-3 py-2.5"><SortBtn label={t('common.name')} k="name" sort={sort} onSort={onSort} /></th>
+              <th className="px-3 py-2.5"><SortBtn label={t('products.sku')} k="sku" sort={sort} onSort={onSort} /></th>
+              <th className="px-3 py-2.5"><SortBtn label={t('products.category')} k="category" sort={sort} onSort={onSort} /></th>
               <th className="px-3 py-2.5">{t('products.unit')}</th>
               <th className="px-3 py-2.5 text-right">{t('products.stock')}</th>
-              <th className="px-3 py-2.5 text-right">{t('products.avgCost')}</th>
-              <th className="px-3 py-2.5 text-right">{t('products.salePrice')}</th>
+              <th className="px-3 py-2.5 text-right"><SortBtn label={t('products.avgCost')} k="avgCost" sort={sort} onSort={onSort} /></th>
+              <th className="px-3 py-2.5 text-right"><SortBtn label={t('products.salePrice')} k="salePrice" sort={sort} onSort={onSort} /></th>
               {canEdit && <th className="px-3 py-2.5">{t('common.actions')}</th>}
             </tr>
           </thead>
@@ -554,5 +563,42 @@ function WriteoffDialog({
         </div>
       </form>
     </Dialog>
+  );
+}
+
+/** TASK-021: sort button for this page's raw <th> cells. */
+function SortBtn({
+  label,
+  k,
+  sort,
+  onSort,
+}: {
+  label: string;
+  k: string;
+  sort: ColumnSort;
+  onSort: (key: string) => void;
+}) {
+  const active = sort.by === k;
+  return (
+    <button
+      type="button"
+      onClick={() => onSort(k)}
+      aria-label={`${label} — saralash`}
+      className={cn(
+        'inline-flex items-center gap-1 uppercase hover:text-foreground',
+        active && 'text-foreground',
+      )}
+    >
+      {label}
+      {active ? (
+        sort.dir === 'asc' ? (
+          <ArrowUp className="h-3 w-3" />
+        ) : (
+          <ArrowDown className="h-3 w-3" />
+        )
+      ) : (
+        <ChevronsUpDown className="h-3 w-3 opacity-40" />
+      )}
+    </button>
   );
 }

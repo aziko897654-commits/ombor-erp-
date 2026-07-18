@@ -22,8 +22,10 @@ export class ProductsService {
     warehouseId?: number;
     includeInactive?: boolean;
     sort?: 'asc' | 'desc';
+    sortBy?: string;
   }) {
-    const { page, limit, search, warehouseId, includeInactive, sort } = params;
+    const { page, limit, search, warehouseId, includeInactive, sort, sortBy } =
+      params;
     const where: Prisma.ProductWhereInput = {
       ...(includeInactive ? {} : { isActive: true }),
       ...(search
@@ -41,7 +43,22 @@ export class ProductsService {
       this.prisma.product.findMany({
         where,
         include: { category: true },
-        orderBy: sort ? { id: sort } : { name: 'asc' },
+        // TASK-021: whitelist of sortable columns (stock is computed,
+        // so it stays unsortable server-side)
+        orderBy:
+          sortBy === 'name'
+            ? { name: sort ?? 'asc' }
+            : sortBy === 'sku'
+              ? { sku: sort ?? 'asc' }
+              : sortBy === 'category'
+                ? { category: { name: sort ?? 'asc' } }
+                : sortBy === 'avgCost'
+                  ? { avgCost: sort ?? 'desc' }
+                  : sortBy === 'salePrice'
+                    ? { salePrice: sort ?? 'desc' }
+                    : sort
+                      ? { id: sort }
+                      : { name: 'asc' },
         skip: (page - 1) * limit,
         take: limit,
       }),
