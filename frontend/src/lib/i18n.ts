@@ -16,14 +16,18 @@ function missing(key: string): string {
   return key;
 }
 
-/** Looks up a dot-separated key in the uz.json dictionary (NFR-15). */
-export function t(key: string): string {
+/**
+ * Looks up a dot-separated key in the uz.json dictionary (NFR-15).
+ * `fallback` is returned for missing keys instead of the key itself —
+ * useful for open-ended sets like audit action names.
+ */
+export function t(key: string, fallback?: string): string {
   let node: string | Dict = uz as Dict;
   for (const part of key.split('.')) {
     if (typeof node === 'string' || node[part] === undefined) {
-      return missing(key);
+      return fallback ?? missing(key);
     }
     node = node[part];
   }
-  return typeof node === 'string' ? node : missing(key);
+  return typeof node === 'string' ? node : (fallback ?? missing(key));
 }

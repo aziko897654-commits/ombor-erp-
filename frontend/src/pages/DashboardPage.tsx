@@ -18,7 +18,12 @@ import { getDashboardCharts, getDashboardSummary } from '@/api/system';
 import { CardSkeleton, ChartSkeleton } from '@/components/ui/skeleton';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { DatePicker } from '@/components/ui/date-picker';
-import { changeTone, formatMoney, formatPercent } from '@/lib/format';
+import {
+  changeTone,
+  formatDateTime,
+  formatMoney,
+  formatPercent,
+} from '@/lib/format';
 import { t } from '@/lib/i18n';
 import { cn } from '@/lib/utils';
 
@@ -450,6 +455,86 @@ export function DashboardPage() {
                 />
               </BarChart>
             </ResponsiveContainer>
+          </CardContent>
+        </Card>
+
+        {/* TASK-030: top customers by revenue + recent audit actions */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base">
+              {t('dashboard.topCustomers')}
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            {(charts?.topCustomers.length ?? 0) === 0 ? (
+              <p className="py-6 text-center text-sm text-muted-foreground">
+                {t('common.noData')}
+              </p>
+            ) : (
+              <ol className="space-y-2">
+                {charts?.topCustomers.map((c, i) => (
+                  <li key={c.customerId}>
+                    <Link
+                      to={`/customers/${c.customerId}`}
+                      className="flex items-center gap-3 rounded-md px-2 py-1.5 hover:bg-accent"
+                    >
+                      <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary/10 text-xs font-semibold">
+                        {i + 1}
+                      </span>
+                      <span className="min-w-0 flex-1">
+                        <span className="block truncate text-sm font-medium">
+                          {c.name}
+                        </span>
+                        <span className="block text-xs text-muted-foreground">
+                          {c.orders} ta buyurtma
+                        </span>
+                      </span>
+                      <span className="whitespace-nowrap text-sm font-semibold">
+                        {formatMoney(c.revenue)}
+                      </span>
+                    </Link>
+                  </li>
+                ))}
+              </ol>
+            )}
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base">
+              {t('dashboard.recentActions')}
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            {(charts?.recentActions.length ?? 0) === 0 ? (
+              <p className="py-6 text-center text-sm text-muted-foreground">
+                {t('common.noData')}
+              </p>
+            ) : (
+              <ul className="space-y-1.5">
+                {charts?.recentActions.map((a) => (
+                  <li
+                    key={a.id}
+                    className="flex items-baseline justify-between gap-3 rounded-md px-2 py-1 text-sm"
+                  >
+                    <span className="min-w-0 flex-1">
+                      <span className="font-medium">{a.user}</span>{' '}
+                      <span className="text-muted-foreground">
+                        {t(
+                          `audit.actions.${a.action.replace(/\./g, '_')}`,
+                          a.action,
+                        )}
+                        {a.entityId ? ` #${a.entityId}` : ''}
+                      </span>
+                    </span>
+                    <span className="whitespace-nowrap text-xs text-muted-foreground">
+                      {formatDateTime(a.createdAt)}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            )}
           </CardContent>
         </Card>
       </div>

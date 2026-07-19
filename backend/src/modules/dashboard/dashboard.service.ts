@@ -120,12 +120,15 @@ export class DashboardService {
 
   async charts(from?: string, to?: string) {
     const period = parsePeriod(from, to);
-    const [monthly, funnel, topProducts] = await Promise.all([
-      this.monthlyFlow(),
-      this.dealsFunnel(),
-      this.topProducts(period),
-    ]);
-    return { monthly, funnel, topProducts };
+    const [monthly, funnel, topProducts, topCustomers, recentActions] =
+      await Promise.all([
+        this.monthlyFlow(),
+        this.dealsFunnel(),
+        this.topProducts(period),
+        this.topCustomers(period),
+        this.recentActions(),
+      ]);
+    return { monthly, funnel, topProducts, topCustomers, recentActions };
   }
 
   /** Invariant 9: transfers stay out of income/expense KPIs. */
@@ -247,6 +250,48 @@ export class DashboardService {
       cursor.setMonth(cursor.getMonth() + 1);
     }
     return months;
+  }
+
+  /** TASK-030: top-5 customers by revenue in the selected period. */
+  private async topCustomers(period: Period) {
+    const rows = await this.prisma.$queryRaw<
+      Array<{ id: number; name: string; orders: bigint; revenue: Prisma.Decimal }>
+    >(
+      Prisma.sql`SELECT c."id", c."name", COUNT(o."id") AS orders,
+                        SUM(o."total") AS revenue
+                 FROM "Order" o
+                 JOIN "Customer" c ON c."id" = o."customerId"
+                 WHERE o."status" IN ('confirmed', 'shipped')
+                   AND o."createdAt" >= ${period.start}
+                   AND o."createdAt" <= ${period.end}
+                 GROUP BY c."id", c."name"
+                 ORDER BY revenue DESC LIMIT 5`,
+    );
+    return rows.map((r) => ({
+      customerId: r.id,
+      name: r.name,
+      orders: Number(r.orders),
+      revenue: r.revenue.toString(),
+    }));
+  }
+
+  /** TASK-030: last actions from the audit journal. */
+  private async recentActions() {
+    const rows = await this.prisma.auditLog.findMany({
+      take: 8,
+      orderBy: { id: 'desc' },
+      include: {
+        user: { select: { firstName: true, lastName: true } },
+      },
+    });
+    return rows.map((r) => ({
+      id: r.id,
+      action: r.action,
+      entity: r.entity,
+      entityId: r.entityId,
+      user: `${r.user.firstName} ${r.user.lastName}`,
+      createdAt: r.createdAt,
+    }));
   }
 
   private async dealsFunnel() {

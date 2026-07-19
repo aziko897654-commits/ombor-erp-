@@ -37,6 +37,20 @@ export interface DashboardCharts {
     quantity: string;
     revenue: string;
   }>;
+  topCustomers: Array<{
+    customerId: number;
+    name: string;
+    orders: number;
+    revenue: string;
+  }>;
+  recentActions: Array<{
+    id: number;
+    action: string;
+    entity: string;
+    entityId?: number | null;
+    user: string;
+    createdAt: string;
+  }>;
 }
 
 export const getDashboardSummary = async (params?: {

@@ -449,6 +449,8 @@
     "monthlyChart": "Oxirgi 12 oy: tushum va xarajat",
     "funnelChart": "Bitimlar voronkasi",
     "topChart": "Top-5 sotilgan mahsulot",
+    "topCustomers": "Top-5 mijoz (tushum bo'yicha)",
+    "recentActions": "Oxirgi amallar",
     "dealsCount": "Bitimlar soni",
     "dealsSum": "Summa",
     "revenue": "Tushum",
@@ -471,6 +473,36 @@
       "payments": "To'lovlar hisoboti",
       "attendance": "Davomat hisoboti",
       "profit": "Foyda hisoboti"
+    }
+  },
+  "audit": {
+    "actions": {
+      "advance_create": "avans berdi",
+      "customer_delete": "mijozni o'chirdi",
+      "import_customers": "mijozlarni import qildi",
+      "import_products": "mahsulotlarni import qildi",
+      "invoice_create": "hisob-faktura yaratdi",
+      "invoice_status": "hisob-faktura holatini o'zgartirdi",
+      "order_cancel": "buyurtmani bekor qildi",
+      "order_confirm": "buyurtmani tasdiqladi",
+      "order_delete": "buyurtmani o'chirdi",
+      "order_ship": "buyurtmani jo'natdi",
+      "payment_create": "to'lov kiritdi",
+      "payment_delete": "to'lovni o'chirdi",
+      "payroll_create": "vedomost yaratdi",
+      "purchase_create": "xarid kiritdi",
+      "purchase_return_create": "xarid qaytarishini kiritdi",
+      "sales_return_create": "sotuv qaytarishini kiritdi",
+      "settings_logo": "logotipni yangiladi",
+      "settings_update": "sozlamalarni yangiladi",
+      "stock_writeoff": "mahsulotni hisobdan chiqardi",
+      "stockcount_complete": "inventarizatsiyani yakunladi",
+      "supplier_archive": "yetkazib beruvchini arxivladi",
+      "supplier_delete": "yetkazib beruvchini o'chirdi",
+      "transaction_delete": "tranzaksiyani o'chirdi",
+      "transfer_create": "hisoblararo o'tkazma qildi",
+      "user_create": "foydalanuvchi yaratdi",
+      "user_update": "foydalanuvchini yangiladi"
     }
   },
   "auditPage": {
