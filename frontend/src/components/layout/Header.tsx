@@ -1,4 +1,4 @@
-import { ChevronDown, KeyRound, LogOut, Menu } from 'lucide-react';
+import { ChevronDown, KeyRound, LogOut, Menu, Moon, Sun } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -13,7 +13,18 @@ export function Header({ onMenuClick }: { onMenuClick: () => void }) {
   const navigate = useNavigate();
   const [menuOpen, setMenuOpen] = useState(false);
   const [passwordOpen, setPasswordOpen] = useState(false);
+  // TASK-029: dark mode toggle, persisted in localStorage
+  const [dark, setDark] = useState(() =>
+    document.documentElement.classList.contains('dark'),
+  );
   const menuRef = useRef<HTMLDivElement>(null);
+
+  const toggleTheme = () => {
+    const next = !dark;
+    setDark(next);
+    document.documentElement.classList.toggle('dark', next);
+    localStorage.setItem('erp_theme', next ? 'dark' : 'light');
+  };
 
   useEffect(() => {
     if (!menuOpen) return;
@@ -48,6 +59,16 @@ export function Header({ onMenuClick }: { onMenuClick: () => void }) {
       <GlobalSearch />
 
       <div className="ml-auto flex items-center gap-2">
+        <Button
+          variant="ghost"
+          size="icon"
+          aria-label={t('common.toggleTheme')}
+          title={t('common.toggleTheme')}
+          onClick={toggleTheme}
+        >
+          {dark ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+        </Button>
+
         {/* FR-7.1: notifications with 60s polling */}
         <NotificationsBell />
 
