@@ -19,6 +19,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+import { useAuth } from '@/lib/auth';
 import { apiErrorMessage, formatDate } from '@/lib/format';
 import { t } from '@/lib/i18n';
 
@@ -36,6 +37,7 @@ const emptyForm = {
 /** FR-0.3: admin manages users; deactivation instead of deletion. */
 export function UsersPage() {
   const queryClient = useQueryClient();
+  const { user: currentUser, refresh } = useAuth();
   const [page, setPage] = useState(1);
   const [sort, setSort] = useState<SortDir>('desc');
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -53,6 +55,11 @@ export function UsersPage() {
       editing ? updateUser(editing.id, payload) : createUser(payload),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['users'] });
+      // editing your own account must also update the header profile,
+      // which is cached in the auth context since login
+      if (editing && currentUser && editing.id === currentUser.id) {
+        void refresh();
+      }
       setDialogOpen(false);
     },
     onError: (err) => setError(apiErrorMessage(err)),
