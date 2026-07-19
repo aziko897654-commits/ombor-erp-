@@ -185,7 +185,7 @@ export class PayrollService {
   /** FR-4.6: only active employees enter the sheet. */
   private async buildRows(month: string) {
     const { start, end } = monthRange(month);
-    const [employees, advances] = await Promise.all([
+    const [employees, advances, attendance] = await Promise.all([
       this.prisma.employee.findMany({
         where: { status: 'active' },
         select: { id: true, fullName: true, salary: true },
@@ -196,15 +196,35 @@ export class PayrollService {
         where: { date: { gte: start, lt: end } },
         _sum: { amount: true },
       }),
+      // TASK-032: month attendance counts shown next to each row —
+      // absences do NOT auto-reduce the salary (the penalty column is
+      // the tool for that), but HR sees the numbers while filling it
+      this.prisma.attendance.groupBy({
+        by: ['employeeId', 'status'],
+        where: { date: { gte: start, lt: end } },
+        _count: { _all: true },
+      }),
     ]);
     const advanceByEmployee = new Map(
       advances.map((a) => [a.employeeId, a._sum.amount ?? ZERO]),
     );
+    const att = new Map<number, Record<string, number>>();
+    for (const a of attendance) {
+      const entry = att.get(a.employeeId) ?? {};
+      entry[a.status] = a._count._all;
+      att.set(a.employeeId, entry);
+    }
     return employees.map((e) => ({
       employeeId: e.id,
       fullName: e.fullName,
       baseSalary: e.salary,
       advance: advanceByEmployee.get(e.id) ?? ZERO,
+      attendance: {
+        present: att.get(e.id)?.present ?? 0,
+        absent: att.get(e.id)?.absent ?? 0,
+        sick: att.get(e.id)?.sick ?? 0,
+        vacation: att.get(e.id)?.vacation ?? 0,
+      },
     }));
   }
 }

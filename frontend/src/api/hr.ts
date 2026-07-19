@@ -87,6 +87,13 @@ export interface PayrollPreviewRow {
   fullName: string;
   baseSalary: string;
   advance: string;
+  /** TASK-032: month attendance counts, informational only */
+  attendance: {
+    present: number;
+    absent: number;
+    sick: number;
+    vacation: number;
+  };
 }
 
 // --- Catalogs ---

@@ -156,10 +156,17 @@ export function PayrollCreatePage() {
                 {t('common.noData')}
               </p>
             ) : (
+              <>
+              {/* TASK-032: attendance is informational — it does not
+                  auto-reduce pay; the penalty column is the lever */}
+              <p className="mb-2 text-xs text-muted-foreground">
+                {t('payroll.attendanceHint')}
+              </p>
               <Table>
                 <TableHeader>
                   <TableRow>
                     <TableHead>{t('employees.fullName')}</TableHead>
+                    <TableHead>{t('payroll.attendanceCol')}</TableHead>
                     <TableHead className="text-right">
                       {t('payroll.baseSalary')}
                     </TableHead>
@@ -175,6 +182,14 @@ export function PayrollCreatePage() {
                   {preview?.rows.map((row) => (
                     <TableRow key={row.employeeId}>
                       <TableCell className="font-medium">{row.fullName}</TableCell>
+                      <TableCell className="whitespace-nowrap text-xs">
+                        <span className="text-green-700">✓{row.attendance.present}</span>{' '}
+                        <span className={row.attendance.absent > 0 ? 'font-semibold text-destructive' : 'text-muted-foreground'}>
+                          ×{row.attendance.absent}
+                        </span>{' '}
+                        <span className="text-amber-700">K{row.attendance.sick}</span>{' '}
+                        <span className="text-blue-700">T{row.attendance.vacation}</span>
+                      </TableCell>
                       <TableCell className="text-right">
                         {formatMoney(row.baseSalary)}
                       </TableCell>
@@ -214,6 +229,7 @@ export function PayrollCreatePage() {
                   ))}
                 </TableBody>
               </Table>
+              </>
             )}
 
             <div className="flex items-center justify-between border-t pt-4">

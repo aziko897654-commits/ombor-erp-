@@ -425,6 +425,8 @@
     "penalty": "Jarima",
     "advanceDeduction": "Avans",
     "net": "Qo'lga tegishi",
+    "attendanceCol": "Davomat (✓/×/K/T)",
+    "attendanceHint": "Hisoblash qoidasi: bazaviy maosh + bonus − jarima − avans. Davomat belgilari avtomatik ayirilmaydi — kelmagan kunlar uchun \"Jarima\" ustunidan foydalaning.",
     "createConfirm": "Vedomost yaratilgach o'zgartirib bo'lmaydi va moliyada chiqim tranzaksiyasi hosil bo'ladi. Davom etasizmi?"
   },
   "dashboard": {
