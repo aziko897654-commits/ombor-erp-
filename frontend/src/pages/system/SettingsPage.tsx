@@ -176,6 +176,30 @@ export function SettingsPage() {
         </Card>
       </form>
 
+      {/* TASK-033: shortcut reference */}
+      <Card className="mb-4">
+        <CardHeader>
+          <CardTitle className="text-base">{t('settings.shortcuts')}</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <ul className="space-y-1.5 text-sm">
+            {[
+              ['Ctrl+K yoki /', t('settings.shortcutSearch')],
+              ['N', t('settings.shortcutNew')],
+              ['Esc', t('settings.shortcutEsc')],
+              ['↑ ↓ Enter', t('settings.shortcutNav')],
+            ].map(([keys, label]) => (
+              <li key={keys} className="flex items-center gap-3">
+                <kbd className="rounded border bg-muted px-1.5 py-0.5 text-xs">
+                  {keys}
+                </kbd>
+                <span className="text-muted-foreground">{label}</span>
+              </li>
+            ))}
+          </ul>
+        </CardContent>
+      </Card>
+
       <Card>
         <CardHeader>
           <CardTitle className="text-base">{t('settings.logo')}</CardTitle>

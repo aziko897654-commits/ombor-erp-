@@ -175,7 +175,7 @@ export function EmployeesPage() {
           <Button variant="outline" onClick={() => { setError(''); setCatalogsOpen(true); }}>
             <FolderTree className="h-4 w-4" /> {t('employees.catalogs')}
           </Button>
-          <Button onClick={openCreate}>
+          <Button data-new-record onClick={openCreate}>
             <Plus className="h-4 w-4" /> {t('employees.new')}
           </Button>
         </div>

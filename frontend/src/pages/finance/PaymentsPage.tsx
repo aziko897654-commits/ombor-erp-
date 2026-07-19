@@ -159,6 +159,7 @@ export function PaymentsPage() {
       <div className="mb-4 flex items-center justify-between">
         <h1 className="text-2xl font-semibold">{t('payments.title')}</h1>
         <Button
+          data-new-record
           onClick={() => {
             setForm(emptyForm);
             setError('');

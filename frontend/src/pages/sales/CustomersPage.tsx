@@ -113,7 +113,7 @@ export function CustomersPage() {
     <div>
       <div className="mb-4 flex items-center justify-between">
         <h1 className="text-2xl font-semibold">{t('customers.title')}</h1>
-        <Button onClick={openCreate}>
+        <Button data-new-record onClick={openCreate}>
           <Plus className="h-4 w-4" /> {t('customers.new')}
         </Button>
       </div>

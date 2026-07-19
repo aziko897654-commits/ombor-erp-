@@ -538,6 +538,11 @@
     "uploadLogo": "Logotip yuklash (PNG/JPG, 1 MB gacha)",
     "saved": "Saqlandi",
     "financeRules": "Moliya qoidalari",
+    "shortcuts": "Klaviatura shortcutlari",
+    "shortcutSearch": "Qidiruv / buyruqlar palitrasi",
+    "shortcutNew": "Joriy sahifada yangi yozuv",
+    "shortcutEsc": "Modal oynani yopish",
+    "shortcutNav": "Qidiruv natijalari bo'ylab yurish",
     "allowNegativeBalance": "Manfiy balansga ruxsat berish",
     "allowNegativeBalanceHint": "O'chiq bo'lsa, hisob balansidan ortiq chiqim/to'lov/o'tkazma bloklanadi. Yoqilsa, ogohlantirish bilan davom etish mumkin bo'ladi."
   },

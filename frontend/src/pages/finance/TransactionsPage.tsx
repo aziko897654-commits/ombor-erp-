@@ -147,6 +147,7 @@ export function TransactionsPage() {
             <Tags className="h-4 w-4" /> {t('txs.categories')}
           </Button>
           <Button
+            data-new-record
             onClick={() => {
               setForm(emptyForm);
               setError('');

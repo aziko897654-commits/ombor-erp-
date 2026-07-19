@@ -54,7 +54,11 @@ export function OrdersPage() {
       <div className="mb-4 flex items-center justify-between">
         <h1 className="text-2xl font-semibold">{t('orders.title')}</h1>
         <Button>
-          <Link to="/orders/new" className="flex items-center gap-2">
+          <Link
+            to="/orders/new"
+            data-new-record
+            className="flex items-center gap-2"
+          >
             <Plus className="h-4 w-4" /> {t('orders.new')}
           </Link>
         </Button>

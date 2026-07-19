@@ -1,5 +1,5 @@
 import { Loader2, X } from 'lucide-react';
-import { Suspense, useState } from 'react';
+import { Suspense, useEffect, useState } from 'react';
 import { Outlet } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { Header } from './Header';
@@ -16,6 +16,32 @@ function PageLoading() {
 export function AppLayout() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const closeMobile = () => setMobileOpen(false);
+
+  // TASK-033: "N" triggers the current page's create action (a button
+  // or link marked with data-new-record); ignored while typing or
+  // while any dialog is open
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key.toLowerCase() !== 'n' || e.ctrlKey || e.metaKey || e.altKey)
+        return;
+      const el = e.target as HTMLElement;
+      if (
+        el.tagName === 'INPUT' ||
+        el.tagName === 'TEXTAREA' ||
+        el.tagName === 'SELECT' ||
+        el.isContentEditable
+      )
+        return;
+      if (document.querySelector('[role="dialog"]')) return;
+      const target = document.querySelector<HTMLElement>('[data-new-record]');
+      if (target) {
+        e.preventDefault();
+        target.click();
+      }
+    };
+    document.addEventListener('keydown', onKey);
+    return () => document.removeEventListener('keydown', onKey);
+  }, []);
 
   return (
     <div className="flex h-screen overflow-hidden">

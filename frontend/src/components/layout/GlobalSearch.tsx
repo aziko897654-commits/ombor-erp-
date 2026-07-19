@@ -59,6 +59,17 @@ export function GlobalSearch() {
         e.preventDefault();
         setOpen(true);
       }
+      // TASK-033: "/" also opens the palette when not typing in a field
+      const el = e.target as HTMLElement;
+      const typing =
+        el.tagName === 'INPUT' ||
+        el.tagName === 'TEXTAREA' ||
+        el.tagName === 'SELECT' ||
+        el.isContentEditable;
+      if (e.key === '/' && !typing && !e.ctrlKey && !e.metaKey && !e.altKey) {
+        e.preventDefault();
+        setOpen(true);
+      }
       if (e.key === 'Escape') setOpen(false);
     };
     document.addEventListener('keydown', onKey);

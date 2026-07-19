@@ -182,7 +182,7 @@ export function ProductsPage() {
             <Button variant="outline" onClick={() => setCategoriesOpen(true)}>
               <Tags className="h-4 w-4" /> {t('products.categories')}
             </Button>
-            <Button onClick={openCreate}>
+            <Button data-new-record onClick={openCreate}>
               <Plus className="h-4 w-4" /> {t('products.new')}
             </Button>
           </div>
