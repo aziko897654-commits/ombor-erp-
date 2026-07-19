@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Pencil, Plus } from 'lucide-react';
 import { useState, type FormEvent } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   createWarehouse,
   getWarehouses,
@@ -25,6 +26,7 @@ import { t } from '@/lib/i18n';
 
 export function WarehousesPage() {
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editing, setEditing] = useState<Warehouse | null>(null);
   const [form, setForm] = useState({ name: '', address: '', isActive: true });
@@ -102,7 +104,14 @@ export function WarehousesPage() {
             </TableRow>
           ) : (
             warehouses?.map((w) => (
-              <TableRow key={w.id}>
+              // clicking the row opens the Products page filtered to
+              // this warehouse; the edit button stops propagation
+              <TableRow
+                key={w.id}
+                className="cursor-pointer"
+                title={t('warehouses.viewProducts')}
+                onClick={() => navigate(`/products?warehouse=${w.id}`)}
+              >
                 <TableCell className="font-medium">{w.name}</TableCell>
                 <TableCell className="text-muted-foreground">{w.address ?? '—'}</TableCell>
                 <TableCell>
@@ -116,7 +125,10 @@ export function WarehousesPage() {
                     variant="ghost"
                     size="icon"
                     aria-label={t('common.edit')}
-                    onClick={() => openEdit(w)}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      openEdit(w);
+                    }}
                   >
                     <Pencil className="h-4 w-4" />
                   </Button>

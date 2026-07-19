@@ -146,7 +146,8 @@
   "warehouses": {
     "title": "Omborlar",
     "new": "Yangi ombor",
-    "editTitle": "Omborni tahrirlash"
+    "editTitle": "Omborni tahrirlash",
+    "viewProducts": "Ombordagi mahsulotlarni ko'rish"
   },
   "suppliers": {
     "title": "Yetkazib beruvchilar",

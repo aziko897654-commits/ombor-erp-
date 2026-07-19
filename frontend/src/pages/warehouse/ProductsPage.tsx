@@ -56,12 +56,25 @@ export function ProductsPage() {
   const canEdit = user?.role === 'admin' || user?.role === 'warehouse';
   const queryClient = useQueryClient();
 
-  // deep-linked from the low-stock notification / dashboard card
+  // deep-linked from the low-stock notification / dashboard card /
+  // warehouse row click (?warehouse=id)
   const [searchParams, setSearchParams] = useSearchParams();
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(20);
   const [search, setSearch] = useState('');
-  const [warehouseId, setWarehouseId] = useState('');
+  const [warehouseId, setWarehouseId] = useState(
+    searchParams.get('warehouse') ?? '',
+  );
+
+  const changeWarehouse = (value: string) => {
+    setWarehouseId(value);
+    setPage(1);
+    // keep the URL shareable, mirroring the lowStock param
+    const next = new URLSearchParams(searchParams);
+    if (value) next.set('warehouse', value);
+    else next.delete('warehouse');
+    setSearchParams(next, { replace: true });
+  };
   const [sort, setSort] = useState<ColumnSort>({ by: 'name', dir: 'asc' });
   const [lowStockOnly, setLowStockOnly] = useState(
     searchParams.get('lowStock') === '1',
@@ -204,10 +217,7 @@ export function ProductsPage() {
             <Select
               className="w-48"
               value={warehouseId}
-              onChange={(e) => {
-                setWarehouseId(e.target.value);
-                setPage(1);
-              }}
+              onChange={(e) => changeWarehouse(e.target.value)}
             >
               <option value="">{t('common.all')} omborlar</option>
               {warehouses?.map((w) => (
@@ -255,7 +265,7 @@ export function ProductsPage() {
                       search || warehouseId || lowStockOnly
                         ? () => {
                             setSearch('');
-                            setWarehouseId('');
+                            changeWarehouse('');
                             toggleLowStock(false);
                             setPage(1);
                           }
