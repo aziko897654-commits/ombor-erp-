@@ -137,6 +137,18 @@ export const getBalanceSummary = async (params?: { from?: string; to?: string })
 export const getDebts = async () =>
   (await api.get<{ data: Debts }>('/finance/debts')).data.data;
 
+export interface DebtAgingRow {
+  customerId: number;
+  name: string;
+  d0_30: string;
+  d31_60: string;
+  d61_90: string;
+  d90plus: string;
+  total: string;
+}
+export const getDebtAging = async () =>
+  (await api.get<{ data: DebtAgingRow[] }>('/finance/debts/aging')).data.data;
+
 // --- Payments ---
 export const getPayments = async (params: {
   page?: number;

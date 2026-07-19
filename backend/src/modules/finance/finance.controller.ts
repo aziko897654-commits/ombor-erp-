@@ -31,6 +31,12 @@ export class FinanceController {
     return this.service.debts();
   }
 
+  // TASK-031: receivables aging buckets
+  @Get('debts/aging')
+  debtAging() {
+    return this.service.debtAging();
+  }
+
   @Get('transfers')
   transfers(
     @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number,

@@ -81,6 +81,70 @@ export class FinanceService {
     };
   }
 
+  /**
+   * TASK-031: receivables aging — each order's outstanding amount
+   * (total − linked in-payments − returns) bucketed by document age.
+   * Unlinked payments reduce the overall debt figure on the debts
+   * screen but cannot be attributed to a document date, so aging is
+   * an upper-bound view of how old the open documents are.
+   */
+  async debtAging() {
+    const rows = await this.prisma.$queryRaw<
+      Array<{
+        customerId: number;
+        name: string;
+        createdAt: Date;
+        outstanding: Prisma.Decimal;
+      }>
+    >(
+      Prisma.sql`SELECT o."customerId", c."name", o."createdAt",
+                        o."total"
+                          - COALESCE((SELECT SUM(p."amount") FROM "Payment" p
+                                      WHERE p."orderId" = o."id" AND p."direction" = 'in'), 0)
+                          - COALESCE((SELECT SUM(sr."total") FROM "SalesReturn" sr
+                                      WHERE sr."orderId" = o."id"), 0)
+                          AS outstanding
+                 FROM "Order" o
+                 JOIN "Customer" c ON c."id" = o."customerId"
+                 WHERE o."status" IN ('confirmed', 'shipped')`,
+    );
+
+    const now = Date.now();
+    const byCustomer = new Map<
+      number,
+      { name: string; buckets: [Prisma.Decimal, Prisma.Decimal, Prisma.Decimal, Prisma.Decimal] }
+    >();
+    for (const r of rows) {
+      const outstanding = new Prisma.Decimal(r.outstanding);
+      if (outstanding.lessThanOrEqualTo(0)) continue;
+      const days = Math.floor(
+        (now - new Date(r.createdAt).getTime()) / 86_400_000,
+      );
+      const bucket = days <= 30 ? 0 : days <= 60 ? 1 : days <= 90 ? 2 : 3;
+      const entry = byCustomer.get(r.customerId) ?? {
+        name: r.name,
+        buckets: [ZERO, ZERO, ZERO, ZERO],
+      };
+      entry.buckets[bucket] = entry.buckets[bucket].plus(outstanding);
+      byCustomer.set(r.customerId, entry);
+    }
+
+    return [...byCustomer.entries()]
+      .map(([customerId, e]) => {
+        const total = e.buckets.reduce((acc, b) => acc.plus(b), ZERO);
+        return {
+          customerId,
+          name: e.name,
+          d0_30: e.buckets[0].toString(),
+          d31_60: e.buckets[1].toString(),
+          d61_90: e.buckets[2].toString(),
+          d90plus: e.buckets[3].toString(),
+          total: total.toString(),
+        };
+      })
+      .sort((a, b) => Number(b.total) - Number(a.total));
+  }
+
   /** FR-3.7: debtors (customers) and creditors (suppliers), desc by debt. */
   async debts() {
     const [debtors, creditors] = await Promise.all([

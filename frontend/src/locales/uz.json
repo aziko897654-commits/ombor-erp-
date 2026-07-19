@@ -341,7 +341,10 @@
     "title": "Qarzdorlik",
     "debtors": "Qarzdor mijozlar (debitor)",
     "creditors": "Yetkazib beruvchilarga qarz (kreditor)",
-    "debt": "Qarz"
+    "debt": "Qarz",
+    "name": "Mijoz",
+    "agingTitle": "Qarzdorlik muddati (aging)",
+    "agingHint": "Ochiq hujjatlar yoshi bo'yicha, kunlarda. Bog'lanmagan to'lovlar umumiy qarzni kamaytiradi, lekin hujjat sanasiga taqsimlanmaydi."
   },
   "invoices": {
     "title": "Hisob-fakturalar",
