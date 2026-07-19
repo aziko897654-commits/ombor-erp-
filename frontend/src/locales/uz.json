@@ -148,7 +148,9 @@
     "title": "Omborlar",
     "new": "Yangi ombor",
     "editTitle": "Omborni tahrirlash",
-    "viewProducts": "Ombordagi mahsulotlarni ko'rish"
+    "viewProducts": "Ombordagi mahsulotlarni ko'rish",
+    "productCount": "Mahsulot turlari",
+    "totalQty": "Umumiy miqdor"
   },
   "suppliers": {
     "title": "Yetkazib beruvchilar",

@@ -21,7 +21,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { apiErrorMessage } from '@/lib/format';
+import { apiErrorMessage, formatQty } from '@/lib/format';
 import { t } from '@/lib/i18n';
 
 export function WarehousesPage() {
@@ -88,6 +88,9 @@ export function WarehousesPage() {
             <TableHead className="text-right">
               {t('warehouses.productCount')}
             </TableHead>
+            <TableHead className="text-right">
+              {t('warehouses.totalQty')}
+            </TableHead>
             <TableHead>{t('common.status')}</TableHead>
             <TableHead className="w-16">{t('common.actions')}</TableHead>
           </TableRow>
@@ -95,13 +98,13 @@ export function WarehousesPage() {
         <TableBody>
           {isLoading ? (
             <TableRow>
-              <TableCell colSpan={4} className="py-8 text-center text-muted-foreground">
+              <TableCell colSpan={6} className="py-8 text-center text-muted-foreground">
                 {t('common.loading')}
               </TableCell>
             </TableRow>
           ) : (warehouses?.length ?? 0) === 0 ? (
             <TableRow>
-              <TableCell colSpan={4} className="py-8 text-center text-muted-foreground">
+              <TableCell colSpan={6} className="py-8 text-center text-muted-foreground">
                 {t('common.noData')}
               </TableCell>
             </TableRow>
@@ -119,6 +122,9 @@ export function WarehousesPage() {
                 <TableCell className="text-muted-foreground">{w.address ?? '—'}</TableCell>
                 <TableCell className="text-right font-medium">
                   {w.productCount ?? 0} ta
+                </TableCell>
+                <TableCell className="text-right font-medium">
+                  {formatQty(w.totalQty ?? 0)} dona
                 </TableCell>
                 <TableCell>
                   <StatusBadge

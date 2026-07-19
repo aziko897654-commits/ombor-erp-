@@ -17,20 +17,28 @@ export class WarehousesService {
         where: includeInactive ? {} : { isActive: true },
         orderBy: { id: 'asc' },
       }),
-      // how many distinct products are actually stocked per warehouse
-      this.prisma.$queryRaw<Array<{ warehouseId: number; count: bigint }>>(
-        Prisma.sql`SELECT "warehouseId", COUNT(*) AS count FROM (
+      // distinct stocked products + total units per warehouse
+      this.prisma.$queryRaw<
+        Array<{ warehouseId: number; count: bigint; totalQty: Prisma.Decimal }>
+      >(
+        Prisma.sql`SELECT "warehouseId", COUNT(*) AS count,
+                          SUM(qty) AS "totalQty"
+                   FROM (
                      SELECT "warehouseId", "productId", SUM("quantity") AS qty
                      FROM "StockMovement"
                      GROUP BY "warehouseId", "productId"
                    ) t WHERE qty > 0 GROUP BY "warehouseId"`,
       ),
     ]);
-    const countById = new Map(counts.map((c) => [c.warehouseId, Number(c.count)]));
-    return warehouses.map((w) => ({
-      ...w,
-      productCount: countById.get(w.id) ?? 0,
-    }));
+    const byId = new Map(counts.map((c) => [c.warehouseId, c]));
+    return warehouses.map((w) => {
+      const c = byId.get(w.id);
+      return {
+        ...w,
+        productCount: c ? Number(c.count) : 0,
+        totalQty: c ? new Prisma.Decimal(c.totalQty).toString() : '0',
+      };
+    });
   }
 
   async create(dto: CreateWarehouseDto) {

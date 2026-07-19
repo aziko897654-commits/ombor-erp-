@@ -13,6 +13,8 @@ export interface Warehouse {
   isActive: boolean;
   /** distinct products with stock > 0 in this warehouse */
   productCount?: number;
+  /** total units across all stocked products */
+  totalQty?: string;
 }
 
 export interface Category {
