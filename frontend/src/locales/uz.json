@@ -129,6 +129,7 @@
     "stockByWarehouse": "Ombor kesimida qoldiq",
     "lowStock": "Kam zaxira",
     "lowStockOnly": "Faqat kam zaxira",
+    "warehousesCol": "Omborlar",
     "movements": "Harakatlar tarixi",
     "writeoff": "Chiqim (write-off)",
     "writeoffReason": "Sabab (brak, yo'qolish...)",

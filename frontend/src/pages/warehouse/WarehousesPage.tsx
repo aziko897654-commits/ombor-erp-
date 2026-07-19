@@ -85,6 +85,9 @@ export function WarehousesPage() {
           <TableRow>
             <TableHead>{t('common.name')}</TableHead>
             <TableHead>{t('common.address')}</TableHead>
+            <TableHead className="text-right">
+              {t('warehouses.productCount')}
+            </TableHead>
             <TableHead>{t('common.status')}</TableHead>
             <TableHead className="w-16">{t('common.actions')}</TableHead>
           </TableRow>
@@ -114,6 +117,9 @@ export function WarehousesPage() {
               >
                 <TableCell className="font-medium">{w.name}</TableCell>
                 <TableCell className="text-muted-foreground">{w.address ?? '—'}</TableCell>
+                <TableCell className="text-right font-medium">
+                  {w.productCount ?? 0} ta
+                </TableCell>
                 <TableCell>
                   <StatusBadge
                     status={w.isActive ? 'active' : 'inactive'}

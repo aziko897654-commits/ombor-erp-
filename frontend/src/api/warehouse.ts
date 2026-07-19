@@ -11,6 +11,8 @@ export interface Warehouse {
   name: string;
   address?: string | null;
   isActive: boolean;
+  /** distinct products with stock > 0 in this warehouse */
+  productCount?: number;
 }
 
 export interface Category {
@@ -39,6 +41,8 @@ export interface Product {
     warehouseName: string;
     stock: string;
   }>;
+  /** list view: warehouses where this product has stock > 0 */
+  warehouses?: Array<{ warehouseId: number; name: string; qty: string }>;
 }
 
 export interface StockMovementRow {

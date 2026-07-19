@@ -26,8 +26,22 @@ export class ProductsService {
   }) {
     const { page, limit, search, warehouseId, includeInactive, sort, sortBy } =
       params;
+
+    // warehouse view lists only products actually stocked there
+    const stockedIds = warehouseId
+      ? (
+          await this.prisma.$queryRaw<Array<{ productId: number }>>(
+            Prisma.sql`SELECT "productId" FROM "StockMovement"
+                       WHERE "warehouseId" = ${warehouseId}
+                       GROUP BY "productId"
+                       HAVING SUM("quantity") > 0`,
+          )
+        ).map((r) => r.productId)
+      : null;
+
     const where: Prisma.ProductWhereInput = {
       ...(includeInactive ? {} : { isActive: true }),
+      ...(stockedIds ? { id: { in: stockedIds } } : {}),
       ...(search
         ? {
             OR: [
@@ -65,15 +79,48 @@ export class ProductsService {
       this.prisma.product.count({ where }),
     ]);
 
-    const stockMap = await this.stock.getStockMap(
-      products.map((p) => p.id),
-      warehouseId,
-    );
+    const ids = products.map((p) => p.id);
+    const stockMap = await this.stock.getStockMap(ids, warehouseId);
+
+    // per-warehouse breakdown so the list shows where each product sits
+    const breakdown = ids.length
+      ? await this.prisma.$queryRaw<
+          Array<{
+            productId: number;
+            warehouseId: number;
+            name: string;
+            qty: Prisma.Decimal;
+          }>
+        >(
+          Prisma.sql`SELECT m."productId", m."warehouseId", w."name",
+                            SUM(m."quantity") AS qty
+                     FROM "StockMovement" m
+                     JOIN "Warehouse" w ON w."id" = m."warehouseId"
+                     WHERE m."productId" IN (${Prisma.join(ids)})
+                     GROUP BY m."productId", m."warehouseId", w."name"
+                     HAVING SUM(m."quantity") > 0
+                     ORDER BY m."warehouseId"`,
+        )
+      : [];
+    const byProduct = new Map<
+      number,
+      Array<{ warehouseId: number; name: string; qty: string }>
+    >();
+    for (const b of breakdown) {
+      const list = byProduct.get(b.productId) ?? [];
+      list.push({
+        warehouseId: b.warehouseId,
+        name: b.name,
+        qty: new Prisma.Decimal(b.qty).toString(),
+      });
+      byProduct.set(b.productId, list);
+    }
 
     return {
       data: products.map((p) => ({
         ...p,
         stock: (stockMap.get(p.id) ?? new Prisma.Decimal(0)).toString(),
+        warehouses: byProduct.get(p.id) ?? [],
       })),
       meta: { page, limit, total },
     };

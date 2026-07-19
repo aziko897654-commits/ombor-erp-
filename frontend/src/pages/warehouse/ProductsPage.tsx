@@ -247,6 +247,7 @@ export function ProductsPage() {
               <th className="px-3 py-2.5"><SortBtn label={t('products.sku')} k="sku" sort={sort} onSort={onSort} /></th>
               <th className="px-3 py-2.5"><SortBtn label={t('products.category')} k="category" sort={sort} onSort={onSort} /></th>
               <th className="px-3 py-2.5">{t('products.unit')}</th>
+              <th className="px-3 py-2.5">{t('products.warehousesCol')}</th>
               <th className="px-3 py-2.5 text-right">{t('products.stock')}</th>
               <th className="px-3 py-2.5 text-right"><SortBtn label={t('products.avgCost')} k="avgCost" sort={sort} onSort={onSort} /></th>
               <th className="px-3 py-2.5 text-right"><SortBtn label={t('products.salePrice')} k="salePrice" sort={sort} onSort={onSort} /></th>
@@ -255,10 +256,10 @@ export function ProductsPage() {
           </thead>
           <tbody>
             {isLoading && !lowStockOnly ? (
-              <TableSkeleton rows={8} cols={8} />
+              <TableSkeleton rows={8} cols={9} />
             ) : rows.length === 0 ? (
               <tr>
-                <td colSpan={8} className="p-0">
+                <td colSpan={9} className="p-0">
                   <EmptyState
                     filtered={!!search || !!warehouseId || lowStockOnly}
                     onAction={
@@ -297,6 +298,16 @@ export function ProductsPage() {
                     <td className="px-3 py-2.5 text-muted-foreground">{p.sku}</td>
                     <td className="px-3 py-2.5">{p.category?.name}</td>
                     <td className="px-3 py-2.5">{p.unit}</td>
+                    <td className="px-3 py-2.5 text-xs text-muted-foreground">
+                      {p.warehouses?.length
+                        ? p.warehouses.map((w, i) => (
+                            <span key={w.warehouseId} className="whitespace-nowrap">
+                              {i > 0 && <br />}
+                              {w.name}: {formatQty(w.qty)}
+                            </span>
+                          ))
+                        : '—'}
+                    </td>
                     <td className="px-3 py-2.5 text-right">
                       <span className={low ? 'font-semibold text-destructive' : ''}>
                         {formatQty(p.stock ?? 0)}

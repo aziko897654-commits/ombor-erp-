@@ -3,6 +3,7 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
+import { Prisma } from '@prisma/client';
 import { PrismaService } from '../../common/prisma/prisma.service';
 import { CreateWarehouseDto, UpdateWarehouseDto } from './dto/warehouse.dto';
 
@@ -10,11 +11,26 @@ import { CreateWarehouseDto, UpdateWarehouseDto } from './dto/warehouse.dto';
 export class WarehousesService {
   constructor(private readonly prisma: PrismaService) {}
 
-  findAll(includeInactive = false) {
-    return this.prisma.warehouse.findMany({
-      where: includeInactive ? {} : { isActive: true },
-      orderBy: { id: 'asc' },
-    });
+  async findAll(includeInactive = false) {
+    const [warehouses, counts] = await Promise.all([
+      this.prisma.warehouse.findMany({
+        where: includeInactive ? {} : { isActive: true },
+        orderBy: { id: 'asc' },
+      }),
+      // how many distinct products are actually stocked per warehouse
+      this.prisma.$queryRaw<Array<{ warehouseId: number; count: bigint }>>(
+        Prisma.sql`SELECT "warehouseId", COUNT(*) AS count FROM (
+                     SELECT "warehouseId", "productId", SUM("quantity") AS qty
+                     FROM "StockMovement"
+                     GROUP BY "warehouseId", "productId"
+                   ) t WHERE qty > 0 GROUP BY "warehouseId"`,
+      ),
+    ]);
+    const countById = new Map(counts.map((c) => [c.warehouseId, Number(c.count)]));
+    return warehouses.map((w) => ({
+      ...w,
+      productCount: countById.get(w.id) ?? 0,
+    }));
   }
 
   async create(dto: CreateWarehouseDto) {
