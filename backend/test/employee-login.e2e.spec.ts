@@ -96,6 +96,13 @@ describe('employee login provisioning e2e', () => {
   });
 
   afterAll(async () => {
+    // never clean up after an incomplete setup: undefined ids collapse
+    // Prisma filters into table-wide deletes
+    if (!employeeId || !otherEmployeeId) {
+      await prisma.$disconnect();
+      await app?.close();
+      return;
+    }
     const ids = [employeeId, otherEmployeeId];
     // a company-wide payroll could reference these employees; clear
     // dependents before deleting them

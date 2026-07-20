@@ -102,6 +102,13 @@ describe('order lifecycle e2e', () => {
   });
 
   afterAll(async () => {
+    // guard: undefined customerId would collapse the filter and wipe
+    // whole tables
+    if (!customerId) {
+      await prisma.$disconnect();
+      await app?.close();
+      return;
+    }
     await prisma.salesReturnItem.deleteMany({
       where: { salesReturn: { order: { customerId } } },
     });

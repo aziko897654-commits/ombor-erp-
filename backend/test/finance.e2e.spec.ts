@@ -149,6 +149,13 @@ describe('finance contour e2e', () => {
   });
 
   afterAll(async () => {
+    // never clean up after an incomplete setup: undefined ids collapse
+    // Prisma filters into table-wide deletes
+    if (!accountAId || !accountBId || !customerId || !supplierId) {
+      await prisma.$disconnect();
+      await app?.close();
+      return;
+    }
     const accountIds = [accountAId, accountBId];
     await prisma.transaction.deleteMany({
       where: { accountId: { in: accountIds } },
@@ -317,6 +324,26 @@ describe('finance contour e2e', () => {
     );
     expect(Number(creditorBefore?.debt)).toBe(50000);
 
+    // TASK-001: money-out is blocked when the account would go
+    // negative, so fund account B before paying the supplier
+    const incomeCat = await prisma.txCategory.findFirstOrThrow({
+      where: { type: 'income' },
+    });
+    const admin = await prisma.user.findFirstOrThrow({
+      where: { role: 'admin' },
+    });
+    await prisma.transaction.create({
+      data: {
+        accountId: accountBId,
+        type: 'income',
+        amount: new Prisma.Decimal(30000),
+        categoryId: incomeCat.id,
+        source: 'manual',
+        note: 'test funding',
+        userId: admin.id,
+      },
+    });
+
     await request(server())
       .post('/api/v1/payments')
       .set(auth())
@@ -374,8 +401,10 @@ describe('finance contour e2e', () => {
       .get('/api/v1/finance/balance')
       .set(auth())
       .expect(200);
+    // TASK-001: B was funded 30 000 and paid out 30 000 (net 0), the
+    // 5 000 transfer lands on top of that
     expect(Number(await accountBalance(accountAId))).toBe(15000);
-    expect(Number(await accountBalance(accountBId))).toBe(-25000);
+    expect(Number(await accountBalance(accountBId))).toBe(5000);
     // income/expense KPIs unchanged (invariant 9)
     expect(after.body.data.flow).toEqual(flowBefore);
 

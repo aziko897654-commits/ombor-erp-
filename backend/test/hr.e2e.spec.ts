@@ -67,6 +67,14 @@ describe('hr contour e2e', () => {
   });
 
   afterAll(async () => {
+    // if beforeAll failed, ids are undefined and Prisma would treat
+    // `where: { accountId: undefined }` as "no filter" — wiping whole
+    // tables. Never clean up after an incomplete setup.
+    if (!token || !accountId) {
+      await prisma.$disconnect();
+      await app?.close();
+      return;
+    }
     await prisma.transaction.deleteMany({ where: { accountId } });
     await prisma.payrollItem.deleteMany({
       where: { payroll: { month: { in: [month1, month2] } } },
@@ -133,7 +141,10 @@ describe('hr contour e2e', () => {
   });
 
   it('attendance: set, toggle, clear (FR-4.3)', async () => {
-    const date = `${year}-03-05`;
+    // TASK-015: attendance rejects pre-hire and future dates, so the
+    // grid checks use a real past month (employee A hired 2026-01-10)
+    const attMonth = '2026-03';
+    const date = `${attMonth}-05`;
     await request(server())
       .post('/api/v1/attendance')
       .set(auth())
@@ -147,7 +158,7 @@ describe('hr contour e2e', () => {
       .expect(201);
 
     const grid = await request(server())
-      .get(`/api/v1/attendance?month=${month1}`)
+      .get(`/api/v1/attendance?month=${attMonth}`)
       .set(auth())
       .expect(200);
     const entry = grid.body.data.entries.find(
@@ -161,12 +172,24 @@ describe('hr contour e2e', () => {
       .send({ employeeId: employeeAId, date, status: 'clear' })
       .expect(201);
     const after = await request(server())
-      .get(`/api/v1/attendance?month=${month1}`)
+      .get(`/api/v1/attendance?month=${attMonth}`)
       .set(auth())
       .expect(200);
     expect(
       after.body.data.entries.some((e: any) => e.employeeId === employeeAId),
     ).toBe(false);
+
+    // TASK-015: future and pre-hire dates are rejected
+    await request(server())
+      .post('/api/v1/attendance')
+      .set(auth())
+      .send({ employeeId: employeeAId, date: `${year}-03-05`, status: 'present' })
+      .expect(400);
+    await request(server())
+      .post('/api/v1/attendance')
+      .set(auth())
+      .send({ employeeId: employeeAId, date: '2026-01-05', status: 'present' })
+      .expect(400);
   });
 
   it('advance creates a source=advance expense transaction (FR-4.4)', async () => {

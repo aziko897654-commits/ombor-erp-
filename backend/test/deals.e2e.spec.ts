@@ -53,6 +53,13 @@ describe('deals e2e', () => {
   });
 
   afterAll(async () => {
+    // guard: undefined customerId would collapse the filter and wipe
+    // every deal in the table
+    if (!customerId) {
+      await prisma.$disconnect();
+      await app?.close();
+      return;
+    }
     await prisma.deal.deleteMany({ where: { customerId } });
     await prisma.customer.delete({ where: { id: customerId } });
     await prisma.$disconnect();
