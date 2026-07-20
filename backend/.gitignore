@@ -1,0 +1,28 @@
+# Environment
+.env
+.env.local
+.env.production
+
+# Dependencies
+node_modules/
+
+# Build
+dist/
+*.tsbuildinfo
+
+# Prisma
+prisma/migrations/dev/
+
+# Uploads (foydalanuvchi yuklagan fayllar - serverga tegishli, Git'ga kerak emas)
+uploads/
+
+# Logs
+*.log
+npm-debug.log*
+
+# IDE
+.vscode/
+.DS_Store
+
+# Test
+coverage/
