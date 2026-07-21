@@ -25,6 +25,7 @@ import { CategoriesDialog } from '@/pages/warehouse/CategoriesDialog';
 import { Pagination } from '@/components/Pagination';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { CategoryBadge } from '@/components/ui/category-badge';
 import { Dialog } from '@/components/ui/dialog';
 import { EmptyState } from '@/components/ui/empty-state';
 import { ExportMenu } from '@/components/ui/export-menu';
@@ -296,7 +297,9 @@ export function ProductsPage() {
                       )}
                     </td>
                     <td className="px-3 py-2.5 text-muted-foreground">{p.sku}</td>
-                    <td className="px-3 py-2.5">{p.category?.name}</td>
+                    <td className="px-3 py-2.5">
+                      <CategoryBadge name={p.category?.name} />
+                    </td>
                     <td className="px-3 py-2.5">{p.unit}</td>
                     <td className="px-3 py-2.5 text-xs text-muted-foreground">
                       {p.warehouses?.length
