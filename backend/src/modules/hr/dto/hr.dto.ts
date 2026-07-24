@@ -2,6 +2,7 @@ import { AttendanceStatus, EmployeeStatus, Role } from '@prisma/client';
 import { Type } from 'class-transformer';
 import {
   IsArray,
+  IsBoolean,
   IsDateString,
   IsEnum,
   IsIn,
@@ -149,6 +150,11 @@ export class CreateAdvanceDto {
   @IsOptional()
   @IsString()
   note?: string;
+
+  // TASK-001: allowed through after the negative-balance confirm dialog
+  @IsOptional()
+  @IsBoolean()
+  force?: boolean;
 }
 
 export class PayrollItemInputDto {
@@ -180,4 +186,9 @@ export class CreatePayrollDto {
   @ValidateNested({ each: true })
   @Type(() => PayrollItemInputDto)
   items?: PayrollItemInputDto[];
+
+  // TASK-001: allowed through after the negative-balance confirm dialog
+  @IsOptional()
+  @IsBoolean()
+  force?: boolean;
 }

@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { FinanceModule } from '../finance/finance.module';
 import { NotificationsModule } from '../notifications/notifications.module';
 import { AdvancesController } from './advances.controller';
 import { AdvancesService } from './advances.service';
@@ -15,7 +16,7 @@ import { PayrollController } from './payroll.controller';
 import { PayrollService } from './payroll.service';
 
 @Module({
-  imports: [NotificationsModule],
+  imports: [NotificationsModule, FinanceModule],
   controllers: [
     DepartmentsController,
     PositionsController,

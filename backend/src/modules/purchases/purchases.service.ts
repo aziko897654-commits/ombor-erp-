@@ -112,7 +112,13 @@ export class PurchasesService {
         },
       });
 
-      for (const item of dto.items) {
+      // acquire the per-product AVCO locks in a stable order (by
+      // productId) so two concurrent purchases sharing products in a
+      // different line order cannot deadlock each other
+      const orderedItems = [...dto.items].sort(
+        (a, b) => a.productId - b.productId,
+      );
+      for (const item of orderedItems) {
         const qty = new Prisma.Decimal(item.quantity);
         const price = new Prisma.Decimal(item.costPrice);
 

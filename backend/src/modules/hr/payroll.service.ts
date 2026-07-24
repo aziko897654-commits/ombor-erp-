@@ -7,6 +7,7 @@ import {
 import { Prisma } from '@prisma/client';
 import { AuditService } from '../../common/audit/audit.service';
 import { PrismaService } from '../../common/prisma/prisma.service';
+import { AccountsService } from '../finance/accounts.service';
 import { resolveCategory } from '../finance/categories.util';
 import { NotificationsService } from '../notifications/notifications.service';
 import { CreatePayrollDto } from './dto/hr.dto';
@@ -25,6 +26,7 @@ export class PayrollService {
     private readonly prisma: PrismaService,
     private readonly audit: AuditService,
     private readonly notifications: NotificationsService,
+    private readonly accounts: AccountsService,
   ) {}
 
   async findAll(page: number, limit: number, sort?: 'asc' | 'desc') {
@@ -116,6 +118,15 @@ export class PayrollService {
 
     const payroll = await this.prisma
       .$transaction(async (tx) => {
+        // TASK-001: the payroll expense must respect the same
+        // negative-balance policy as every other money-out operation
+        await this.accounts.assertCanSpend(
+          tx,
+          dto.accountId,
+          total,
+          dto.force ?? false,
+        );
+
         const created = await tx.payroll.create({
           data: {
             month: dto.month,

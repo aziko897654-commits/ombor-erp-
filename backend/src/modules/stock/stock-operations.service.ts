@@ -126,6 +126,11 @@ export class StockOperationsService {
       where: { id: { in: [dto.fromWarehouseId, dto.toWarehouseId] } },
     });
     if (warehouses.length !== 2) throw new NotFoundException('Ombor topilmadi');
+    // stock must not move through a deactivated warehouse (NFR-9
+    // soft-delete), matching the isActive checks in orders/purchases
+    if (warehouses.some((w) => !w.isActive)) {
+      throw new BadRequestException('Faol bo\'lmagan ombor bilan ko\'chirish mumkin emas');
+    }
 
     const productIds = dto.items.map((i) => i.productId);
     if (new Set(productIds).size !== productIds.length) {

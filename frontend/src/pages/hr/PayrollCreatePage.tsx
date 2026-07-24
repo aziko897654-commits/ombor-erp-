@@ -19,6 +19,7 @@ import {
 } from '@/components/ui/table';
 import { confirmDialog } from '@/lib/confirm';
 import { apiErrorMessage, formatMoney } from '@/lib/format';
+import { submitWithBalanceConfirm } from '@/lib/negative-balance';
 import { t } from '@/lib/i18n';
 import { cn } from '@/lib/utils';
 
@@ -56,7 +57,10 @@ export function PayrollCreatePage() {
   });
 
   const mutation = useMutation({
-    mutationFn: createPayroll,
+    mutationFn: (body: Record<string, unknown>) =>
+      // TASK-001: the payroll expense can overdraw the account — same
+      // negative-balance confirm flow as expenses/payments/transfers
+      submitWithBalanceConfirm((force) => createPayroll({ ...body, force })),
     onSuccess: (payroll) => {
       queryClient.invalidateQueries({ queryKey: ['payroll'] });
       queryClient.invalidateQueries({ queryKey: ['transactions'] });

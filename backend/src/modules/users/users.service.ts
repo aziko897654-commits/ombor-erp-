@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   ConflictException,
   Injectable,
   NotFoundException,
@@ -80,6 +81,30 @@ export class UsersService {
         throw new ConflictException('Bu email allaqachon ro\'yxatdan o\'tgan');
       }
     }
+
+    // guard against locking everyone out of user management: the acting
+    // admin may not deactivate or demote themselves, and the last active
+    // admin may not be deactivated/demoted by anyone (only admins can
+    // reach this endpoint, so there would be no way back in-app)
+    const losesAdmin =
+      (dto.role !== undefined && dto.role !== 'admin') ||
+      dto.isActive === false;
+    if (user.role === 'admin' && losesAdmin) {
+      if (id === actorId) {
+        throw new BadRequestException(
+          "O'z hisobingizni faolsizlantirib yoki admin rolini olib tashlab bo'lmaydi",
+        );
+      }
+      const activeAdmins = await this.prisma.user.count({
+        where: { role: 'admin', isActive: true },
+      });
+      if (activeAdmins <= 1) {
+        throw new BadRequestException(
+          "Tizimda kamida bitta faol administrator qolishi shart",
+        );
+      }
+    }
+
     const { password, ...fields } = dto;
     const updated = await this.prisma.user.update({
       where: { id },

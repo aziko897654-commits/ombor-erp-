@@ -247,6 +247,20 @@ export class OrdersService {
     }
 
     await this.prisma.$transaction(async (tx) => {
+      // serialize against a concurrent confirm/cancel and re-check the
+      // status under the lock, so a double-submit can't deduct stock
+      // twice for one order (same lock key PaymentsService/cancel use)
+      await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtext(${`pay-order-${id}`}))`;
+      const fresh = await tx.order.findUnique({
+        where: { id },
+        select: { status: true },
+      });
+      if (fresh?.status !== 'draft') {
+        throw new BadRequestException(
+          "Faqat qoralama (draft) buyurtma tasdiqlanadi",
+        );
+      }
+
       for (const item of order.items) {
         await this.stock.createOutflow(tx, {
           productId: item.productId,
@@ -318,6 +332,17 @@ export class OrdersService {
       // a concurrent payment, then re-checks under the lock
       const lockKey = `pay-order-${id}`;
       await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtext(${lockKey}))`;
+      // re-check status under the lock too: a concurrent cancel may have
+      // already reverted the stock, otherwise we'd double the inflows
+      const fresh = await tx.order.findUnique({
+        where: { id },
+        select: { status: true },
+      });
+      if (fresh?.status !== 'confirmed') {
+        throw new BadRequestException(
+          'Faqat tasdiqlangan (confirmed) buyurtma bekor qilinadi (FR-1.6)',
+        );
+      }
       const paymentsCount = await tx.payment.count({ where: { orderId: id } });
       if (paymentsCount > 0) {
         throw new BadRequestException(

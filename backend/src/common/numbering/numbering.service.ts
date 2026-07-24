@@ -35,9 +35,14 @@ export class NumberingService {
     await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtext(${key}))`;
 
     const delegate = (tx as any)[model];
+    // order by id, not the number string: the padded suffix sorts
+    // lexicographically ("...-9999" > "...-10000"), which would wedge the
+    // series at the 10 000th document of a year. Within one prefix+year
+    // the sequence and the autoincrement id both grow monotonically with
+    // insertion, so the largest id carries the largest sequence.
     const last = await delegate.findFirst({
       where: { number: { startsWith: `${key}-` } },
-      orderBy: { number: 'desc' },
+      orderBy: { id: 'desc' },
       select: { number: true },
     });
 

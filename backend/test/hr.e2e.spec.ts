@@ -61,7 +61,14 @@ describe('hr contour e2e', () => {
 
     accountId = (
       await prisma.account.create({
-        data: { name: `hr-acc-${suffix}`, type: 'cash' },
+        // funded up front: advances and payroll are money-out operations
+        // and now respect the negative-balance guard (TASK-001), so the
+        // account must hold enough to cover the sheet + advances
+        data: {
+          name: `hr-acc-${suffix}`,
+          type: 'cash',
+          openingBalance: 100_000_000,
+        },
       })
     ).id;
   });
@@ -288,6 +295,26 @@ describe('hr contour e2e', () => {
     const ids = res.body.data.items.map((i: any) => i.employeeId);
     expect(ids).toContain(employeeAId);
     expect(ids).not.toContain(employeeBId);
+  });
+
+  it('payroll is blocked when the account cannot cover it (TASK-001)', async () => {
+    // a fresh zero-balance account: the salary expense would overdraw it,
+    // and with allowNegativeBalance off that must be rejected outright
+    const brokeAccount = await prisma.account.create({
+      data: { name: `hr-broke-${suffix}`, type: 'cash' },
+    });
+    const res = await request(server())
+      .post('/api/v1/payroll')
+      .set(auth())
+      .send({ month: `${year}-05`, accountId: brokeAccount.id })
+      .expect(400);
+    expect(String(res.body.message)).toContain('yetarli emas');
+    // nothing was booked
+    const created = await prisma.payroll.findUnique({
+      where: { month: `${year}-05` },
+    });
+    expect(created).toBeNull();
+    await prisma.account.delete({ where: { id: brokeAccount.id } });
   });
 
   it('roles: accountant reads a payroll, sales gets 403', async () => {

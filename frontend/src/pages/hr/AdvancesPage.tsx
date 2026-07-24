@@ -21,6 +21,7 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { apiErrorMessage, formatDate, formatMoney } from '@/lib/format';
+import { submitWithBalanceConfirm } from '@/lib/negative-balance';
 import { t } from '@/lib/i18n';
 
 const emptyForm = { employeeId: '', accountId: '', amount: '', date: '', note: '' };
@@ -50,7 +51,10 @@ export function AdvancesPage() {
   });
 
   const mutation = useMutation({
-    mutationFn: createAdvance,
+    mutationFn: (body: Record<string, unknown>) =>
+      // TASK-001: an advance can overdraw the account — same
+      // negative-balance confirm flow as expenses/payments/transfers
+      submitWithBalanceConfirm((force) => createAdvance({ ...body, force })),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['advances'] });
       queryClient.invalidateQueries({ queryKey: ['transactions'] });

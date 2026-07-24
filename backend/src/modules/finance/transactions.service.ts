@@ -112,7 +112,7 @@ export class TransactionsService {
           dto.force ?? false,
         );
       }
-      return tx.transaction.create({
+      const tx0 = await tx.transaction.create({
         data: {
           type: dto.type,
           accountId: dto.accountId,
@@ -125,6 +125,25 @@ export class TransactionsService {
         },
         include: TX_INCLUDE,
       });
+
+      // NFR-5: manual money movement is audited on creation too, symmetric
+      // with its deletion and with every other money operation
+      await this.audit.log(
+        {
+          userId,
+          action: 'transaction.create',
+          entity: 'Transaction',
+          entityId: tx0.id,
+          details: {
+            type: dto.type,
+            amount: amount.toString(),
+            categoryId: dto.categoryId,
+          },
+        },
+        tx,
+      );
+
+      return tx0;
     });
     return created;
   }

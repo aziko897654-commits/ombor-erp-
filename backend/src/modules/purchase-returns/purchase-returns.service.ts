@@ -71,6 +71,13 @@ export class PurchaseReturnsService {
    * must not exceed (purchased − previously returned) (invariant 7).
    */
   async create(dto: CreatePurchaseReturnDto, userId: number) {
+    const productIds = dto.items.map((i) => i.productId);
+    if (new Set(productIds).size !== productIds.length) {
+      throw new BadRequestException(
+        'Bitta mahsulot hujjatda faqat bir marta kelishi mumkin',
+      );
+    }
+
     const purchase = await this.prisma.purchase.findUnique({
       where: { id: dto.purchaseId },
       include: { items: true },
@@ -81,37 +88,44 @@ export class PurchaseReturnsService {
       purchase.items.map((i) => [i.productId, i]),
     );
 
-    // previously returned per product for this purchase
-    const previous = await this.prisma.purchaseReturnItem.groupBy({
-      by: ['productId'],
-      where: { purchaseReturn: { purchaseId: dto.purchaseId } },
-      _sum: { quantity: true },
-    });
-    const returnedByProduct = new Map(
-      previous.map((r) => [r.productId, r._sum.quantity ?? new Prisma.Decimal(0)]),
-    );
-
-    let total = new Prisma.Decimal(0);
-    for (const item of dto.items) {
-      const purchased = purchasedByProduct.get(item.productId);
-      if (!purchased) {
-        throw new BadRequestException(
-          `Mahsulot (id=${item.productId}) bu xarid hujjatida yo'q`,
-        );
-      }
-      const alreadyReturned =
-        returnedByProduct.get(item.productId) ?? new Prisma.Decimal(0);
-      const available = purchased.quantity.minus(alreadyReturned);
-      const qty = new Prisma.Decimal(item.quantity);
-      if (qty.greaterThan(available)) {
-        throw new BadRequestException(
-          `Qaytarish miqdori oshib ketdi: olingan ${purchased.quantity}, avval qaytarilgan ${alreadyReturned}, mumkin ${available}`,
-        );
-      }
-      total = total.plus(qty.times(purchased.costPrice));
-    }
-
     const created = await this.prisma.$transaction(async (tx) => {
+      // serialize concurrent returns of the same purchase so the
+      // "returned <= purchased" invariant (7) is re-checked under the lock
+      await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtext(${`return-purchase-${dto.purchaseId}`}))`;
+
+      // previously returned per product for this purchase
+      const previous = await tx.purchaseReturnItem.groupBy({
+        by: ['productId'],
+        where: { purchaseReturn: { purchaseId: dto.purchaseId } },
+        _sum: { quantity: true },
+      });
+      const returnedByProduct = new Map(
+        previous.map((r) => [
+          r.productId,
+          r._sum.quantity ?? new Prisma.Decimal(0),
+        ]),
+      );
+
+      let total = new Prisma.Decimal(0);
+      for (const item of dto.items) {
+        const purchased = purchasedByProduct.get(item.productId);
+        if (!purchased) {
+          throw new BadRequestException(
+            `Mahsulot (id=${item.productId}) bu xarid hujjatida yo'q`,
+          );
+        }
+        const alreadyReturned =
+          returnedByProduct.get(item.productId) ?? new Prisma.Decimal(0);
+        const available = purchased.quantity.minus(alreadyReturned);
+        const qty = new Prisma.Decimal(item.quantity);
+        if (qty.greaterThan(available)) {
+          throw new BadRequestException(
+            `Qaytarish miqdori oshib ketdi: olingan ${purchased.quantity}, avval qaytarilgan ${alreadyReturned}, mumkin ${available}`,
+          );
+        }
+        total = total.plus(qty.times(purchased.costPrice));
+      }
+
       const number = await this.numbering.next(tx, 'purchaseReturn');
       const ret = await tx.purchaseReturn.create({
         data: {

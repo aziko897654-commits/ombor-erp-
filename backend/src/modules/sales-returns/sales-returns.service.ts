@@ -74,6 +74,13 @@ export class SalesReturnsService {
    * stage 3 (FR-3.6 out+customer).
    */
   async create(dto: CreateSalesReturnDto, userId: number) {
+    const productIds = dto.items.map((i) => i.productId);
+    if (new Set(productIds).size !== productIds.length) {
+      throw new BadRequestException(
+        'Bitta mahsulot hujjatda faqat bir marta kelishi mumkin',
+      );
+    }
+
     const order = await this.prisma.order.findUnique({
       where: { id: dto.orderId },
       include: { items: true },
@@ -87,39 +94,44 @@ export class SalesReturnsService {
 
     const soldByProduct = new Map(order.items.map((i) => [i.productId, i]));
 
-    const previous = await this.prisma.salesReturnItem.groupBy({
-      by: ['productId'],
-      where: { salesReturn: { orderId: dto.orderId } },
-      _sum: { quantity: true },
-    });
-    const returnedByProduct = new Map(
-      previous.map((r) => [
-        r.productId,
-        r._sum.quantity ?? new Prisma.Decimal(0),
-      ]),
-    );
-
-    let total = new Prisma.Decimal(0);
-    for (const item of dto.items) {
-      const sold = soldByProduct.get(item.productId);
-      if (!sold) {
-        throw new BadRequestException(
-          `Mahsulot (id=${item.productId}) bu buyurtmada yo'q`,
-        );
-      }
-      const alreadyReturned =
-        returnedByProduct.get(item.productId) ?? new Prisma.Decimal(0);
-      const available = sold.quantity.minus(alreadyReturned);
-      const qty = new Prisma.Decimal(item.quantity);
-      if (qty.greaterThan(available)) {
-        throw new BadRequestException(
-          `Qaytarish miqdori oshib ketdi: sotilgan ${sold.quantity}, avval qaytarilgan ${alreadyReturned}, mumkin ${available}`,
-        );
-      }
-      total = total.plus(qty.times(sold.price));
-    }
-
     const created = await this.prisma.$transaction(async (tx) => {
+      // serialize concurrent returns of the same order so the
+      // "returned <= sold" invariant (7) is re-checked under the lock,
+      // mirroring the pay-order-N lock PaymentsService uses
+      await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtext(${`return-order-${dto.orderId}`}))`;
+
+      const previous = await tx.salesReturnItem.groupBy({
+        by: ['productId'],
+        where: { salesReturn: { orderId: dto.orderId } },
+        _sum: { quantity: true },
+      });
+      const returnedByProduct = new Map(
+        previous.map((r) => [
+          r.productId,
+          r._sum.quantity ?? new Prisma.Decimal(0),
+        ]),
+      );
+
+      let total = new Prisma.Decimal(0);
+      for (const item of dto.items) {
+        const sold = soldByProduct.get(item.productId);
+        if (!sold) {
+          throw new BadRequestException(
+            `Mahsulot (id=${item.productId}) bu buyurtmada yo'q`,
+          );
+        }
+        const alreadyReturned =
+          returnedByProduct.get(item.productId) ?? new Prisma.Decimal(0);
+        const available = sold.quantity.minus(alreadyReturned);
+        const qty = new Prisma.Decimal(item.quantity);
+        if (qty.greaterThan(available)) {
+          throw new BadRequestException(
+            `Qaytarish miqdori oshib ketdi: sotilgan ${sold.quantity}, avval qaytarilgan ${alreadyReturned}, mumkin ${available}`,
+          );
+        }
+        total = total.plus(qty.times(sold.price));
+      }
+
       const number = await this.numbering.next(tx, 'salesReturn');
       const ret = await tx.salesReturn.create({
         data: {

@@ -213,6 +213,24 @@ describe('order lifecycle e2e', () => {
     expect(await stockOf()).toBe(7);
   });
 
+  it('rejects the same product listed twice in one return (invariant 7)', async () => {
+    // sold 4, already returned 1 → 3 left. Two rows of 2 each (=4) would
+    // slip past a per-row check but must be rejected as a duplicate line.
+    const dup = await request(server())
+      .post('/api/v1/sales-returns')
+      .set(auth())
+      .send({
+        orderId: orderAId,
+        items: [
+          { productId, quantity: 2 },
+          { productId, quantity: 2 },
+        ],
+      })
+      .expect(400);
+    expect(String(dup.body.message)).toContain('bir marta');
+    expect(await stockOf()).toBe(7);
+  });
+
   it('cancel creates return movements so the net stock effect is zero', async () => {
     const order = await createOrder(2);
     await request(server())
