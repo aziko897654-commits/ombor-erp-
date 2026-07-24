@@ -14,7 +14,12 @@ export function setToken(token: string | null) {
 // Dev runs behind the Vite proxy (relative path); prod points straight
 // at the deployed backend origin since frontend and backend are hosted
 // separately (Vercel + Render).
-const API_BASE = import.meta.env.VITE_API_URL || '/api/v1';
+export const API_BASE = import.meta.env.VITE_API_URL || '/api/v1';
+
+/** Absolute URL for a backend-served asset path like "uploads/logo-x.jpg". */
+export function assetUrl(path: string): string {
+  return `${API_BASE}/${path.replace(/^\/+/, '')}`;
+}
 
 export const api = axios.create({
   baseURL: API_BASE,

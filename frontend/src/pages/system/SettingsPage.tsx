@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { ImageUp } from 'lucide-react';
 import { useEffect, useRef, useState, type FormEvent } from 'react';
+import { assetUrl } from '@/api/client';
 import { getSettings, updateSettings, uploadLogo } from '@/api/system';
 import { Button } from '@/components/ui/button';
 import {
@@ -206,11 +207,17 @@ export function SettingsPage() {
         </CardHeader>
         <CardContent className="flex items-center gap-4">
           {settings?.logoPath ? (
-            <span className="rounded-md border px-3 py-2 text-sm text-muted-foreground">
-              {settings.logoPath}
-            </span>
+            <div className="flex h-20 w-32 items-center justify-center overflow-hidden rounded-md border bg-muted/30 p-1">
+              <img
+                src={assetUrl(settings.logoPath)}
+                alt={t('settings.logo')}
+                className="max-h-full max-w-full object-contain"
+              />
+            </div>
           ) : (
-            <span className="text-sm text-muted-foreground">—</span>
+            <div className="flex h-20 w-32 items-center justify-center rounded-md border border-dashed text-sm text-muted-foreground">
+              —
+            </div>
           )}
           <input
             ref={fileRef}
