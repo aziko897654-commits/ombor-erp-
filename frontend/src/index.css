@@ -4,6 +4,9 @@
 
 @layer base {
   :root {
+    /* tells the browser to paint native controls (select popups, date
+       pickers, form fields) in the light variant to match the theme */
+    color-scheme: light;
     --background: 0 0% 100%;
     --foreground: 224 71.4% 4.1%;
     --card: 0 0% 100%;
@@ -31,6 +34,9 @@
   /* TASK-029: dark theme — toggled via the .dark class on <html>,
      persisted in localStorage (erp_theme) */
   .dark {
+    /* dark variant of native controls: fixes the white <select> dropdown
+       popups and native date pickers in dark mode */
+    color-scheme: dark;
     --background: 224 71.4% 4.1%;
     --foreground: 210 20% 98%;
     --card: 224 50% 6.5%;
