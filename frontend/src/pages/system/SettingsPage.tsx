@@ -66,6 +66,8 @@ export function SettingsPage() {
       }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['settings'] });
+      // refresh the browser-tab title when the company name changes
+      queryClient.invalidateQueries({ queryKey: ['brand'] });
       setMessage(t('settings.saved'));
       setError('');
     },

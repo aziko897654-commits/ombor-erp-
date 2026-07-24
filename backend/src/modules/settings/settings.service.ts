@@ -34,6 +34,16 @@ export class SettingsService {
     });
   }
 
+  /**
+   * Public brand info (company name + logo) — non-sensitive, so any
+   * client can read it to title the browser tab / show the brand,
+   * without exposing INN, bank details or the negative-balance flag.
+   */
+  async getBrand(): Promise<{ companyName: string; logoPath: string | null }> {
+    const s = await this.get();
+    return { companyName: s.companyName, logoPath: s.logoPath };
+  }
+
   async update(dto: UpdateSettingsDto, userId: number): Promise<AppSetting> {
     await this.get();
     const updated = await this.prisma.appSetting.update({

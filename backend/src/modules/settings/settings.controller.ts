@@ -14,6 +14,7 @@ import {
   AuthUser,
   CurrentUser,
 } from '../../common/decorators/current-user.decorator';
+import { Public } from '../../common/decorators/public.decorator';
 import { Roles } from '../../common/decorators/roles.decorator';
 import { UpdateSettingsDto } from './dto/settings.dto';
 import { SettingsService } from './settings.service';
@@ -21,6 +22,13 @@ import { SettingsService } from './settings.service';
 @Controller('settings')
 export class SettingsController {
   constructor(private readonly service: SettingsService) {}
+
+  // public brand (company name + logo) for the browser tab / login page
+  @Public()
+  @Get('public')
+  brand() {
+    return this.service.getBrand();
+  }
 
   // accountant needs requisites for the invoice PDF (section 8)
   @Get()

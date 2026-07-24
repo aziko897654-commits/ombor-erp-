@@ -204,6 +204,13 @@ export interface AppSettings {
 
 export const getSettings = async () =>
   (await api.get<{ data: AppSettings }>('/settings')).data.data;
+/** Public brand info (company name + logo) — no auth required. */
+export const getPublicSettings = async () =>
+  (
+    await api.get<{ data: { companyName: string; logoPath: string | null } }>(
+      '/settings/public',
+    )
+  ).data.data;
 export const updateSettings = async (body: Partial<AppSettings>) =>
   (await api.patch<{ data: AppSettings }>('/settings', body)).data.data;
 export const uploadLogo = async (file: File) => {

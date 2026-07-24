@@ -1,5 +1,7 @@
-import { lazy, type ComponentType } from 'react';
+import { useQuery } from '@tanstack/react-query';
+import { lazy, useEffect, type ComponentType } from 'react';
 import { Navigate, Route, Routes } from 'react-router-dom';
+import { getPublicSettings } from '@/api/system';
 import { AppLayout } from '@/components/layout/AppLayout';
 import {
   HomeRedirect,
@@ -9,6 +11,23 @@ import {
 import { allMenuItems } from '@/lib/menu';
 import { LoginPage } from '@/pages/LoginPage';
 import { PlaceholderPage } from '@/pages/PlaceholderPage';
+
+const DEFAULT_TITLE = 'ERP — Korxona boshqaruv tizimi';
+
+/** Keeps the browser tab title in sync with the company name (FR-9). */
+function BrandTitle() {
+  const { data } = useQuery({
+    queryKey: ['brand'],
+    queryFn: getPublicSettings,
+    staleTime: 60_000,
+  });
+  useEffect(() => {
+    document.title = data?.companyName
+      ? `${data.companyName} — ERP`
+      : DEFAULT_TITLE;
+  }, [data?.companyName]);
+  return null;
+}
 
 // Route-level code splitting: each page (and its heavy deps, e.g. Recharts
 // on the dashboard) is fetched only when first navigated to. Named exports
@@ -111,7 +130,9 @@ const DETAIL_ROUTES: Array<{
 
 export function App() {
   return (
-    <Routes>
+    <>
+      <BrandTitle />
+      <Routes>
       <Route path="/login" element={<LoginPage />} />
       <Route
         element={
@@ -161,6 +182,7 @@ export function App() {
         ))}
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />
-    </Routes>
+      </Routes>
+    </>
   );
 }
