@@ -56,6 +56,7 @@ export function ChangePasswordDialog({
           <Label>{t('profile.oldPassword')} *</Label>
           <PasswordInput
             required
+            autoComplete="current-password"
             value={form.oldPassword}
             onChange={(e) => setForm({ ...form, oldPassword: e.target.value })}
           />
@@ -65,6 +66,7 @@ export function ChangePasswordDialog({
           <PasswordInput
             required
             minLength={8}
+            autoComplete="new-password"
             value={form.newPassword}
             onChange={(e) => setForm({ ...form, newPassword: e.target.value })}
           />
@@ -73,6 +75,8 @@ export function ChangePasswordDialog({
           <Label>{t('profile.confirmPassword')} *</Label>
           <PasswordInput
             required
+            minLength={8}
+            autoComplete="new-password"
             value={form.confirm}
             onChange={(e) => setForm({ ...form, confirm: e.target.value })}
           />

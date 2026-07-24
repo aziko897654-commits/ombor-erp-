@@ -530,6 +530,8 @@
     "lastName": "Familiya",
     "role": "Rol",
     "password": "Parol",
+    "confirmPassword": "Parolni tasdiqlang",
+    "passwordMismatch": "Parollar mos kelmadi",
     "passwordHint": "Tahrirda bo'sh qoldirilsa parol o'zgarmaydi"
   },
   "settings": {

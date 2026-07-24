@@ -31,6 +31,7 @@ const emptyForm = {
   email: '',
   role: 'sales',
   password: '',
+  confirmPassword: '',
   isActive: true,
 };
 
@@ -80,6 +81,7 @@ export function UsersPage() {
       email: user.email,
       role: user.role,
       password: '',
+      confirmPassword: '',
       isActive: user.isActive,
     });
     setError('');
@@ -89,6 +91,12 @@ export function UsersPage() {
   const submit = (e: FormEvent) => {
     e.preventDefault();
     setError('');
+    // catches both a genuine typo and the (rare) browser-autofill case
+    // where the visible field text doesn't match React's own state
+    if (form.password && form.password !== form.confirmPassword) {
+      setError(t('users.passwordMismatch'));
+      return;
+    }
     mutation.mutate({
       firstName: form.firstName,
       lastName: form.lastName,
@@ -227,11 +235,28 @@ export function UsersPage() {
               <PasswordInput
                 required={!editing}
                 minLength={8}
+                autoComplete="new-password"
                 value={form.password}
-                onChange={(e) => setForm({ ...form, password: e.target.value })}
+                onChange={(e) =>
+                  setForm({ ...form, password: e.target.value })
+                }
               />
             </div>
           </div>
+          {(!editing || form.password) && (
+            <div className="space-y-1.5">
+              <Label>{t('users.confirmPassword')} {editing ? '' : '*'}</Label>
+              <PasswordInput
+                required={!editing || !!form.password}
+                minLength={8}
+                autoComplete="new-password"
+                value={form.confirmPassword}
+                onChange={(e) =>
+                  setForm({ ...form, confirmPassword: e.target.value })
+                }
+              />
+            </div>
+          )}
           {editing && (
             <div className="space-y-1.5">
               <Label>{t('common.status')}</Label>
