@@ -68,6 +68,15 @@
   body {
     @apply bg-background text-foreground antialiased;
   }
+
+  /* native <select> popups: color-scheme alone leaves the option list
+     light in some browsers, so paint options with the theme tokens
+     explicitly (auto-adapts — the vars flip under .dark) */
+  select option,
+  select optgroup {
+    background-color: hsl(var(--background));
+    color: hsl(var(--foreground));
+  }
 }
 
 /* TASK-013: thin custom scrollbars instead of the wide OS default */
