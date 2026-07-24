@@ -1,5 +1,8 @@
+import { useQuery } from '@tanstack/react-query';
 import { Building2 } from 'lucide-react';
 import { NavLink } from 'react-router-dom';
+import { assetUrl } from '@/api/client';
+import { getPublicSettings } from '@/api/system';
 import { useAuth } from '@/lib/auth';
 import { t } from '@/lib/i18n';
 import { visibleSections } from '@/lib/menu';
@@ -9,6 +12,12 @@ import { cn } from '@/lib/utils';
  *  mobile drawer. `onNavigate` lets the drawer close on selection. */
 export function SidebarNav({ onNavigate }: { onNavigate?: () => void }) {
   const { user } = useAuth();
+  // company brand (logo + name) — FR-9; shared cache with the tab title
+  const { data: brand } = useQuery({
+    queryKey: ['brand'],
+    queryFn: getPublicSettings,
+    staleTime: 60_000,
+  });
   if (!user) return null;
 
   const sections = visibleSections(user.role);
@@ -16,9 +25,17 @@ export function SidebarNav({ onNavigate }: { onNavigate?: () => void }) {
   return (
     <>
       <div className="flex h-14 items-center gap-2 border-b border-sidebar-accent px-4">
-        <Building2 className="h-6 w-6 text-sidebar-accent-foreground" />
-        <span className="text-base font-semibold text-sidebar-accent-foreground">
-          {t('app.name')}
+        {brand?.logoPath ? (
+          <img
+            src={assetUrl(brand.logoPath)}
+            alt=""
+            className="h-8 w-8 shrink-0 rounded object-contain"
+          />
+        ) : (
+          <Building2 className="h-6 w-6 shrink-0 text-sidebar-accent-foreground" />
+        )}
+        <span className="truncate text-base font-semibold text-sidebar-accent-foreground">
+          {brand?.companyName || t('app.name')}
         </span>
       </div>
       <nav className="sidebar-scroll flex-1 space-y-4 overflow-y-auto px-2 py-4">

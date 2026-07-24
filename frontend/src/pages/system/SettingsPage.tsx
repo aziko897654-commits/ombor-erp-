@@ -81,6 +81,8 @@ export function SettingsPage() {
     mutationFn: uploadLogo,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['settings'] });
+      // refresh the sidebar/tab logo immediately after upload
+      queryClient.invalidateQueries({ queryKey: ['brand'] });
       setMessage(t('settings.saved'));
       setError('');
       if (fileRef.current) fileRef.current.value = '';
