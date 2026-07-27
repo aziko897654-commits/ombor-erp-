@@ -5,8 +5,8 @@ services:
     plan: free
     region: virginia
     rootDir: .
-    buildCommand: corepack enable && pnpm install --frozen-lockfile && pnpm --filter backend prisma generate && pnpm --filter backend build
-    startCommand: pnpm --filter backend prisma migrate deploy && node backend/dist/main.js
+    buildCommand: npm install -g pnpm@11.17.0 && pnpm install --frozen-lockfile && pnpm --filter backend prisma generate && pnpm --filter backend build
+    startCommand: cd backend && node node_modules/prisma/build/index.js migrate deploy && node dist/main.js
     envVars:
       - key: NODE_ENV
         value: production
