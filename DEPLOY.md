@@ -52,14 +52,14 @@ Bazada hali hech kim yo'q — demo ma'lumotlar bilan yoki faqat admin bilan bosh
 # backend papkasida, vaqtincha .env'dagi DATABASE_URL'ni Neon'nikiga almashtiring (yoki inline bering):
 cd backend
 DATABASE_URL="<Neon connection string>" pnpm prisma migrate deploy
-DATABASE_URL="<Neon connection string>" pnpm seed   # demo ma'lumotlar + admin (jamshid@gmail.com / salimov2109)
+DATABASE_URL="<Neon connection string>" pnpm seed   # demo ma'lumotlar + admin (jamshid@gmail.com / narco123)
 ```
 
 Agar demo ma'lumotlarsiz, faqat admin kerak bo'lsa — ayting, buning uchun alohida qisqa skript tayyorlab beraman.
 
 ## 6. Tekshirish
 
-`https://erp-xxxx.vercel.app/login` ga kirib, `jamshid@gmail.com` / `salimov2109` bilan login qiling. Birinchi so'rov Render "uyg'onishi" tufayli sekinroq bo'lishi mumkin (~30-60s) — bu normal.
+`https://erp-xxxx.vercel.app/login` ga kirib, `jamshid@gmail.com` / `narco123` bilan login qiling. Birinchi so'rov Render "uyg'onishi" tufayli sekinroq bo'lishi mumkin (~30-60s) — bu normal.
 
 ## Bilib qo'yish kerak bo'lgan cheklovlar (bepul tarif)
 

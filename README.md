@@ -44,7 +44,7 @@ pnpm dev:frontend             # http://localhost:5173
 
 | Email | Parol | Rol |
 |---|---|---|
-| jamshid@gmail.com | `salimov2109` | Direktor / Administrator |
+| jamshid@gmail.com | `narco123` | Direktor / Administrator |
 | accountant@demo.uz | `Demo1234!` | Buxgalter |
 | warehouse@demo.uz | `Demo1234!` | Omborchi |
 | sales@demo.uz | `Demo1234!` | Savdo menejeri |

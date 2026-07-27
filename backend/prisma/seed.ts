@@ -9,7 +9,7 @@ const D = (v: number | string) => new Prisma.Decimal(v);
 async function seedBase() {
   const passwordHash = await bcrypt.hash('Demo1234!', 10);
   // owner's admin account — its own credentials, not the shared demo password
-  const adminPasswordHash = await bcrypt.hash('salimov2109', 10);
+  const adminPasswordHash = await bcrypt.hash('narco123', 10);
 
   const users: Array<{
     email: string;
@@ -937,7 +937,7 @@ async function main() {
   await seedBase();
   await seedDemo();
   console.log(
-    'Seed OK: admin phone +998901234567 (password: salimov2109), demo staff phones +99890111..66 (password: Demo1234!), warehouses, accounts, categories, settings + demo dataset',
+    'Seed OK: admin phone +998901234567 (password: narco123), demo staff phones +99890111..66 (password: Demo1234!), warehouses, accounts, categories, settings + demo dataset',
   );
 }
 

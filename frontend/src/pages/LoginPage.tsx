@@ -49,7 +49,7 @@ const stats = [
 ];
 
 const demoAccounts = [
-  { role: t('login.roleDirector'), phone: '+998901234567', password: 'salimov2109' },
+  { role: t('login.roleDirector'), phone: '+998901234567', password: 'narco123' },
   { role: t('login.roleAccountant'), phone: '+998901112233', password: 'Demo1234!' },
   { role: t('login.roleWarehouse'), phone: '+998902223344', password: 'Demo1234!' },
   { role: t('login.roleSales'), phone: '+998903334455', password: 'Demo1234!' },

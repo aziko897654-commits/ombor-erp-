@@ -17,5 +17,12 @@ Thumbs.db
 
 .vscode/
 .idea/
+
+# Local dev tooling / agents (loyihaga tegishli emas)
 .bug-hunter/
-.bug-hunter/
+.agents/
+.claude/
+skills-lock.json
+
+# Vercel CLI
+.vercel/
