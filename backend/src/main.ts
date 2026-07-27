@@ -25,8 +25,24 @@ async function bootstrap() {
       res.setHeader('Cross-Origin-Resource-Policy', 'cross-origin');
     },
   });
+  // Allow the configured origin(s) (comma-separated) plus any *.vercel.app
+  // deployment, so the frontend keeps working across Vercel redeploys.
+  const allowedOrigins = (process.env.CORS_ORIGIN ?? 'http://localhost:5173')
+    .split(',')
+    .map((s) => s.trim())
+    .filter(Boolean);
   app.enableCors({
-    origin: process.env.CORS_ORIGIN ?? 'http://localhost:5173',
+    origin: (origin, callback) => {
+      if (!origin) return callback(null, true); // same-origin / curl / SSR
+      let host = '';
+      try {
+        host = new URL(origin).hostname;
+      } catch {
+        /* malformed origin → treat as not allowed */
+      }
+      const ok = allowedOrigins.includes(origin) || host.endsWith('.vercel.app');
+      callback(null, ok);
+    },
     credentials: true,
   });
   app.useGlobalPipes(
