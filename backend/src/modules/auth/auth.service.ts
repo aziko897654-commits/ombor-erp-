@@ -12,6 +12,17 @@ import { ChangePasswordDto } from './dto/change-password.dto';
 
 export type SafeUser = Omit<User, 'passwordHash'>;
 
+/**
+ * Normalizes a user-typed phone into canonical E.164 for O'zbekiston.
+ * Accepts "90 123 45 67", "901234567", "+998 90 123 45 67", etc.
+ * → "+998901234567".
+ */
+export function normalizePhone(raw: string): string {
+  let digits = (raw ?? '').replace(/\D/g, '');
+  if (digits.length === 9) digits = `998${digits}`;
+  return `+${digits}`;
+}
+
 @Injectable()
 export class AuthService {
   constructor(
@@ -20,10 +31,12 @@ export class AuthService {
     private readonly config: ConfigService,
   ) {}
 
-  async validateUser(email: string, password: string): Promise<User> {
-    const user = await this.prisma.user.findUnique({ where: { email } });
+  async validateUser(phone: string, password: string): Promise<User> {
+    const user = await this.prisma.user.findUnique({
+      where: { phone: normalizePhone(phone) },
+    });
     if (!user || !(await bcrypt.compare(password, user.passwordHash))) {
-      throw new UnauthorizedException("Email yoki parol noto'g'ri");
+      throw new UnauthorizedException("Telefon raqami yoki parol noto'g'ri");
     }
     if (!user.isActive) {
       throw new UnauthorizedException('Foydalanuvchi faolsizlantirilgan');

@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { Prisma, Role } from '@prisma/client';
 import { PrismaService } from '../../common/prisma/prisma.service';
 import { ProductsService } from '../products/products.service';
+import { TelegramService } from '../telegram/telegram.service';
 
 export interface NotifyPayload {
   title: string;
@@ -22,6 +23,7 @@ export class NotificationsService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly products: ProductsService,
+    private readonly telegram: TelegramService,
   ) {}
 
   async list(userId: number, page: number, limit: number) {
@@ -88,6 +90,13 @@ export class NotificationsService {
         dedupeKey: payload.dedupeKey,
       })),
     });
+    // Mirror to Telegram for users who linked their account (fire-and-forget:
+    // a Telegram hiccup must never break the in-app notification path).
+    void this.telegram.notifyUsers(
+      targets.map((u) => u.id),
+      payload.title,
+      payload.message,
+    );
   }
 
   /** Runs at most once per polling interval, whoever polls first. */

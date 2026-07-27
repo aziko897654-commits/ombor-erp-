@@ -35,19 +35,10 @@ const PRODUCT_COLUMNS: PreviewColumn[] = [
   { key: 'salePrice', label: t('products.salePrice'), align: 'right' },
 ];
 
-const CUSTOMER_COLUMNS: PreviewColumn[] = [
-  { key: 'name', label: t('common.name') },
-  { key: 'phone', label: t('common.phone') },
-  { key: 'email', label: 'Email' },
-  { key: 'address', label: t('common.address') },
-  { key: 'note', label: t('common.note') },
-];
-
 export function ImportsPage() {
   const { user } = useAuth();
-  // FR-8.1: products — warehouse/admin; customers — sales/admin
+  // FR-8.1: products — warehouse/admin
   const canImportProducts = user?.role === 'admin' || user?.role === 'warehouse';
-  const canImportCustomers = user?.role === 'admin' || user?.role === 'sales';
 
   return (
     <div className="max-w-4xl">
@@ -58,13 +49,6 @@ export function ImportsPage() {
             type="products"
             title={t('imports.products')}
             columns={PRODUCT_COLUMNS}
-          />
-        )}
-        {canImportCustomers && (
-          <ImportSection
-            type="customers"
-            title={t('imports.customers')}
-            columns={CUSTOMER_COLUMNS}
           />
         )}
       </div>

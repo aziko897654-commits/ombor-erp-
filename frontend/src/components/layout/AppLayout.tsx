@@ -1,6 +1,6 @@
 import { Loader2, X } from 'lucide-react';
 import { Suspense, useEffect, useState } from 'react';
-import { Outlet } from 'react-router-dom';
+import { Outlet, useLocation } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { Header } from './Header';
 import { Sidebar, SidebarNav } from './Sidebar';
@@ -16,6 +16,7 @@ function PageLoading() {
 export function AppLayout() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const closeMobile = () => setMobileOpen(false);
+  const { pathname } = useLocation();
 
   // TASK-033: "N" triggers the current page's create action (a button
   // or link marked with data-new-record); ignored while typing or
@@ -65,7 +66,7 @@ export function AppLayout() {
         />
         <aside
           className={cn(
-            'absolute left-0 top-0 flex h-full w-64 flex-col bg-sidebar text-sidebar-foreground shadow-xl transition-transform',
+            'absolute left-0 top-0 flex h-full w-64 flex-col bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 text-sidebar-foreground shadow-xl transition-transform',
             mobileOpen ? 'translate-x-0' : '-translate-x-full',
           )}
         >
@@ -81,11 +82,24 @@ export function AppLayout() {
         </aside>
       </div>
 
-      <div className="flex min-w-0 flex-1 flex-col">
+      <div className="relative flex min-w-0 flex-1 flex-col">
+        {/* Jonli to'q fon (blob-lar sekin harakatlanadi) */}
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-0 overflow-hidden"
+        >
+          <div className="animate-blob absolute -left-32 top-0 h-72 w-72 rounded-full bg-indigo-600/10 blur-3xl" />
+          <div className="animate-blob absolute -right-24 top-1/3 h-80 w-80 rounded-full bg-sky-600/10 blur-3xl [animation-delay:5s]" />
+          <div className="animate-float absolute bottom-0 left-1/3 h-72 w-72 rounded-full bg-violet-600/10 blur-3xl" />
+        </div>
+
         <Header onMenuClick={() => setMobileOpen(true)} />
-        <main className="flex-1 overflow-y-auto p-4 md:p-6">
+        <main className="relative flex-1 overflow-y-auto p-4 md:p-6">
           <Suspense fallback={<PageLoading />}>
-            <Outlet />
+            {/* Sahifa o'tishida fade-up animatsiyasi (yo'l o'zgarganda qayta ishga tushadi) */}
+            <div key={pathname} className="animate-fade-up">
+              <Outlet />
+            </div>
           </Suspense>
         </main>
       </div>

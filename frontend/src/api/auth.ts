@@ -5,6 +5,7 @@ export type Role = 'admin' | 'accountant' | 'warehouse' | 'sales' | 'hr';
 export interface User {
   id: number;
   email: string;
+  phone?: string | null;
   firstName: string;
   lastName: string;
   role: Role;
@@ -16,9 +17,9 @@ export interface LoginResponse {
   user: User;
 }
 
-export async function loginRequest(email: string, password: string) {
+export async function loginRequest(phone: string, password: string) {
   const res = await api.post<{ data: LoginResponse }>('/auth/login', {
-    email,
+    phone,
     password,
   });
   return res.data.data;

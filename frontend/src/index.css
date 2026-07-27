@@ -117,3 +117,83 @@
     background-color: hsl(215 15% 45%);
   }
 }
+
+/* Login kartasi doim yorug' palitrada — ilova to'q (dark) mavzuda bo'lsa ham.
+   Aks holda oq karta ustida oq matn/tugma ko'rinmaydi. Bu blok token
+   o'zgaruvchilarni kartaning o'zida qayta e'lon qiladi, shunda ichidagi
+   Input/Label/Button yorug' qiymatlardan foydalanadi. */
+.force-light {
+  color-scheme: light;
+  --background: 0 0% 100%;
+  --foreground: 224 71.4% 4.1%;
+  --card: 0 0% 100%;
+  --card-foreground: 224 71.4% 4.1%;
+  --primary: 220.9 39.3% 11%;
+  --primary-foreground: 210 20% 98%;
+  --secondary: 220 14.3% 95.9%;
+  --secondary-foreground: 220.9 39.3% 11%;
+  --muted: 220 14.3% 95.9%;
+  --muted-foreground: 220 8.9% 46.1%;
+  --accent: 220 14.3% 95.9%;
+  --accent-foreground: 220.9 39.3% 11%;
+  --destructive: 0 84.2% 60.2%;
+  --destructive-foreground: 210 20% 98%;
+  --border: 220 13% 91%;
+  --input: 220 13% 91%;
+  --ring: 224 71.4% 4.1%;
+}
+
+/* --- Login sahifasi animatsiyalari -------------------------------------- */
+@keyframes erp-fade-up {
+  from { opacity: 0; transform: translateY(18px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes erp-float {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-16px); }
+}
+@keyframes erp-blob {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33%      { transform: translate(28px, -34px) scale(1.12); }
+  66%      { transform: translate(-24px, 20px) scale(0.92); }
+}
+@keyframes erp-gradient {
+  0%   { background-position: 0% 50%; }
+  50%  { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+@keyframes erp-shine {
+  0%   { transform: translateX(-120%) skewX(-20deg); }
+  60%, 100% { transform: translateX(220%) skewX(-20deg); }
+}
+@keyframes erp-blink {
+  0%, 100% { opacity: 1; }
+  50%      { opacity: 0; }
+}
+@keyframes erp-rise {
+  0%   { transform: translateY(0) scale(1); opacity: 0; }
+  12%  { opacity: 1; }
+  88%  { opacity: 1; }
+  100% { transform: translateY(-108vh) scale(1.25); opacity: 0; }
+}
+
+.animate-fade-up   { animation: erp-fade-up 0.7s cubic-bezier(0.22, 1, 0.36, 1) both; }
+.animate-float     { animation: erp-float 6s ease-in-out infinite; }
+.animate-blob      { animation: erp-blob 16s ease-in-out infinite; }
+.animate-gradient  { background-size: 200% 200%; animation: erp-gradient 14s ease infinite; }
+.animate-blink     { animation: erp-blink 1s step-end infinite; }
+.erp-particle      { animation: erp-rise linear infinite; will-change: transform, opacity; }
+.animate-shine::after {
+  content: ""; position: absolute; inset: 0;
+  background: linear-gradient(100deg, transparent 30%, rgba(255,255,255,0.35) 50%, transparent 70%);
+  animation: erp-shine 4.5s ease-in-out infinite; pointer-events: none;
+}
+.erp-parallax { transition: transform 0.25s ease-out; will-change: transform; }
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-fade-up, .animate-float, .animate-blob, .animate-gradient,
+  .animate-blink, .erp-particle, .animate-shine::after {
+    animation: none !important;
+  }
+  .erp-parallax { transition: none !important; transform: none !important; }
+}

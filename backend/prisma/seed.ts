@@ -13,21 +13,22 @@ async function seedBase() {
 
   const users: Array<{
     email: string;
+    phone: string;
     firstName: string;
     lastName: string;
     role: Role;
     passwordHash: string;
   }> = [
-    { email: 'jamshid@gmail.com', firstName: 'Anvar', lastName: 'Karimov', role: Role.admin, passwordHash: adminPasswordHash },
-    { email: 'accountant@demo.uz', firstName: 'Dilnoza', lastName: 'Rahimova', role: Role.accountant, passwordHash },
-    { email: 'warehouse@demo.uz', firstName: 'Bekzod', lastName: 'Toshmatov', role: Role.warehouse, passwordHash },
-    { email: 'sales@demo.uz', firstName: 'Malika', lastName: 'Yusupova', role: Role.sales, passwordHash },
-    { email: 'hr@demo.uz', firstName: 'Sherzod', lastName: 'Aliyev', role: Role.hr, passwordHash },
+    { email: 'jamshid@gmail.com', phone: '+998901234567', firstName: 'Anvar', lastName: 'Karimov', role: Role.admin, passwordHash: adminPasswordHash },
+    { email: 'accountant@demo.uz', phone: '+998901112233', firstName: 'Dilnoza', lastName: 'Rahimova', role: Role.accountant, passwordHash },
+    { email: 'warehouse@demo.uz', phone: '+998902223344', firstName: 'Bekzod', lastName: 'Toshmatov', role: Role.warehouse, passwordHash },
+    { email: 'sales@demo.uz', phone: '+998903334455', firstName: 'Malika', lastName: 'Yusupova', role: Role.sales, passwordHash },
+    { email: 'hr@demo.uz', phone: '+998904445566', firstName: 'Sherzod', lastName: 'Aliyev', role: Role.hr, passwordHash },
   ];
   for (const u of users) {
     await prisma.user.upsert({
       where: { email: u.email },
-      update: {},
+      update: { phone: u.phone },
       create: u,
     });
   }
@@ -936,7 +937,7 @@ async function main() {
   await seedBase();
   await seedDemo();
   console.log(
-    'Seed OK: admin jamshid@gmail.com (password: salimov2109), demo staff @demo.uz (password: Demo1234!), warehouses, accounts, categories, settings + demo dataset',
+    'Seed OK: admin phone +998901234567 (password: salimov2109), demo staff phones +99890111..66 (password: Demo1234!), warehouses, accounts, categories, settings + demo dataset',
   );
 }
 

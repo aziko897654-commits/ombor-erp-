@@ -21,10 +21,16 @@ export function SidebarNav({ onNavigate }: { onNavigate?: () => void }) {
   if (!user) return null;
 
   const sections = visibleSections(user.role);
+  let flatIndex = 0; // running index → staggered reveal of nav items
 
   return (
     <>
-      <div className="flex h-14 items-center gap-2 border-b border-sidebar-accent px-4">
+      <div className="relative flex h-14 items-center gap-2 border-b border-white/10 px-4">
+        {/* nozik yorug'lik brend ostida */}
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-indigo-400/40 to-transparent"
+        />
         {brand?.logoPath ? (
           <img
             src={assetUrl(brand.logoPath)}
@@ -32,7 +38,9 @@ export function SidebarNav({ onNavigate }: { onNavigate?: () => void }) {
             className="h-8 w-8 shrink-0 rounded object-contain"
           />
         ) : (
-          <Building2 className="h-6 w-6 shrink-0 text-sidebar-accent-foreground" />
+          <div className="animate-shine relative flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-white/10 ring-1 ring-white/15">
+            <Building2 className="h-5 w-5 text-sidebar-accent-foreground" />
+          </div>
         )}
         <span className="truncate text-base font-semibold text-sidebar-accent-foreground">
           {brand?.companyName || t('app.name')}
@@ -42,31 +50,38 @@ export function SidebarNav({ onNavigate }: { onNavigate?: () => void }) {
         {sections.map((section, i) => (
           <div key={section.labelKey ?? i}>
             {section.labelKey && (
-              <div className="mb-1 px-3 text-[11px] font-semibold uppercase tracking-wider text-sidebar-foreground/60">
+              <div className="mb-1 px-3 text-[11px] font-semibold uppercase tracking-wider text-sidebar-foreground/50">
                 {t(section.labelKey)}
               </div>
             )}
             <ul className="space-y-0.5">
-              {section.items.map((item) => (
-                <li key={item.path}>
-                  <NavLink
-                    to={item.path}
-                    end={item.path === '/'}
-                    onClick={onNavigate}
-                    className={({ isActive }) =>
-                      cn(
-                        'flex items-center gap-2.5 rounded-md px-3 py-2 text-sm transition-colors',
-                        isActive
-                          ? 'bg-sidebar-accent text-sidebar-accent-foreground'
-                          : 'hover:bg-sidebar-accent/50 hover:text-sidebar-accent-foreground',
-                      )
-                    }
+              {section.items.map((item) => {
+                const delay = flatIndex++ * 0.04;
+                return (
+                  <li
+                    key={item.path}
+                    className="animate-fade-up"
+                    style={{ animationDelay: `${delay}s` }}
                   >
-                    <item.icon className="h-4 w-4 shrink-0" />
-                    <span className="truncate">{t(item.labelKey)}</span>
-                  </NavLink>
-                </li>
-              ))}
+                    <NavLink
+                      to={item.path}
+                      end={item.path === '/'}
+                      onClick={onNavigate}
+                      className={({ isActive }) =>
+                        cn(
+                          'group relative flex items-center gap-2.5 rounded-md px-3 py-2 text-sm transition-all duration-200',
+                          isActive
+                            ? "bg-sidebar-accent text-sidebar-accent-foreground shadow-sm before:absolute before:left-0 before:top-1/2 before:h-5 before:w-[3px] before:-translate-y-1/2 before:rounded-r-full before:bg-indigo-400 before:content-['']"
+                            : 'text-sidebar-foreground/80 hover:translate-x-0.5 hover:bg-sidebar-accent/50 hover:text-sidebar-accent-foreground',
+                        )
+                      }
+                    >
+                      <item.icon className="h-4 w-4 shrink-0 transition-transform duration-200 group-hover:scale-110" />
+                      <span className="truncate">{t(item.labelKey)}</span>
+                    </NavLink>
+                  </li>
+                );
+              })}
             </ul>
           </div>
         ))}
@@ -78,7 +93,7 @@ export function SidebarNav({ onNavigate }: { onNavigate?: () => void }) {
 /** Desktop rail — hidden below the md breakpoint (NFR-14). */
 export function Sidebar() {
   return (
-    <aside className="hidden h-screen w-60 shrink-0 flex-col bg-sidebar text-sidebar-foreground md:flex">
+    <aside className="hidden h-screen w-60 shrink-0 flex-col border-r border-white/5 bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 text-sidebar-foreground md:flex">
       <SidebarNav />
     </aside>
   );

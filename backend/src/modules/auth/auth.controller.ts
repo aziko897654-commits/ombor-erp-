@@ -36,7 +36,7 @@ export class AuthController {
     @Body() dto: LoginDto,
     @Res({ passthrough: true }) res: Response,
   ) {
-    const user = await this.authService.validateUser(dto.email, dto.password);
+    const user = await this.authService.validateUser(dto.phone, dto.password);
     this.setRefreshCookie(res, this.authService.issueRefreshToken(user));
     return {
       accessToken: this.authService.issueAccessToken(user),

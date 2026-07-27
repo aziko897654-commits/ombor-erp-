@@ -4,9 +4,10 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>ERP — Korxona boshqaruv tizimi</title>
-    <!-- TASK-029: apply the saved theme before first paint (no flash) -->
+    <!-- TASK-029: apply the theme before first paint (no flash).
+         Default is dark; an explicit 'light' preference opts out. -->
     <script>
-      if (localStorage.getItem('erp_theme') === 'dark') {
+      if (localStorage.getItem('erp_theme') !== 'light') {
         document.documentElement.classList.add('dark');
       }
     </script>

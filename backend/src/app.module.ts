@@ -3,6 +3,7 @@ import { ConfigModule } from '@nestjs/config';
 import { APP_GUARD } from '@nestjs/core';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { AuditModule } from './common/audit/audit.module';
+import { EventBusModule } from './common/events/event-bus.module';
 import { JwtAuthGuard } from './common/guards/jwt-auth.guard';
 import { RolesGuard } from './common/guards/roles.guard';
 import { NumberingModule } from './common/numbering/numbering.module';
@@ -28,6 +29,7 @@ import { SearchModule } from './modules/search/search.module';
 import { SettingsModule } from './modules/settings/settings.module';
 import { StockModule } from './modules/stock/stock.module';
 import { SuppliersModule } from './modules/suppliers/suppliers.module';
+import { TelegramModule } from './modules/telegram/telegram.module';
 import { UsersModule } from './modules/users/users.module';
 import { WarehousesModule } from './modules/warehouses/warehouses.module';
 
@@ -36,6 +38,7 @@ import { WarehousesModule } from './modules/warehouses/warehouses.module';
     ConfigModule.forRoot({ isGlobal: true }),
     ThrottlerModule.forRoot([{ ttl: 60_000, limit: 300 }]),
     PrismaModule,
+    EventBusModule,
     AuditModule,
     NumberingModule,
     AuthModule,
@@ -61,6 +64,7 @@ import { WarehousesModule } from './modules/warehouses/warehouses.module';
     DashboardModule,
     ReportsModule,
     SearchModule,
+    TelegramModule,
   ],
   providers: [
     { provide: APP_GUARD, useClass: ThrottlerGuard },

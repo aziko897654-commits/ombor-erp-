@@ -22,3 +22,5 @@ services:
         value: 7d
       - key: CORS_ORIGIN
         sync: false
+      - key: TELEGRAM_BOT_TOKEN
+        sync: false
