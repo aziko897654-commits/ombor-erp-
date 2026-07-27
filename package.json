@@ -2,6 +2,10 @@
   "name": "erp",
   "version": "0.1.0",
   "private": true,
+  "packageManager": "pnpm@11.17.0",
+  "engines": {
+    "node": ">=20"
+  },
   "scripts": {
     "dev:backend": "pnpm --filter backend start:dev",
     "dev:frontend": "pnpm --filter frontend dev",
