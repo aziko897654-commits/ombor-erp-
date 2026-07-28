@@ -14,7 +14,8 @@
     "logout": "Chiqish",
     "invalidPhone": "Telefon raqami formati noto'g'ri",
     "passwordRequired": "Parol kiritilishi shart",
-    "loginFailed": "Telefon raqami yoki parol noto'g'ri"
+    "loginFailed": "Telefon raqami yoki parol noto'g'ri",
+    "serverWaking": "Server javob bermayapti — bepul server uyg'onmoqda. 30–60 soniya kutib, qayta urining."
   },
   "login": {
     "brand": "ERP tizimi",

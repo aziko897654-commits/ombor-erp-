@@ -192,10 +192,18 @@ export function LoginPage() {
       await login(phone, password);
       navigate('/', { replace: true });
     } catch (err: any) {
+      const status = err?.response?.status;
       const message = err?.response?.data?.message;
-      setServerError(
-        typeof message === 'string' ? message : t('auth.loginFailed'),
-      );
+      if (status === 401 && typeof message === 'string') {
+        setServerError(message); // haqiqiy "parol noto'g'ri"
+      } else if (!err?.response) {
+        // javob yo'q: tarmoq / timeout / server uxlagan (cold start)
+        setServerError(t('auth.serverWaking'));
+      } else {
+        setServerError(
+          typeof message === 'string' ? message : t('auth.loginFailed'),
+        );
+      }
     }
   };
 
