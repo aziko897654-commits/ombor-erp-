@@ -68,6 +68,8 @@ export class TelegramService implements OnModuleInit, OnModuleDestroy {
   /** Hourly report timers (aligned to the top of the hour). */
   private reportTimeout?: NodeJS.Timeout;
   private reportTimer?: NodeJS.Timeout;
+  /** Serial outbound queue — Telegram rate-limit (~30 msg/s) himoyasi. */
+  private sendQueue: Promise<unknown> = Promise.resolve();
 
   constructor(
     private readonly config: ConfigService,
@@ -106,17 +108,24 @@ export class TelegramService implements OnModuleInit, OnModuleDestroy {
     extra: Record<string, unknown> = {},
   ): Promise<void> {
     if (!this.enabled) return;
-    try {
-      await this.call('sendMessage', {
-        chat_id: chatId,
-        text,
-        parse_mode: 'HTML',
-        disable_web_page_preview: true,
-        ...extra,
-      });
-    } catch (e) {
-      this.logger.warn(`sendMessage: ${(e as Error).message}`);
-    }
+    // Barcha yuborishlar bitta navbatда ketma-ket + kichik oraliq bilan
+    // ketadi, shunda ko'p hodisada Telegram rate-limitидan oshmaydi.
+    const task = this.sendQueue.then(async () => {
+      try {
+        await this.call('sendMessage', {
+          chat_id: chatId,
+          text,
+          parse_mode: 'HTML',
+          disable_web_page_preview: true,
+          ...extra,
+        });
+      } catch (e) {
+        this.logger.warn(`sendMessage: ${(e as Error).message}`);
+      }
+      await sleep(45);
+    });
+    this.sendQueue = task.catch(() => undefined);
+    return task;
   }
 
   /** Mirrors an in-app notification to any of the given users who linked Telegram. */
@@ -512,10 +521,17 @@ export class TelegramService implements OnModuleInit, OnModuleDestroy {
     if (!Object.values(Role).includes(role)) {
       return this.editCallback(cb, "Noto'g'ri rol.");
     }
-    const reg = await this.prisma.pendingRegistration.findUnique({ where: { id } });
-    if (!reg || reg.status !== 'pending') {
+    // Atomik da'vo: faqat 'pending' bo'lsa 'approved' ga o'tadi. Ikki admin
+    // bir vaqtda tasdiqlasa, faqat bittasi count=1 oladi (ikki User yaratilmaydi).
+    const claimed = await this.prisma.pendingRegistration.updateMany({
+      where: { id, status: 'pending' },
+      data: { status: 'approved' },
+    });
+    if (claimed.count === 0) {
       return this.editCallback(cb, "So'rov allaqachon ko'rib chiqilgan.");
     }
+    const reg = await this.prisma.pendingRegistration.findUnique({ where: { id } });
+    if (!reg) return this.editCallback(cb, "So'rov topilmadi.");
     const dup = await this.prisma.user.findUnique({ where: { phone: reg.phone } });
     if (dup) {
       await this.prisma.pendingRegistration.update({
@@ -543,10 +559,7 @@ export class TelegramService implements OnModuleInit, OnModuleDestroy {
         isActive: true,
       },
     });
-    await this.prisma.pendingRegistration.update({
-      where: { id },
-      data: { status: 'approved' },
-    });
+    // status yuqorida atomik ravishda 'approved' qilingan.
     await this.sendMessage(
       reg.telegramChatId,
       [
@@ -566,14 +579,16 @@ export class TelegramService implements OnModuleInit, OnModuleDestroy {
   }
 
   private async rejectRegistration(cb: TgCallback, id: number): Promise<void> {
-    const reg = await this.prisma.pendingRegistration.findUnique({ where: { id } });
-    if (!reg || reg.status !== 'pending') {
-      return this.editCallback(cb, "So'rov allaqachon ko'rib chiqilgan.");
-    }
-    await this.prisma.pendingRegistration.update({
-      where: { id },
+    // Atomik da'vo (approve bilan bir xil poyga himoyasi).
+    const claimed = await this.prisma.pendingRegistration.updateMany({
+      where: { id, status: 'pending' },
       data: { status: 'rejected' },
     });
+    if (claimed.count === 0) {
+      return this.editCallback(cb, "So'rov allaqachon ko'rib chiqilgan.");
+    }
+    const reg = await this.prisma.pendingRegistration.findUnique({ where: { id } });
+    if (!reg) return this.editCallback(cb, "So'rov topilmadi.");
     await this.sendMessage(
       reg.telegramChatId,
       "❌ Ro'yxatdan o'tish so'rovingiz rad etildi.",
