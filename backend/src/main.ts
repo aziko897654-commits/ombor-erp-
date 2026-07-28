@@ -40,7 +40,13 @@ async function bootstrap() {
       } catch {
         /* malformed origin → treat as not allowed */
       }
-      const ok = allowedOrigins.includes(origin) || host.endsWith('.vercel.app');
+      // credentials:true bilan HAR QANDAY *.vercel.app'ga ruxsat berish
+      // xavfli (begona vercel sayti refresh-cookie'ni ishlatishi mumkin).
+      // Faqat shu loyihaning hostlari: barqaror alias + narco jamoasi deploylari.
+      const isOwnVercel =
+        host === 'frontend-azure-nine-51.vercel.app' ||
+        host.endsWith('-narco.vercel.app');
+      const ok = allowedOrigins.includes(origin) || isOwnVercel;
       callback(null, ok);
     },
     credentials: true,
