@@ -58,7 +58,7 @@ export function changeTone(
 ): string {
   const up = (change ?? 0) >= 0;
   const good = invert ? !up : up;
-  return good ? 'text-green-700' : 'text-destructive';
+  return good ? 'text-emerald-600 dark:text-emerald-400' : 'text-destructive';
 }
 
 /** Extracts a display message from an axios error (API error format 6.4). */

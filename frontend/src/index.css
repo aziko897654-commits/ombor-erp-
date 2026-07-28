@@ -7,28 +7,29 @@
     /* tells the browser to paint native controls (select popups, date
        pickers, form fields) in the light variant to match the theme */
     color-scheme: light;
+    /* Slate neutral + Indigo brand — yagona uyg'un palitra */
     --background: 0 0% 100%;
-    --foreground: 224 71.4% 4.1%;
+    --foreground: 222 47% 11%;
     --card: 0 0% 100%;
-    --card-foreground: 224 71.4% 4.1%;
-    --primary: 220.9 39.3% 11%;
-    --primary-foreground: 210 20% 98%;
-    --secondary: 220 14.3% 95.9%;
-    --secondary-foreground: 220.9 39.3% 11%;
-    --muted: 220 14.3% 95.9%;
-    --muted-foreground: 220 8.9% 46.1%;
-    --accent: 220 14.3% 95.9%;
-    --accent-foreground: 220.9 39.3% 11%;
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 20% 98%;
-    --border: 220 13% 91%;
-    --input: 220 13% 91%;
-    --ring: 224 71.4% 4.1%;
+    --card-foreground: 222 47% 11%;
+    --primary: 243 75% 59%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 210 40% 96%;
+    --secondary-foreground: 222 47% 11%;
+    --muted: 210 40% 96%;
+    --muted-foreground: 215 16% 47%;
+    --accent: 226 100% 97%;
+    --accent-foreground: 243 75% 45%;
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 214 32% 91%;
+    --input: 214 32% 91%;
+    --ring: 243 75% 59%;
     --radius: 0.5rem;
-    --sidebar: 224 71.4% 4.1%;
-    --sidebar-foreground: 220 14.3% 75.9%;
-    --sidebar-accent: 215 27.9% 16.9%;
-    --sidebar-accent-foreground: 210 20% 98%;
+    --sidebar: 222 47% 11%;
+    --sidebar-foreground: 215 20% 72%;
+    --sidebar-accent: 243 55% 27%;
+    --sidebar-accent-foreground: 0 0% 100%;
   }
 
   /* TASK-029: dark theme — toggled via the .dark class on <html>,
@@ -37,27 +38,28 @@
     /* dark variant of native controls: fixes the white <select> dropdown
        popups and native date pickers in dark mode */
     color-scheme: dark;
-    --background: 224 71.4% 4.1%;
-    --foreground: 210 20% 98%;
-    --card: 224 50% 6.5%;
-    --card-foreground: 210 20% 98%;
-    --primary: 210 20% 98%;
-    --primary-foreground: 220.9 39.3% 11%;
-    --secondary: 215 27.9% 16.9%;
-    --secondary-foreground: 210 20% 98%;
-    --muted: 215 27.9% 16.9%;
-    --muted-foreground: 217.9 10.6% 64.9%;
-    --accent: 215 27.9% 16.9%;
-    --accent-foreground: 210 20% 98%;
-    --destructive: 0 62.8% 50.6%;
-    --destructive-foreground: 210 20% 98%;
-    --border: 215 27.9% 16.9%;
-    --input: 215 27.9% 16.9%;
-    --ring: 216 12.2% 83.9%;
-    --sidebar: 224 71.4% 3%;
-    --sidebar-foreground: 220 14.3% 75.9%;
-    --sidebar-accent: 215 27.9% 16.9%;
-    --sidebar-accent-foreground: 210 20% 98%;
+    /* Chuqur slate fon + yorqin indigo brend */
+    --background: 222 47% 6%;
+    --foreground: 210 40% 98%;
+    --card: 222 41% 9%;
+    --card-foreground: 210 40% 98%;
+    --primary: 239 84% 67%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 217 33% 16%;
+    --secondary-foreground: 210 40% 98%;
+    --muted: 217 33% 15%;
+    --muted-foreground: 215 20% 65%;
+    --accent: 240 34% 20%;
+    --accent-foreground: 210 40% 98%;
+    --destructive: 0 63% 50%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 217 33% 18%;
+    --input: 217 33% 22%;
+    --ring: 239 84% 67%;
+    --sidebar: 222 47% 5%;
+    --sidebar-foreground: 215 20% 70%;
+    --sidebar-accent: 240 45% 24%;
+    --sidebar-accent-foreground: 0 0% 100%;
   }
 }
 
@@ -125,22 +127,34 @@
 .force-light {
   color-scheme: light;
   --background: 0 0% 100%;
-  --foreground: 224 71.4% 4.1%;
+  --foreground: 222 47% 11%;
   --card: 0 0% 100%;
-  --card-foreground: 224 71.4% 4.1%;
-  --primary: 220.9 39.3% 11%;
-  --primary-foreground: 210 20% 98%;
-  --secondary: 220 14.3% 95.9%;
-  --secondary-foreground: 220.9 39.3% 11%;
-  --muted: 220 14.3% 95.9%;
-  --muted-foreground: 220 8.9% 46.1%;
-  --accent: 220 14.3% 95.9%;
-  --accent-foreground: 220.9 39.3% 11%;
-  --destructive: 0 84.2% 60.2%;
-  --destructive-foreground: 210 20% 98%;
-  --border: 220 13% 91%;
-  --input: 220 13% 91%;
-  --ring: 224 71.4% 4.1%;
+  --card-foreground: 222 47% 11%;
+  --primary: 243 75% 59%;
+  --primary-foreground: 0 0% 100%;
+  --secondary: 210 40% 96%;
+  --secondary-foreground: 222 47% 11%;
+  --muted: 210 40% 96%;
+  --muted-foreground: 215 16% 47%;
+  --accent: 226 100% 97%;
+  --accent-foreground: 243 75% 45%;
+  --destructive: 0 72% 51%;
+  --destructive-foreground: 0 0% 100%;
+  --border: 214 32% 91%;
+  --input: 214 32% 91%;
+  --ring: 243 75% 59%;
+}
+
+/* To'q mavzuда qattiq kodlangan to'q yashil/qizil matnlar past kontrast
+   beradi (ko'p sahifada text-green-700/800). Dark'да ularni yorug'roq,
+   uyg'un ohanglarга almashtiramiz (specificity bilan, !important'siz). */
+.dark .text-green-700,
+.dark .text-green-800 {
+  color: hsl(152 52% 56%);
+}
+.dark .text-red-700,
+.dark .text-red-800 {
+  color: hsl(0 84% 68%);
 }
 
 /* --- Login sahifasi animatsiyalari -------------------------------------- */

@@ -27,12 +27,15 @@ import {
 import { t } from '@/lib/i18n';
 import { cn } from '@/lib/utils';
 
-// dataviz palette (validated): income/expense pair + ordinal blues
-const INCOME_COLOR = '#2a78d6';
-const EXPENSE_COLOR = '#e34948';
-const ORDINAL_BLUES = ['#86b6ef', '#5598e7', '#2a78d6', '#1c5cab'];
-const GRID_COLOR = '#e1e0d9';
-const AXIS_COLOR = '#898781';
+// dataviz palette: indigo brand pair + ordinal indigos. Grid/axis use
+// slate at low opacity so they read on BOTH dark and light themes.
+const INCOME_COLOR = '#6366f1'; // indigo-500 (brend)
+const EXPENSE_COLOR = '#f43f5e'; // rose-500 (uyg'un qarama-qarshi)
+const ORDINAL_BLUES = ['#a5b4fc', '#818cf8', '#6366f1', '#4f46e5'];
+const GRID_COLOR = 'rgba(148, 163, 184, 0.18)';
+const AXIS_COLOR = 'hsl(215 16% 58%)';
+const LABEL_COLOR = 'hsl(215 16% 62%)';
+const CURSOR_FILL = 'rgba(148, 163, 184, 0.12)';
 
 type PresetKey = 'today' | 'week' | 'month' | 'quarter' | 'year';
 
@@ -105,7 +108,7 @@ function MonthlyTooltip({
       <p style={{ color: EXPENSE_COLOR }}>
         {t('dashboard.expense')}: {formatMoney(expense)}
       </p>
-      <p className={diff < 0 ? 'text-destructive' : 'text-green-700'}>
+      <p className={diff < 0 ? 'text-destructive' : 'text-emerald-500'}>
         {t('dashboard.diff')}: {diff > 0 ? '+' : ''}
         {formatMoney(diff)}
       </p>
@@ -349,7 +352,7 @@ export function DashboardPage() {
                 />
                 <Tooltip
                   content={<MonthlyTooltip />}
-                  cursor={{ fill: 'rgba(0,0,0,0.04)' }}
+                  cursor={{ fill: CURSOR_FILL }}
                 />
                 <Legend />
                 <Bar
@@ -399,7 +402,7 @@ export function DashboardPage() {
                       ? formatMoney(Number(value))
                       : value
                   }
-                  cursor={{ fill: 'rgba(0,0,0,0.04)' }}
+                  cursor={{ fill: CURSOR_FILL }}
                 />
                 <Bar
                   dataKey="count"
@@ -412,7 +415,7 @@ export function DashboardPage() {
                   <LabelList
                     dataKey="count"
                     position="right"
-                    style={{ fill: '#52514e', fontSize: 12 }}
+                    style={{ fill: LABEL_COLOR, fontSize: 12 }}
                   />
                 </Bar>
               </BarChart>
@@ -445,7 +448,7 @@ export function DashboardPage() {
                 />
                 <Tooltip
                   formatter={(value) => formatMoney(Number(value))}
-                  cursor={{ fill: 'rgba(0,0,0,0.04)' }}
+                  cursor={{ fill: CURSOR_FILL }}
                 />
                 <Bar
                   dataKey="revenue"
